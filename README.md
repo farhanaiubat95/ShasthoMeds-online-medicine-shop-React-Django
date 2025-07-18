@@ -1,2 +1,31 @@
 # ShasthoMeds-online-medicine-shop-React-Django
-ShasthoMeds is an easy-to-use online medicine delivery service for people in Bangladesh. Users can search for medicines, add them to their cart, and order them from home. Some medicines need a doctor’s prescription, which users can upload for safety issues. The admin checks the prescription before the order is confirmed. Users must sign up with their email and verify it using an OTP code. After the admin approves an order, users get a confirmation email with all the details. ShasthoMeds helps people get the right medicine easily and safely, saving time and making health care more accessible from anywhere.
+
+ -> The full ShasthoMeds process 
+1. User Registration/Login
+   -New users sign up with email and get an OTP to verify.
+   -After OTP verification, account is created.
+   -Existing users can log in directly.
+
+2. Browse Medicines
+  -Users can view and search all available medicines.
+  -Each medicine shows if it needs a prescription or not.
+
+3. Add to Cart
+   -If medicine doesn't require prescription → can be added to cart directly.
+   -If medicine requires prescription → user must upload valid prescription.
+   -Admin checks the prescription and approves or rejects it.
+   -Once approved, user can add the medicine to cart.
+
+4. Place Order
+   -User reviews cart and places the order.
+   -A confirmation page shows order details.
+
+5. Admin Review
+   -Admin checks and approves the entire order.
+   -Confirms availability and validity.
+
+6. Order Confirmation
+   -User gets a confirmation email with product and payment details.
+
+7. Delivery Process
+   -Admin processes the order and marks it as shipped/delivered (future step).
