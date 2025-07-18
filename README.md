@@ -9,13 +9,13 @@
 
    -Existing users can log in directly.
 
-3. Browse Medicines
+2. Browse Medicines
 
    -Users can view and search all available medicines.
  
    -Each medicine shows if it needs a prescription or not.
 
-5. Add to Cart
+3. Add to Cart
 
    -If medicine doesn't require prescription → can be added to cart directly.
 
@@ -25,20 +25,22 @@
 
    -Once approved, user can add the medicine to cart.
 
-7. Place Order
+4. Place Order
 
    -User reviews cart and places the order.
 
    -A confirmation page shows order details.
 
-9. Admin Review
+5. Admin Review
 
    -Admin checks and approves the entire order.
 
    -Confirms availability and validity.
 
-11. Order Confirmation
-   -User gets a confirmation email with product and payment details.
+6. Order Confirmation
 
-12. Delivery Process
-   -Admin processes the order and marks it as shipped/delivered (future step).
+    -User gets a confirmation email with product and payment details.
+
+7. Delivery Process
+
+    -Admin processes the order and marks it as shipped/delivered (future step).
