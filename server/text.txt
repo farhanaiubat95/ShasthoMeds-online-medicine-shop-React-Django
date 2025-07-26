@@ -1,0 +1,16 @@
+--Runserver--
+1.  python manage.py runserver
+
+--Migrations--
+2.  python manage.py makemigrations
+3.  python manage.py migrate
+
+--Admin--
+4. python manage.py createsuperuser
+-- Email: farhanasha0113@gmail.com
+   Username: admin
+   Password: 
+   Password (again): 
+- Superuser created successfully.
+
+5. http://127.0.0.1:8000/admin/
