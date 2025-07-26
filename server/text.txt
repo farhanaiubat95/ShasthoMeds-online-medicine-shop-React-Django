@@ -16,4 +16,5 @@
 5. http://127.0.0.1:8000/admin
 
 6. register
+   http://127.0.0.1:8000/shasthomeds/user/register/
    
