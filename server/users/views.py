@@ -1,11 +1,21 @@
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
-from .serializers import UserRegistrationSerializer
+from .serializers import CustomTokenObtainPairSerializer, UserRegistrationSerializer
 from .models import CustomUser, EmailOTP
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+# pyright: ignore[reportMissingImports]
+from rest_framework_simplejwt.views import TokenObtainPairView  # pyright: ignore[reportMissingImports]
+
+# Protected view
+from rest_framework.permissions import IsAuthenticated
+
+# pyright: ignore[reportMissingImports]
+from rest_framework_simplejwt.tokens import RefreshToken  # pyright: ignore[reportMissingImports]
+
+# View to register user
 class RegisterAPIView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserRegistrationSerializer
@@ -40,6 +50,34 @@ class VerifyOTPView(APIView):
         return Response({'message': 'User verified successfully'}, status=status.HTTP_200_OK)
 
 
+# View to obtain JWT token
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+# Protected view
+class MyProtectedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"message": "You are authenticated!"})
+    
+    def get(self, request):
+        user = request.user  # from token
+        return Response({"email": user.email, "id": user.id})
+
+# View to logout
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"message": "Logout successful"},status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response({"message": "Token is Blacklisted"},status=status.HTTP_400_BAD_REQUEST)
 
 # Test email sending functionality
 # from django.core.mail import send_mail

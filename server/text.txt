@@ -18,3 +18,13 @@
 6. register
    http://127.0.0.1:8000/shasthomeds/user/register/
    
+
+
+
+
+--Install--
+1. pip install djangorestframework-simplejwt
+
+   #  This will blacklist the refresh token after logout so it can’t be used again.
+2. pip install djangorestframework-simplejwt[blacklist]
+3. 

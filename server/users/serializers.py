@@ -5,6 +5,9 @@ from django.contrib.auth.password_validation import validate_password
 import random
 from django.core.mail import send_mail
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer # pyright: ignore[reportMissingImports]
+
+# User registration serializer
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
@@ -56,3 +59,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         )
 
         return user
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        if not self.user.is_verified:
+            raise serializers.ValidationError("Please verify your email via OTP before logging in.")
+
+        return data
