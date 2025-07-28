@@ -72,7 +72,7 @@ export default function Header() {
 
           {/* Right - Icons */}
           <LogCartIcon />
-          
+
         </Toolbar>
       </AppBar>
 
@@ -94,8 +94,6 @@ export default function Header() {
         </Box>
       </Drawer>
 
-      {/* Navbar */}
-      <Navbar Title="Medicine Store" />
     </>
   );
 }
