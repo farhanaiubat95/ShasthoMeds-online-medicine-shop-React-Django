@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-2$tr258hz58_w(j@p5hpi^10w5@-y&qscabq5rx$qo@dra68-q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1'] #'shasthomeds-backend.onrender.com']
 
 
 # Application definition
@@ -59,6 +59,9 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
 
+    # whitenoise MIDDLEWARE - for deployment
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
 ]
 
 ROOT_URLCONF = 'shasthomeds.urls'
@@ -84,15 +87,19 @@ WSGI_APPLICATION = 'shasthomeds.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'shasthomeds_db',
-        'USER': 'postgres',
-        'PASSWORD': 'cq8677fj',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(default='your_railway_postgres_url', conn_max_age=600)
+    
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'shasthomeds_db',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'cq8677fj',
+    #     'HOST': 'localhost',
+    #     'PORT': '5432',
+    # }
 }
 
 
@@ -176,3 +183,8 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
     "ROTATE_REFRESH_TOKENS": True,
 }
+
+
+# this is for deployment, to serve static files
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
