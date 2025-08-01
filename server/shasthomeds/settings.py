@@ -154,7 +154,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # Email OTP settings
-from decouple import config
+from decouple import config, Config, RepositoryEnv
 
 # from .env file
 EMAIL_BACKEND = config('EMAIL_BACKEND')
@@ -191,6 +191,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # this is for deployment, to serve media files
-from decouple import config
+
+config = Config(RepositoryEnv('/etc/secrets/.env'))
+
 SECRET_KEY = config("SECRET_KEY")
 DATABASE_URL = config("DATABASE_URL")
+DEBUG = config("DEBUG", cast=bool)
