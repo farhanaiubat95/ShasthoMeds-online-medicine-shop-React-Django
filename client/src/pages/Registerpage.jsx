@@ -13,8 +13,7 @@ import { registerUser } from "../api/authAPI.js"; // API call
 import { useNavigate } from "react-router-dom";
 
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-toast.configure();
+
 
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
