@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -188,3 +189,8 @@ SIMPLE_JWT = {
 # this is for deployment, to serve static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# this is for deployment, to serve media files
+from decouple import config
+SECRET_KEY = config("SECRET_KEY")
+DATABASE_URL = config("DATABASE_URL")
