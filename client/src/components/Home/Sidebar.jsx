@@ -42,11 +42,12 @@ const Sidebar = () => {
               key={category}
               className={`rounded transition-all duration-200 ${
                 isOpen ? "bg-[#39dbd9d1]" : "bg-[#5dcac8b7]"
-              }`}
+                }`}
+             
             >
               <button
                 onClick={() => toggleSection(category)}
-                className="w-full text-left px-3 py-2 flex justify-between items-center font-semibold"
+                className="w-full text-left px-3 py-2 flex justify-between items-center font-semibold cursor-pointer"
               >
                 <span>{category}</span>
                 {isOpen ? <ExpandMore /> : <ChevronRight />}
