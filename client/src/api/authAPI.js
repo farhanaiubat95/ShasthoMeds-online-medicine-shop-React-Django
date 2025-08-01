@@ -8,11 +8,9 @@ export const loginUser = async (credentials) => {
 
 import axios from "axios";
 
-const BASE_URL = "https://shasthomeds-backend.onrender.com";
- // make sure this matches the deployed backend
-
 export const registerUser = async (userData) => {
-  const response = await axios.post(`https://shasthomeds-backend.onrender.com/register/`, userData, {
+  const response = await axios.post(`https://shasthomeds-backend.onrender.com/api/register/
+`, userData, {
     headers: {
       "Content-Type": "application/json",
     },

@@ -37,6 +37,35 @@ function Registerpage() {
     confirm_password: "",
   });
 
+  const handleRegister = async () => {
+  try {
+    const response = await fetch("https://shasthomeds-backend.onrender.com/api/register/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        username: formData.username,
+        email: formData.email,
+        phone: formData.phone,
+        dob: formData.dob,
+        gender: formData.gender,
+        city: formData.city,
+        address: formData.address,
+        password: formData.password,
+        confirm_password: formData.confirm_password,
+      }),
+    });
+
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error("Registration error:", error);
+  }
+};
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -117,7 +146,7 @@ function Registerpage() {
               <TextField name="confirm_password" value={formData.confirm_password} onChange={handleChange} fullWidth label="Confirm Password" variant="outlined" type="password" required sx={commonInputStyle} />
             </div>
 
-            <Button type="submit" variant="contained" fullWidth size="large" sx={{ backgroundColor: "#0F918F", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}>
+            <Button onClick={handleRegister} type="submit" variant="contained" fullWidth size="large" sx={{ backgroundColor: "#0F918F", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}>
               Register
             </Button>
 
