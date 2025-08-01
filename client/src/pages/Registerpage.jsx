@@ -12,6 +12,10 @@ import image1 from "../assets/images/reg-img.jpg";
 import { registerUser } from "../api/authAPI.js"; // API call
 import { useNavigate } from "react-router-dom";
 
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+toast.configure();
+
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
     "& fieldset": { borderColor: "#0F918F" },
@@ -50,6 +54,7 @@ function Registerpage() {
     } catch (error) {
       alert("Registration failed. Please check inputs.");
       console.error(error);
+      toast.error("Registration failed. Please check inputs.");
     }
   };
 
