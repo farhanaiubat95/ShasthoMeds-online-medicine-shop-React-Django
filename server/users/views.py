@@ -15,6 +15,11 @@ from rest_framework.permissions import IsAuthenticated
 # pyright: ignore[reportMissingImports]
 from rest_framework_simplejwt.tokens import RefreshToken  # pyright: ignore[reportMissingImports]
 
+# View to get API root
+class APIRootView(APIView):
+    def get(self, request):
+        return Response({"message": "Welcome to ShasthoMeds Auth API"})
+    
 # View to register user
 class RegisterAPIView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import LogoutView, RegisterAPIView, VerifyOTPView, CustomTokenObtainPairView
+from .views import APIRootView, LogoutView, RegisterAPIView, VerifyOTPView, CustomTokenObtainPairView
 
 from rest_framework_simplejwt.views import ( # pyright: ignore[reportMissingImports]
     TokenObtainPairView,
@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import ( # pyright: ignore[reportMissingImpo
 )
 
 urlpatterns = [
+    path('', APIRootView.as_view(), name='api-root'),
     path('register/', RegisterAPIView.as_view(), name='register'),
     # path('test-email/', test_email),
     path('verify-otp/', VerifyOTPView.as_view(), name='verify-otp'),

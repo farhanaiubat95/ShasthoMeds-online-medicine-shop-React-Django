@@ -11,23 +11,15 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-import os
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-2$tr258hz58_w(j@p5hpi^10w5@-y&qscabq5rx$qo@dra68-q'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] #'shasthomeds-backend.onrender.com']
-
+ALLOWED_HOSTS = ['shasthomeds-backend.onrender.com', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -91,7 +83,7 @@ WSGI_APPLICATION = 'shasthomeds.wsgi.application'
 import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.config(default='DATABASE_URL', conn_max_age=600)
+    'default': dj_database_url.config(default=config("DATABASE_URL"), conn_max_age=600)
     
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
@@ -153,9 +145,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Custom User Model
 AUTH_USER_MODEL = 'users.CustomUser'
 
-# Email OTP settings
-from decouple import config, Config, RepositoryEnv
-
+# Email settings
 # from .env file
 EMAIL_BACKEND = config('EMAIL_BACKEND')
 EMAIL_HOST = config('EMAIL_HOST')
@@ -186,14 +176,12 @@ SIMPLE_JWT = {
 }
 
 
-# this is for deployment, to serve static files
+# # this is for deployment, to serve static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # this is for deployment, to serve media files
 
-config = Config(RepositoryEnv('/etc/secrets/.env'))
-
 SECRET_KEY = config("SECRET_KEY")
 DATABASE_URL = config("DATABASE_URL")
-DEBUG = config("DEBUG", cast=bool)
+DEBUG = config('DEBUG', default='True') == 'True'
