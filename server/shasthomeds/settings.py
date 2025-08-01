@@ -90,7 +90,7 @@ WSGI_APPLICATION = 'shasthomeds.wsgi.application'
 import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.config(default='your_railway_postgres_url', conn_max_age=600)
+    'default': dj_database_url.config(default='DATABASE_URL', conn_max_age=600)
     
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
