@@ -9,11 +9,9 @@ import {
   FormLabel,
 } from "@mui/material";
 import image1 from "../assets/images/reg-img.jpg";
-import { registerUser } from "../api/authAPI.js"; // API call
+import { registerUser } from "../api/authAPI.js";
 import { useNavigate } from "react-router-dom";
-
 import { toast } from "react-toastify";
-
 
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -46,12 +44,19 @@ function Registerpage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log("Form Data Submitted:", formData);
+
+    if (formData.password !== formData.confirm_password) {
+      toast.error("Passwords do not match!");
+      return;
+    }
+
     try {
       await registerUser(formData);
-      alert("Registration successful!");
-      navigate("/login");
+      toast.success("Registration successful!");
+      setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
-      alert("Registration failed. Please check inputs.");
       console.error(error);
       toast.error("Registration failed. Please check inputs.");
     }
@@ -59,6 +64,7 @@ function Registerpage() {
 
   return (
     <div className="flex bg-gray-100 my-5">
+
       <div className="hidden md:flex md:w-[40%] lg:w-1/2 items-center justify-center shadow-lg">
         <div className="relative w-full h-full">
           <img src={image1} alt="Registration Illustration" className="w-full h-full" />

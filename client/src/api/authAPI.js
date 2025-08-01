@@ -5,7 +5,17 @@ export const loginUser = async (credentials) => {
   return response.data; // contains access & refresh
 };
 
+
+import axios from "axios";
+
+const BASE_URL = "https://shasthomeds-backend.onrender.com"; // make sure this matches the deployed backend
+
 export const registerUser = async (userData) => {
-  const response = await axiosInstance.post("/register/", userData);
+  const response = await axios.post(`${BASE_URL}/register/`, userData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    withCredentials: false, // If needed for cookies/session
+  });
   return response.data;
 };
