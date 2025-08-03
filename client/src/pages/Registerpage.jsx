@@ -11,8 +11,6 @@ import {
 import image1 from "../assets/images/reg-img.jpg";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getCsrfToken } from "../api/authAPI.js";
-import { Link } from "react-router-dom";
 
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -37,21 +35,7 @@ function Registerpage() {
     password: "",
     confirm_password: "",
   });
-  const [csrfToken, setCsrfToken] = useState("");
-
-  useEffect(() => {
-    // Fetch CSRF token on mount to handle refreshes
-    const fetchCsrfToken = async () => {
-      try {
-        const token = await getCsrfToken();
-        setCsrfToken(token);
-      } catch (error) {
-        console.error("Failed to fetch CSRF token:", error);
-        toast.error("Failed to initialize. Please refresh the page.");
-      }
-    };
-    fetchCsrfToken();
-  }, []);
+ 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,10 +52,18 @@ function Registerpage() {
       return;
     }
 
-    if (!csrfToken) {
-      toast.error("CSRF token not available. Please refresh the page.");
-      return;
-    }
+    const userData = {
+      name: formData.name,
+      username: formData.username,
+      email: formData.email,
+      phone: formData.phone,
+      dob: formData.dob,
+      gender: formData.gender,
+      city: formData.city,
+      address: formData.address,
+      password: formData.password,
+      confirm_password: formData.confirm_password,
+    };
 
     try {
       const response = await axios.post(
@@ -317,7 +309,7 @@ function Registerpage() {
               {/* <Link to="/login" className="text-[#0F918F] hover:underline">
                 Sign in
               </Link> */}
-              <a href="/login">Sign in</a>
+              <a href="/login" className="text-[#0F918F] hover:underline">Sign in</a>
             </p>
           </form>
         </div>

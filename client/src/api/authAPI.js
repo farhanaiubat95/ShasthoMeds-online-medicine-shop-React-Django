@@ -19,18 +19,3 @@ export const registerUser = async (userData) => {
   return response.data;
 };
 
-export const getCsrfToken = async () => {
-  try {
-    const response = await fetch("https://shasthomeds-backend.onrender.com/api/csrf/", {
-      method: "GET",
-      credentials: "include", // Send cookies
-      mode: "cors", // Explicitly set CORS mode
-    });
-    if (!response.ok) throw new Error("Failed to fetch CSRF token");
-    const data = await response.json();
-    return data.csrfToken; // Adjust based on your backend response
-  } catch (error) {
-    console.error("CSRF Fetch Error:", error);
-    throw error;
-  }
-};
