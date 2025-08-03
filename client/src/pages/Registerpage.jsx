@@ -9,7 +9,7 @@ import {
   FormLabel,
 } from "@mui/material";
 import image1 from "../assets/images/reg-img.jpg";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getCsrfToken } from "../api/authAPI.js";
 
@@ -73,26 +73,29 @@ function Registerpage() {
     }
 
     try {
-      const response = await fetch("https://shasthomeds-backend.onrender.com/api/register/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken,
+      const response = await fetch(
+        "https://shasthomeds-backend.onrender.com/api/register/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name: formData.name,
+            username: formData.username,
+            email: formData.email,
+            phone: formData.phone,
+            dob: formData.dob,
+            gender: formData.gender,
+            city: formData.city,
+            address: formData.address,
+            password: formData.password,
+            confirm_password: formData.confirm_password,
+          }),
         },
-        credentials: "include",
-        body: JSON.stringify({
-          name: formData.name,
-          username: formData.username,
-          email: formData.email,
-          phone: formData.phone,
-          dob: formData.dob,
-          gender: formData.gender,
-          city: formData.city,
-          address: formData.address,
-          password: formData.password,
-          confirm_password: formData.confirm_password,
-        }),
-      });
+      );
 
       const data = await response.json();
       console.log("Response Data:", data);
@@ -106,7 +109,7 @@ function Registerpage() {
       console.error("Registration error:", error);
       toast.error(
         error.message ||
-        "Registration failed. Please check inputs or try again later."
+          "Registration failed. Please check inputs or try again later.",
       );
     }
   };
@@ -115,14 +118,19 @@ function Registerpage() {
     <div className="flex bg-gray-100 my-5">
       <div className="hidden md:flex md:w-[40%] lg:w-1/2 items-center justify-center shadow-lg">
         <div className="relative w-full h-full">
-          <img src={image1} alt="Registration Illustration" className="w-full h-full" />
+          <img
+            src={image1}
+            alt="Registration Illustration"
+            className="w-full h-full"
+          />
           <div className="bg-black opacity-50 absolute inset-0">
             <div className="absolute top-20 left-2 lg:left-10">
               <h2 className="text-xl lg:text-3xl font-semibold text-white">
                 Welcome to Shasthomeds
               </h2>
               <p className="text-white pt-5">
-                “Let food be thy medicine and medicine be thy food.” ― Hippocrates
+                “Let food be thy medicine and medicine be thy food.” ―
+                Hippocrates
               </p>
             </div>
           </div>
@@ -131,7 +139,9 @@ function Registerpage() {
 
       <div className="w-full md:w-[60%] lg:w-1/2 flex items-center justify-center py-10 px-5">
         <div className="w-full px-5 space-y-6">
-          <h2 className="text-3xl font-semibold text-gray-800 mb-6">Registration</h2>
+          <h2 className="text-3xl font-semibold text-gray-800 mb-6">
+            Registration
+          </h2>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="flex gap-5">
               <TextField
@@ -155,7 +165,104 @@ function Registerpage() {
                 sx={commonInputStyle}
               />
             </div>
-            {/* Rest of the form remains the same */}
+            <div className="flex space-x-4 gap-5">
+              <TextField
+                fullWidth
+                label="Email"
+                variant="outlined"
+                placeholder="Enter your email"
+                required
+                sx={commonInputStyle}
+              />
+              <TextField
+                fullWidth
+                label="Phone Number"
+                variant="outlined"
+                placeholder="Enter your phone number"
+                required
+                sx={commonInputStyle}
+              />
+            </div>
+
+            <div className="flex space-x-4 gap-5">
+              <TextField
+                fullWidth
+                label="Date of Birth"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                variant="outlined"
+                required
+                sx={{
+                  ...commonInputStyle,
+                  width: "50%",
+                }}
+              />
+              <div className="w-[50%]">
+                <FormControl component="fieldset" className="mb-4">
+                  <FormLabel component="legend" className="text-gray-700">
+                    Gender
+                  </FormLabel>
+                  <RadioGroup row name="gender" defaultValue="preferNotToSay">
+                    <FormControlLabel
+                      value="male"
+                      control={
+                        <Radio
+                          sx={{
+                            color: "#0F918F",
+                            "&.Mui-checked": { color: "#0F918F" },
+                          }}
+                        />
+                      }
+                      label="Male"
+                    />
+                    <FormControlLabel
+                      value="female"
+                      control={
+                        <Radio
+                          sx={{
+                            color: "#0F918F",
+                            "&.Mui-checked": { color: "#0F918F" },
+                          }}
+                        />
+                      }
+                      label="Female"
+                    />
+                    <FormControlLabel
+                      value="other"
+                      control={
+                        <Radio
+                          sx={{
+                            color: "#0F918F",
+                            "&.Mui-checked": { color: "#0F918F" },
+                          }}
+                        />
+                      }
+                      label="Other"
+                    />
+                  </RadioGroup>
+                </FormControl>
+              </div>
+            </div>
+
+            <div className="flex space-x-4 gap-5">
+              <TextField
+                fullWidth
+                label="City"
+                variant="outlined"
+                placeholder="Enter your city"
+                sx={commonInputStyle}
+              />
+              <TextField
+                fullWidth
+                label="Address"
+                variant="outlined"
+                placeholder="Enter your address"
+                multiline
+                rows={1}
+                sx={commonInputStyle}
+              />
+            </div>
+
             <div className="flex gap-5">
               <TextField
                 name="password"
@@ -186,16 +293,19 @@ function Registerpage() {
               variant="contained"
               fullWidth
               size="large"
-              sx={{ backgroundColor: "#0F918F", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}
+              sx={{
+                backgroundColor: "#0F918F",
+                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+              }}
             >
               Register
             </Button>
 
             <p className="text-center text-gray-600">
               Already have an account?{" "}
-              <a href="/login" className="text-[#0F918F] hover:underline">
+              <Link to="/login" className="text-[#0F918F] hover:underline">
                 Sign in
-              </a>
+              </Link>
             </p>
           </form>
         </div>

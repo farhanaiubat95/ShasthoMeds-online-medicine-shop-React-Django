@@ -8,6 +8,7 @@ import {
 
 import image1 from "../assets/images/reg-img.jpg";
 import { loginUser } from "../api/authAPI.js"; // import loginUser
+import { Link } from "react-router-dom";
 
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -101,9 +102,7 @@ function LoginPage() {
             </Button>
             <p className="text-center text-gray-600">
               Don't have any account?{" "}
-              <a href="/register" className="text-[#0F918F] hover:underline">
-                Sign up
-              </a>
+              <Link to="/register" className="text-[#0F918F] hover:underline">Sign up</Link>
             </p>
           </form>
         </div>
