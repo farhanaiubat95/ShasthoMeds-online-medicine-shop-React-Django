@@ -9,9 +9,10 @@ import {
   FormLabel,
 } from "@mui/material";
 import image1 from "../assets/images/reg-img.jpg";
-import { registerUser } from "../api/authAPI.js";
+// Remove registerUser import if not needed, or implement it
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { getCsrfToken } from "../api/authAPI.js"; // Assuming you have a function to get CSRF token
 
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -37,35 +38,6 @@ function Registerpage() {
     confirm_password: "",
   });
 
-  const handleRegister = async () => {
-  try {
-    const response = await fetch("https://shasthomeds-backend.onrender.com/api/register/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: formData.name,
-        username: formData.username,
-        email: formData.email,
-        phone: formData.phone,
-        dob: formData.dob,
-        gender: formData.gender,
-        city: formData.city,
-        address: formData.address,
-        password: formData.password,
-        confirm_password: formData.confirm_password,
-      }),
-    });
-
-    const data = await response.json();
-    console.log(data);
-  } catch (error) {
-    console.error("Registration error:", error);
-  }
-};
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -82,24 +54,54 @@ function Registerpage() {
     }
 
     try {
-      await registerUser(formData);
-      toast.success("Registration successful!");
-      setTimeout(() => navigate("/login"), 1500);
+      const csrfToken = await getCsrfToken(); // Fetch CSRF token if available
+      const response = await fetch("https://shasthomeds-backend.onrender.com/api/register/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken, // Include CSRF token
+        },
+        credentials: "include", // Include cookies for CSRF
+        body: JSON.stringify({
+          name: formData.name,
+          username: formData.username,
+          email: formData.email,
+          phone: formData.phone,
+          dob: formData.dob,
+          gender: formData.gender,
+          city: formData.city,
+          address: formData.address,
+          password: formData.password,
+          confirm_password: formData.confirm_password,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        toast.success("Registration successful!");
+        setTimeout(() => navigate("/login"), 1500);
+      } else {
+        throw new Error(data.message || "Registration failed");
+      }
     } catch (error) {
-      console.error(error);
-      toast.error("Registration failed. Please check inputs.");
+      console.error("Registration error:", error);
+      toast.error(
+        error.message ||
+        "Registration failed. Please check inputs or try again later."
+      );
     }
   };
 
   return (
     <div className="flex bg-gray-100 my-5">
-
       <div className="hidden md:flex md:w-[40%] lg:w-1/2 items-center justify-center shadow-lg">
         <div className="relative w-full h-full">
           <img src={image1} alt="Registration Illustration" className="w-full h-full" />
           <div className="bg-black opacity-50 absolute inset-0">
             <div className="absolute top-20 left-2 lg:left-10">
-              <h2 className="text-xl lg:text-3xl font-semibold text-white">Welcome to Shasthomeds</h2>
+              <h2 className="text-xl lg:text-3xl font-semibold text-white">
+                Welcome to Shasthomeds
+              </h2>
               <p className="text-white pt-5">
                 “Let food be thy medicine and medicine be thy food.” ― Hippocrates
               </p>
@@ -113,23 +115,85 @@ function Registerpage() {
           <h2 className="text-3xl font-semibold text-gray-800 mb-6">Registration</h2>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="flex gap-5">
-              <TextField name="name" value={formData.name} onChange={handleChange} required fullWidth label="Full Name" variant="outlined" sx={commonInputStyle} />
-              <TextField name="username" value={formData.username} onChange={handleChange} required fullWidth label="Username" variant="outlined" sx={commonInputStyle} />
+              <TextField
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                fullWidth
+                label="Full Name"
+                variant="outlined"
+                sx={commonInputStyle}
+              />
+              <TextField
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                fullWidth
+                label="Username"
+                variant="outlined"
+                sx={commonInputStyle}
+              />
             </div>
 
             <div className="flex gap-5">
-              <TextField name="email" value={formData.email} onChange={handleChange} required fullWidth label="Email" variant="outlined" sx={commonInputStyle} />
-              <TextField name="phone" value={formData.phone} onChange={handleChange} required fullWidth label="Phone Number" variant="outlined" sx={commonInputStyle} />
+              <TextField
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                fullWidth
+                label="Email"
+                variant="outlined"
+                sx={commonInputStyle}
+              />
+              <TextField
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                fullWidth
+                label="Phone Number"
+                variant="outlined"
+                sx={commonInputStyle}
+              />
             </div>
 
             <div className="flex gap-5">
-              <TextField name="dob" value={formData.dob} onChange={handleChange} type="date" InputLabelProps={{ shrink: true }} variant="outlined" required sx={{ ...commonInputStyle, width: "50%" }} />
+              <TextField
+                name="dob"
+                value={formData.dob}
+                onChange={handleChange}
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                variant="outlined"
+                required
+                sx={{ ...commonInputStyle, width: "50%" }}
+              />
               <div className="w-[50%]">
                 <FormControl component="fieldset" className="mb-4">
                   <FormLabel className="text-gray-700">Gender</FormLabel>
-                  <RadioGroup row name="gender" value={formData.gender} onChange={handleChange}>
+                  <RadioGroup
+                    row
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                  >
                     {["male", "female", "other"].map((val) => (
-                      <FormControlLabel key={val} value={val} control={<Radio sx={{ color: "#0F918F", "&.Mui-checked": { color: "#0F918F" } }} />} label={val.charAt(0).toUpperCase() + val.slice(1)} />
+                      <FormControlLabel
+                        key={val}
+                        value={val}
+                        control={
+                          <Radio
+                            sx={{
+                              color: "#0F918F",
+                              "&.Mui-checked": { color: "#0F918F" },
+                            }}
+                          />
+                        }
+                        label={val.charAt(0).toUpperCase() + val.slice(1)}
+                      />
                     ))}
                   </RadioGroup>
                 </FormControl>
@@ -137,21 +201,68 @@ function Registerpage() {
             </div>
 
             <div className="flex gap-5">
-              <TextField name="city" value={formData.city} onChange={handleChange} fullWidth label="City" variant="outlined" sx={commonInputStyle} />
-              <TextField name="address" value={formData.address} onChange={handleChange} fullWidth label="Address" variant="outlined" multiline rows={1} sx={commonInputStyle} />
+              <TextField
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                fullWidth
+                label="City"
+                variant="outlined"
+                sx={commonInputStyle}
+              />
+              <TextField
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                fullWidth
+                label="Address"
+                variant="outlined"
+                multiline
+                rows={1}
+                sx={commonInputStyle}
+              />
             </div>
 
             <div className="flex gap-5">
-              <TextField name="password" value={formData.password} onChange={handleChange} fullWidth label="Password" variant="outlined" type="password" required sx={commonInputStyle} />
-              <TextField name="confirm_password" value={formData.confirm_password} onChange={handleChange} fullWidth label="Confirm Password" variant="outlined" type="password" required sx={commonInputStyle} />
+              <TextField
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                fullWidth
+                label="Password"
+                variant="outlined"
+                type="password"
+                required
+                sx={commonInputStyle}
+              />
+              <TextField
+                name="confirm_password"
+                value={formData.confirm_password}
+                onChange={handleChange}
+                fullWidth
+                label="Confirm Password"
+                variant="outlined"
+                type="password"
+                required
+                sx={commonInputStyle}
+              />
             </div>
 
-            <Button onClick={handleRegister} type="submit" variant="contained" fullWidth size="large" sx={{ backgroundColor: "#0F918F", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}>
+            <Button
+              type="submit" // Changed from onClick to type="submit" to trigger handleSubmit
+              variant="contained"
+              fullWidth
+              size="large"
+              sx={{ backgroundColor: "#0F918F", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}
+            >
               Register
             </Button>
 
             <p className="text-center text-gray-600">
-              Already have an account? <a href="/login" className="text-[#0F918F] hover:underline">Sign in</a>
+              Already have an account?{" "}
+              <a href="/login" className="text-[#0F918F] hover:underline">
+                Sign in
+              </a>
             </p>
           </form>
         </div>
