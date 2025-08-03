@@ -168,6 +168,9 @@ function Registerpage() {
             </div>
             <div className="flex space-x-4 gap-5">
               <TextField
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 fullWidth
                 label="Email"
                 variant="outlined"
@@ -175,7 +178,11 @@ function Registerpage() {
                 required
                 sx={commonInputStyle}
               />
+
               <TextField
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
                 fullWidth
                 label="Phone Number"
                 variant="outlined"
@@ -187,6 +194,9 @@ function Registerpage() {
 
             <div className="flex space-x-4 gap-5">
               <TextField
+                name="dob"
+                value={formData.dob}
+                onChange={handleChange}
                 fullWidth
                 label="Date of Birth"
                 type="date"
@@ -198,12 +208,18 @@ function Registerpage() {
                   width: "50%",
                 }}
               />
+
               <div className="w-[50%]">
                 <FormControl component="fieldset" className="mb-4">
                   <FormLabel component="legend" className="text-gray-700">
                     Gender
                   </FormLabel>
-                  <RadioGroup row name="gender" defaultValue="preferNotToSay">
+                  <RadioGroup
+                    row
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                  >
                     <FormControlLabel
                       value="male"
                       control={
@@ -247,13 +263,20 @@ function Registerpage() {
 
             <div className="flex space-x-4 gap-5">
               <TextField
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
                 fullWidth
                 label="City"
                 variant="outlined"
                 placeholder="Enter your city"
                 sx={commonInputStyle}
               />
+
               <TextField
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
                 fullWidth
                 label="Address"
                 variant="outlined"
