@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   TextField,
   Button,
@@ -11,6 +11,7 @@ import {
 import image1 from "../assets/images/reg-img.jpg";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -35,7 +36,6 @@ function Registerpage() {
     password: "",
     confirm_password: "",
   });
- 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,24 +73,21 @@ function Registerpage() {
           headers: {
             "Content-Type": "application/json",
           },
-          withCredentials: true, // use lowercase `true`
+          withCredentials: true,
         },
       );
 
-      const data = await response.json();
-      console.log("Response Data:", data);
-      if (response.ok) {
-        toast.success("Registration successful!");
-        setTimeout(() => navigate("/login"), 1500);
-      } else {
-        throw new Error(data.message || "Registration failed");
-      }
+      console.log("Response Data:", response.data);
+      toast.success("Registration successful!");
+      setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error(
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.detail ||
         error.message ||
-          "Registration failed. Please check inputs or try again later.",
-      );
+        "Registration failed. Please check your input.";
+      toast.error(message);
     }
   };
 
@@ -309,7 +306,9 @@ function Registerpage() {
               {/* <Link to="/login" className="text-[#0F918F] hover:underline">
                 Sign in
               </Link> */}
-              <a href="/login" className="text-[#0F918F] hover:underline">Sign in</a>
+              <a href="/login" className="text-[#0F918F] hover:underline">
+                Sign in
+              </a>
             </p>
           </form>
         </div>
