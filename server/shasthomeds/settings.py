@@ -137,8 +137,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS HEADERS SETTINGS
 # Allow your frontend domain
 CORS_ALLOWED_ORIGINS = [
-    'https://shasthomeds-online.onrender.com',
+    "https://shasthomeds-online.onrender.com",
+    "http://localhost:3000",  # Add for local testing
+    "https://shasthomeds-backend.onrender.com",  # Add if needed
 ]
+CORS_ALLOW_CREDENTIALS = True  # Allow cookies to be sent
 
 
 # Custom User Model
