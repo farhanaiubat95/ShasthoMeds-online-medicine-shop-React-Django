@@ -9,9 +9,10 @@ import {
   FormLabel,
 } from "@mui/material";
 import image1 from "../assets/images/reg-img.jpg";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getCsrfToken } from "../api/authAPI.js";
+import { Link } from "react-router-dom";
 
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
