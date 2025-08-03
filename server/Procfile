@@ -1,1 +1,1 @@
-web: gunicorn shasthomeds.wsgi
+web: gunicorn shasthomeds.wsgi:application
