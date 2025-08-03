@@ -54,11 +54,13 @@ const LogCartIcon = () => {
               <RotatingArrowIcon />
             </IconButton>
 
-            {/* Menu Dropdown with Links */}
+            {/* Menu Dropdown */}
             <Menu
               anchorEl={menuAnchor}
               open={open}
               onClose={handleClose}
+              disableAutoFocusItem
+              disableEnforceFocus
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               transformOrigin={{ vertical: "top", horizontal: "left" }}
               PaperProps={{
@@ -72,30 +74,23 @@ const LogCartIcon = () => {
                 },
               }}
             >
-              <MenuItem
-                onClick={() => setTimeout(() => handleClose(), 100)}
-                sx={{ fontSize: "18px" }}
-              >
-                <Link to="/login" className="w-full block">
-                  Login
-                </Link>
-              </MenuItem>
-              <MenuItem
-                onClick={() => setTimeout(() => handleClose(), 100)}
-                sx={{ fontSize: "18px" }}
-              >
-                <Link to="/register" className="w-full block">
-                  Register
-                </Link>
-              </MenuItem>
-              <MenuItem
-                onClick={() => setTimeout(() => handleClose(), 100)}
-                sx={{ fontSize: "18px" }}
-              >
-                <Link to="/myprofile" className="w-full block">
-                  Profile
-                </Link>
-              </MenuItem>
+              {[
+                { label: "Login", path: "/login" },
+                { label: "Register", path: "/register" },
+                { label: "Profile", path: "/myprofile" },
+              ].map((item) => (
+                <MenuItem
+                  key={item.path}
+                  onClick={() => {
+                    handleClose();
+                  }}
+                  sx={{ fontSize: "18px" }}
+                >
+                  <Link to={item.path} className="w-full block">
+                    {item.label}
+                  </Link>
+                </MenuItem>
+              ))}
             </Menu>
           </div>
 
