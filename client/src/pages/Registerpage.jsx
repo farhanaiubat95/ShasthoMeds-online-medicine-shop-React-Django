@@ -25,18 +25,17 @@ const commonInputStyle = {
 function Registerpage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
+    full_name: "",
     username: "",
     email: "",
     phone: "",
-    dob: "",
-    gender: "male",
+    gender: "",
+    date_of_birth: "",
     city: "",
     address: "",
     password: "",
-    confirm_password: "",
+    password2: "",
   });
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -47,22 +46,22 @@ function Registerpage() {
 
     console.log("Form Data Submitted:", formData);
 
-    if (formData.password !== formData.confirm_password) {
+    if (formData.password !== formData.password2) {
       toast.error("Passwords do not match!");
       return;
     }
 
     const userData = {
-      name: formData.name,
+      full_name: formData.full_name,
       username: formData.username,
       email: formData.email,
       phone: formData.phone,
-      dob: formData.dob,
+      date_of_birth: formData.date_of_birth,
       gender: formData.gender,
       city: formData.city,
       address: formData.address,
       password: formData.password,
-      confirm_password: formData.confirm_password,
+      password2: formData.password2,
     };
 
     try {
@@ -80,14 +79,18 @@ function Registerpage() {
       console.log("Response Data:", response.data);
       toast.success("Registration successful!");
       setTimeout(() => navigate("/login"), 1500);
+
+      return response.data;
     } catch (error) {
       console.error("Registration error:", error);
+
       const message =
         error.response?.data?.message ||
         error.response?.data?.detail ||
         error.message ||
         "Registration failed. Please check your input.";
       toast.error(message);
+      throw error;
     }
   };
 
@@ -122,8 +125,8 @@ function Registerpage() {
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="flex gap-5">
               <TextField
-                name="name"
-                value={formData.name}
+                name="full_name"
+                value={formData.full_name}
                 onChange={handleChange}
                 required
                 fullWidth
@@ -170,8 +173,8 @@ function Registerpage() {
 
             <div className="flex space-x-4 gap-5">
               <TextField
-                name="dob"
-                value={formData.dob}
+                name="date_of_birth"
+                value={formData.date_of_birth}
                 onChange={handleChange}
                 fullWidth
                 label="Date of Birth"
@@ -276,8 +279,8 @@ function Registerpage() {
                 sx={commonInputStyle}
               />
               <TextField
-                name="confirm_password"
-                value={formData.confirm_password}
+                name="password2"
+                value={formData.password2}
                 onChange={handleChange}
                 fullWidth
                 label="Confirm Password"
