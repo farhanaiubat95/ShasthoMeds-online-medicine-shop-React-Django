@@ -74,27 +74,14 @@ function Registerpage() {
     }
 
     try {
-      const response = await fetch(
+      const response = await axios.post(
         "https://shasthomeds-backend.onrender.com/api/register/",
+        userData,
         {
-          method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken,
           },
-          credentials: "include",
-          body: JSON.stringify({
-            name: formData.name,
-            username: formData.username,
-            email: formData.email,
-            phone: formData.phone,
-            dob: formData.dob,
-            gender: formData.gender,
-            city: formData.city,
-            address: formData.address,
-            password: formData.password,
-            confirm_password: formData.confirm_password,
-          }),
+          withCredentials: true, // use lowercase `true`
         },
       );
 
@@ -327,9 +314,10 @@ function Registerpage() {
 
             <p className="text-center text-gray-600">
               Already have an account?{" "}
-              <Link to="/login" className="text-[#0F918F] hover:underline">
+              {/* <Link to="/login" className="text-[#0F918F] hover:underline">
                 Sign in
-              </Link>
+              </Link> */}
+              <a href="/login">Sign in</a>
             </p>
           </form>
         </div>
