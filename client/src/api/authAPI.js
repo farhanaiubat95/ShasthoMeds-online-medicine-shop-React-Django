@@ -14,7 +14,7 @@ export const registerUser = async (userData) => {
     headers: {
       "Content-Type": "application/json",
     },
-    withCredentials: false, // If needed for cookies/session
+    withCredentials: True, // If needed for cookies/session
   });
   return response.data;
 };

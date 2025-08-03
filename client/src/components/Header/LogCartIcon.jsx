@@ -10,11 +10,11 @@ import {
 import { AccountCircle, ShoppingCart } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { Link } from "react-router-dom"; // 👈 Import Link
+import { Link } from "react-router-dom";
 
 import SearchBar from "./SearchBar.jsx";
 
-// Styled Component for Rotating Arrow on Hover
+// Styled rotating arrow
 const RotatingArrowIcon = styled(ArrowDropDownIcon)(({ theme }) => ({
   color: "#0F918F",
   fontSize: "35px",
@@ -44,13 +44,14 @@ const LogCartIcon = () => {
         <div className="w-[40%] sm:w-[34%] ml-7 sm:ml-5 lg:ml-8 flex items-center justify-end">
           {/* Login Dropdown */}
           <div className="group cursor-pointer border-2 border-[#30C2C0] rounded h-[35px] sm:h-[40px] lg:h-[45px] flex items-center transition-all duration-300">
-            <IconButton>
+            <IconButton onClick={handleMenu}>
               <AccountCircle
                 sx={{
                   color: "#0F918F",
                   fontSize: { xs: "25px", lg: "30px" },
                 }}
               />
+              <RotatingArrowIcon />
             </IconButton>
 
             {/* Menu Dropdown with Links */}
@@ -71,28 +72,34 @@ const LogCartIcon = () => {
                 },
               }}
             >
-              <MenuItem onClick={handleClose} sx={{ fontSize: "18px" }}>
+              <MenuItem
+                onClick={() => setTimeout(() => handleClose(), 100)}
+                sx={{ fontSize: "18px" }}
+              >
                 <Link to="/login" className="w-full block">
                   Login
                 </Link>
               </MenuItem>
-              <MenuItem onClick={handleClose} sx={{ fontSize: "18px" }}>
+              <MenuItem
+                onClick={() => setTimeout(() => handleClose(), 100)}
+                sx={{ fontSize: "18px" }}
+              >
                 <Link to="/register" className="w-full block">
                   Register
                 </Link>
               </MenuItem>
-              <MenuItem onClick={handleClose} sx={{ fontSize: "18px" }}>
+              <MenuItem
+                onClick={() => setTimeout(() => handleClose(), 100)}
+                sx={{ fontSize: "18px" }}
+              >
                 <Link to="/myprofile" className="w-full block">
                   Profile
                 </Link>
               </MenuItem>
             </Menu>
-
-            {/* Arrow */}
-            <RotatingArrowIcon onClick={handleMenu} />
           </div>
 
-          {/* Cart Button (entire button is a Link) */}
+          {/* Cart Button */}
           <Link to="/cart" className="cursor-pointer">
             <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-6 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
               <IconButton>
