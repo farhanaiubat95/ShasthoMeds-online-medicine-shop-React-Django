@@ -3,13 +3,15 @@ import random
 from django.core.mail import send_mail
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
-
-from server.shasthomeds.settings import EMAIL_HOST_USER
 from .serializers import CustomTokenObtainPairSerializer, UserRegistrationSerializer
 from .models import CustomUser, EmailOTP
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+
+from django.conf import settings
+EMAIL_HOST_USER = settings.EMAIL_HOST_USER
+
 
 # pyright: ignore[reportMissingImports]
 from rest_framework_simplejwt.views import TokenObtainPairView  # pyright: ignore[reportMissingImports]
