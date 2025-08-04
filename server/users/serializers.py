@@ -42,6 +42,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             address=validated_data['address'],
             password=validated_data['password'],
             is_verified=False,
+            is_active=False,
         )
 
         EmailOTP.objects.create(user=user, otp_code=otp)

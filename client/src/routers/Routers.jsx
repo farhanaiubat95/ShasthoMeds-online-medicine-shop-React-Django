@@ -5,6 +5,7 @@ import LoginPage from "../pages/LoginPage";
 import Registerpage from "../pages/Registerpage";
 import Profile from "../pages/Profile";
 import Cart from "../pages/Cart";
+import VerifyOTP from "../pages/VerifyOTP";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -17,6 +18,7 @@ const Routers = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Registerpage />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/myprofile" element={<Profile />} />
         <Route path="/cart" element={<Cart />} />
       </Routes>

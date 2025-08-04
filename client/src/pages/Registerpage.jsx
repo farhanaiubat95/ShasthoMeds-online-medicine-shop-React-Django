@@ -78,7 +78,10 @@ function Registerpage() {
 
       console.log("Response Data:", response.data);
       toast.success("Registration successful!");
-      setTimeout(() => navigate("/login"), 1500);
+      
+      // After successful registration:
+      localStorage.setItem("otp_email", formData.email);
+      setTimeout(() => navigate("/verify-otp"), 1500);
 
       return response.data;
     } catch (error) {
@@ -90,6 +93,7 @@ function Registerpage() {
         error.message ||
         "Registration failed. Please check your input.";
       toast.error(message);
+      setTimeout(() => navigate("/register"), 1500);
       throw error;
     }
   };

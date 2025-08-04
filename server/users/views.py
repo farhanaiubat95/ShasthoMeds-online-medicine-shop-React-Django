@@ -1,5 +1,10 @@
+from datetime import timezone
+import random
+from django.core.mail import send_mail
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
+
+from server.shasthomeds.settings import EMAIL_HOST_USER
 from .serializers import CustomTokenObtainPairSerializer, UserRegistrationSerializer
 from .models import CustomUser, EmailOTP
 from rest_framework.views import APIView
@@ -46,13 +51,54 @@ class VerifyOTPView(APIView):
             return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
         if otp_obj.is_expired():
+            otp_obj.delete()  # Clean up expired OTPs
             return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
 
+
         user.is_verified = True
+        user.is_active = True
         user.save()
         otp_obj.delete()  # Delete OTP after successful verification
 
         return Response({'message': 'User verified successfully'}, status=status.HTTP_200_OK)
+
+# View to resend OTP
+class ResendOTPView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+
+        if not email:
+            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = CustomUser.objects.get(email=email)
+
+            if user.is_verified:
+                return Response({"message": "User is already verified."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Generate new OTP
+            otp = str(random.randint(100000, 999999))
+
+            # Save or update the OTP record
+            EmailOTP.objects.update_or_create(
+                user=user,
+                defaults={"otp": otp, "created_at": timezone.now()}
+            )
+
+            # Send OTP to user's email
+            send_mail(
+                subject="Your New OTP for ShasthoMeds",
+                message=f"Your new OTP is: {otp}",
+                from_email=EMAIL_HOST_USER,
+                recipient_list=[email],
+            )
+
+            return Response({"message": "OTP resent successfully."}, status=status.HTTP_200_OK)
+
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
 
 # View to obtain JWT token

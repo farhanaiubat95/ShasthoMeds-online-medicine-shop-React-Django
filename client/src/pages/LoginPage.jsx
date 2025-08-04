@@ -1,43 +1,88 @@
 import React, { useState } from "react";
-import {
-  TextField,
-  Button,
-  Snackbar,
-  Alert,
-} from "@mui/material";
-
+import { TextField, Button, Snackbar, Alert } from "@mui/material";
 import image1 from "../assets/images/reg-img.jpg";
-import { loginUser } from "../api/authAPI.js"; // import loginUser
+import axios from "axios";
 import { Link } from "react-router-dom";
 
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
-    "& fieldset": { borderColor: "#0F918F", },
+    "& fieldset": { borderColor: "#0F918F" },
     "&:hover fieldset": { borderColor: "#0F918F" },
-    "&.Mui-focused fieldset": { borderColor: "#0F918F"},
+    "&.Mui-focused fieldset": { borderColor: "#0F918F" },
     boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
   },
+};
+
+// Direct login function inside the page
+const loginUser = async ({ email, password }) => {
+  const response = await axios.post(
+    "https://shasthomeds-backend.onrender.com/api/token/",
+    { email, password }
+  );
+  return response.data;
 };
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
+  const [showResendOTP, setShowResendOTP] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setShowResendOTP(false);
     try {
       const data = await loginUser({ email, password });
       localStorage.setItem("access_token", data.access);
       localStorage.setItem("refresh_token", data.refresh);
 
-      setSnackbar({ open: true, message: "Login successful!", severity: "success" });
-
-      // Redirect to dashboard or homepage
-      window.location.href = "/dashboard"; // or use useNavigate() if using React Router
+      setSnackbar({
+        open: true,
+        message: "Login successful!",
+        severity: "success",
+      });
+      window.location.href = "/";
     } catch (error) {
       console.error("Login error:", error);
-      setSnackbar({ open: true, message: "Invalid credentials.", severity: "error" });
+      const errorMsg = error?.response?.data?.detail || "Invalid credentials.";
+
+      setSnackbar({ open: true, message: errorMsg, severity: "error" });
+
+      if (errorMsg.toLowerCase().includes("not verified")) {
+        setShowResendOTP(true);
+      }
+    }
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      if (!email) {
+        setSnackbar({
+          open: true,
+          message: "Please enter your email first.",
+          severity: "warning",
+        });
+        return;
+      }
+
+      const response = await axios.post(
+        "https://shasthomeds-backend.onrender.com/resend-otp/",
+        { email }
+      );
+
+      setSnackbar({
+        open: true,
+        message: response.data.message || "OTP sent!",
+        severity: "success",
+      });
+    } catch (error) {
+      const errMsg =
+        error?.response?.data?.detail || "Failed to resend OTP.";
+      setSnackbar({ open: true, message: errMsg, severity: "error" });
     }
   };
 
@@ -46,14 +91,19 @@ function LoginPage() {
       {/* Left Side image */}
       <div className="hidden md:flex md:w-[40%] lg:w-1/2 items-center justify-center shadow-lg">
         <div className="relative w-full h-full">
-          <img src={image1} alt="Registration Illustration" className="w-full h-full" />
+          <img
+            src={image1}
+            alt="Registration Illustration"
+            className="w-full h-full"
+          />
           <div className="bg-black opacity-50 absolute inset-0">
             <div className="absolute top-20 left-2 lg:left-10">
               <h2 className="text-xl lg:text-3xl font-semibold text-white">
                 Welcome to Shasthomeds
               </h2>
               <p className="text-white pt-5">
-                “Let food be thy medicine and medicine be thy food.” ― Hippocrates
+                “Let food be thy medicine and medicine be thy food.” ―
+                Hippocrates
               </p>
             </div>
           </div>
@@ -64,7 +114,7 @@ function LoginPage() {
       <div className="w-full md:w-[60%] lg:w-1/2 py-12 px-5">
         <div className="w-full px-5">
           <h2 className="text-3xl font-semibold text-gray-800 mb-6">Login</h2>
-          <form  onSubmit={handleLogin}>
+          <form onSubmit={handleLogin}>
             <TextField
               fullWidth
               label="Email"
@@ -100,9 +150,29 @@ function LoginPage() {
             >
               Login
             </Button>
-            <p className="text-center text-gray-600">
+
+            {/* Resend OTP Button */}
+            {showResendOTP && (
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={handleResendOTP}
+                className="mt-4"
+                sx={{
+                  borderColor: "#0F918F",
+                  color: "#0F918F",
+                  marginTop: "16px",
+                }}
+              >
+                Resend OTP
+              </Button>
+            )}
+
+            <p className="text-center text-gray-600 mt-4">
               Don't have any account?{" "}
-              <Link to="/register" className="text-[#0F918F] hover:underline">Sign up</Link>
+              <Link to="/register" className="text-[#0F918F] hover:underline">
+                Sign up
+              </Link>
             </p>
           </form>
         </div>

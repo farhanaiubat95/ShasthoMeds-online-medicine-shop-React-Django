@@ -57,9 +57,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'shasthomeds.wsgi.application'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'build/static'),
-]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'build/static'),
+# ]
 
 # Database
 DATABASES = {
@@ -77,6 +77,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
+
+# Authentication add this explicitly so Django knows to use email for login
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
