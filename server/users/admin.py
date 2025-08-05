@@ -8,14 +8,14 @@ class CustomUserAdmin(UserAdmin):
 
     list_display = (
         'full_name', 'username','email', 'phone', 'gender', 
-        'city', 'address', 'date_of_birth', 'is_verified'
+        'city', 'address', 'date_of_birth', 'is_verified', 'is_active', 'role'
     )
 
     fieldsets = UserAdmin.fieldsets + (
         ("Personal Info", {
             'fields': (
                 'full_name','phone', 'gender', 'date_of_birth',
-                'city', 'address', 'is_verified'  # ()'username', 'email') are already present in the default fieldsets
+                'city', 'address', 'is_verified', 'role' # ()'username', 'email') are already present in the default fieldsets
             )
         }),
     )

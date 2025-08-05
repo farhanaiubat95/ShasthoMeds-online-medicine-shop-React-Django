@@ -6,6 +6,11 @@ from django.conf import settings
 
 # Custom user model
 class CustomUser(AbstractUser):
+    ROLE_CHOICES = (
+        ('user', 'User'),
+        ('admin', 'Admin'),
+    )
+     
     full_name = models.CharField(max_length=150, default="Your Name")
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15, default="")
@@ -14,6 +19,7 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(default="2000-01-01")
     address = models.TextField(default="")
     is_verified = models.BooleanField(default=False)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']  

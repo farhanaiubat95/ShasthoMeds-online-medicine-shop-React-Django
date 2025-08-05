@@ -16,7 +16,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = [
             'id', 'full_name', 'username', 'email', 'phone', 'gender',
-            'date_of_birth', 'city', 'address', 'password', 'password2'
+            'date_of_birth', 'city', 'address', 'password', 'password2', 'is_verified', 'is_active', 'role'
         ]
 
     def validate(self, attrs):
@@ -26,6 +26,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
+        role = validated_data.pop('role', 'user')  # default to 'user' if not provided
 
         # Generate a random 6-digit OTP
         otp = str(random.randint(100000, 999999))
@@ -41,6 +42,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             city=validated_data['city'],
             address=validated_data['address'],
             password=validated_data['password'],
+            role=role, 
             is_verified=False,
             is_active=False,
         )
@@ -82,6 +84,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 "city": self.user.city,
                 "address": self.user.address,
                 "is_verified": self.user.is_verified,
+                "role": self.user.role, 
             }
         })
 

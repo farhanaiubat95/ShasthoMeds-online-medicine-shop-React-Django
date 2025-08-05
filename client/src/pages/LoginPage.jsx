@@ -44,17 +44,17 @@ function LoginPage() {
 
       const { access, refresh, user } = res.data;
 
-      // ✅ Save to localStorage
+      // Save to localStorage
       localStorage.setItem("access", access);
       localStorage.setItem("refresh", refresh);
 
-      // ✅ Dispatch to Redux
+      // Dispatch to Redux
       dispatch(setUserData({ user, access, refresh }));
 
-      // ✅ Navigate
-      navigate("/dashboard");
+      // Navigate
+      navigate("/");
 
-      // ✅ Show success message
+      // Show success message
       setSnackbar({
         open: true,
         message: "Login successful!",
