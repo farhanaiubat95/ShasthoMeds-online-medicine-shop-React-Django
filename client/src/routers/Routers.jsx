@@ -6,6 +6,9 @@ import Registerpage from "../pages/Registerpage";
 import Profile from "../pages/Profile";
 import Cart from "../pages/Cart";
 import VerifyOTP from "../pages/VerifyOTP";
+import ProtectedRoute from "./ProtectedRoute";
+import PublicRoute from "./PublicRoute";
+import ErrorPage from "../components/ErrorPage";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,11 +19,73 @@ const Routers = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<Registerpage />} />
-        <Route path="/verify-otp" element={<VerifyOTP />} />
-        <Route path="/myprofile" element={<Profile />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute allowedRoles={["user", "admin"]}>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<ErrorPage />} />
+
+        {/* =========== Public Routes ========== */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Registerpage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/verify-otp"
+          element={
+            <PublicRoute>
+              <VerifyOTP />
+            </PublicRoute>
+          }
+        />
+
+        {/* =========== Protected Routes =========== */}
+        {/* My Profile */}
+        <Route
+          path="/myprofile"
+          element={
+            <ProtectedRoute allowedRoles={["user", "admin"]}>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Cart */}
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <Cart />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* =========== Admin Routes =========== */}
+        {/* <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        /> */}
       </Routes>
     </>
   );

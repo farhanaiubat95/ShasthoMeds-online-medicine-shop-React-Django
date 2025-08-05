@@ -117,7 +117,7 @@ class MyProtectedView(APIView):
     
     def get(self, request):
         user = request.user  # from token
-        return Response({"email": user.email, "id": user.id})
+        return Response({"email": user.email, "username": user.username, "id": user.id})
 
 # View to logout
 class LogoutView(APIView):

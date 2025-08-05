@@ -1,8 +1,13 @@
-import React, { useState } from "react";
 import { TextField, Button, Snackbar, Alert } from "@mui/material";
 import image1 from "../assets/images/reg-img.jpg";
 import axios from "axios";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+
+// ✅ Redux
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice"; // update the path if different
 
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -13,43 +18,51 @@ const commonInputStyle = {
   },
 };
 
-// Direct login function inside the page
-const loginUser = async ({ email, password }) => {
-  const response = await axios.post(
-    "https://shasthomeds-backend.onrender.com/api/token/",
-    { email, password }
-  );
-  return response.data;
-};
-
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch(); // ✅ Redux dispatch
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "info",
   });
+
   const [showResendOTP, setShowResendOTP] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setShowResendOTP(false);
-    try {
-      const data = await loginUser({ email, password });
-      localStorage.setItem("access_token", data.access);
-      localStorage.setItem("refresh_token", data.refresh);
 
+    try {
+      const res = await axios.post(
+        "https://shasthomeds-backend.onrender.com/login/",
+        { email, password }
+      );
+
+      const { access, refresh, user } = res.data;
+
+      // ✅ Save to localStorage
+      localStorage.setItem("access", access);
+      localStorage.setItem("refresh", refresh);
+
+      // ✅ Dispatch to Redux
+      dispatch(setUserData({ user, access, refresh }));
+
+      // ✅ Navigate
+      navigate("/dashboard");
+
+      // ✅ Show success message
       setSnackbar({
         open: true,
         message: "Login successful!",
         severity: "success",
       });
-      window.location.href = "/";
     } catch (error) {
       console.error("Login error:", error);
       const errorMsg = error?.response?.data?.detail || "Invalid credentials.";
-
       setSnackbar({ open: true, message: errorMsg, severity: "error" });
 
       if (errorMsg.toLowerCase().includes("not verified")) {
@@ -59,16 +72,16 @@ function LoginPage() {
   };
 
   const handleResendOTP = async () => {
-    try {
-      if (!email) {
-        setSnackbar({
-          open: true,
-          message: "Please enter your email first.",
-          severity: "warning",
-        });
-        return;
-      }
+    if (!email) {
+      setSnackbar({
+        open: true,
+        message: "Please enter your email first.",
+        severity: "warning",
+      });
+      return;
+    }
 
+    try {
       const response = await axios.post(
         "https://shasthomeds-backend.onrender.com/resend-otp/",
         { email }
@@ -80,8 +93,7 @@ function LoginPage() {
         severity: "success",
       });
     } catch (error) {
-      const errMsg =
-        error?.response?.data?.detail || "Failed to resend OTP.";
+      const errMsg = error?.response?.data?.detail || "Failed to resend OTP.";
       setSnackbar({ open: true, message: errMsg, severity: "error" });
     }
   };
@@ -151,7 +163,6 @@ function LoginPage() {
               Login
             </Button>
 
-            {/* Resend OTP Button */}
             {showResendOTP && (
               <Button
                 variant="outlined"

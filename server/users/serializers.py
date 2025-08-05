@@ -61,11 +61,28 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
         return user
 
+# User login serializer
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
 
         if not self.user.is_verified:
             raise serializers.ValidationError("Please verify your email via OTP before logging in.")
+
+        # Add user details to the token response
+        data.update({
+            "user": {
+                "id": self.user.id,
+                "email": self.user.email,
+                "username": self.user.username,
+                "full_name": self.user.full_name,
+                "phone": self.user.phone,
+                "gender": self.user.gender,
+                "date_of_birth": self.user.date_of_birth,
+                "city": self.user.city,
+                "address": self.user.address,
+                "is_verified": self.user.is_verified,
+            }
+        })
 
         return data
