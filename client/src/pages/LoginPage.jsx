@@ -47,6 +47,7 @@ function LoginPage() {
       // Save to localStorage
       localStorage.setItem("access", access);
       localStorage.setItem("refresh", refresh);
+      localStorage.setItem("user_role", response.data.user.role);
 
       // Dispatch to Redux
       dispatch(setUserData({ user, access, refresh }));
