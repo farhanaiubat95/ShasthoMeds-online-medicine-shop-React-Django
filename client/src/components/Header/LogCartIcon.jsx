@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   IconButton,
   Typography,
@@ -10,7 +10,13 @@ import {
 import { AccountCircle, ShoppingCart } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+// Icons
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
+import Person2Icon from '@mui/icons-material/Person2';
 
 import SearchBar from "./SearchBar.jsx";
 
@@ -28,9 +34,25 @@ const RotatingArrowIcon = styled(ArrowDropDownIcon)(({ theme }) => ({
 const LogCartIcon = () => {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const open = Boolean(menuAnchor);
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // You can replace this with real auth logic
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(storedUser);
+  }, []);
 
   const handleMenu = (event) => setMenuAnchor(event.currentTarget);
   const handleClose = () => setMenuAnchor(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    handleClose();
+    navigate("/");
+  };
 
   return (
     <Box className="flex items-center justify-end space-x-2 w-[67%] lg:w-[60%]">
@@ -47,10 +69,22 @@ const LogCartIcon = () => {
             <IconButton onClick={handleMenu}>
               <AccountCircle
                 sx={{
-                  color: "#0F918F",
+                  color: user ? "#007bff" : "#0F918F",
                   fontSize: { xs: "25px", lg: "30px" },
                 }}
               />
+              {user && (
+                <Typography
+                  sx={{
+                    marginLeft: "5px",
+                    color: "#007bff",
+                    fontSize: "16px",
+                    fontWeight: 500,
+                  }}
+                >
+                  {user.username}
+                </Typography>
+              )}
               <RotatingArrowIcon />
             </IconButton>
 
@@ -74,23 +108,27 @@ const LogCartIcon = () => {
                 },
               }}
             >
-              {[
-                { label: "Login", path: "/login" },
-                { label: "Register", path: "/register" },
-                { label: "Profile", path: "/myprofile" },
-              ].map((item) => (
-                <MenuItem
-                  key={item.path}
-                  onClick={() => {
-                    handleClose();
-                  }}
-                  sx={{ fontSize: "18px" }}
-                >
-                  <Link to={item.path} className="w-full block">
-                    {item.label}
-                  </Link>
-                </MenuItem>
-              ))}
+              {!user ? (
+                // Not Logged In
+                <>
+                  <MenuItem onClick={handleClose} sx={{ fontSize: "18px" }}>
+                    <Link to="/login" className="w-full block"><LoginIcon />   <span className="ml-2">Login</span></Link>
+                  </MenuItem>
+                  <MenuItem onClick={handleClose} sx={{ fontSize: "18px" }}>
+                    <Link to="/register" className="w-full block"><HowToRegIcon />   <span className="ml-2">Register</span></Link>
+                  </MenuItem>
+                </>
+              ) : (
+                // Logged In
+                <>
+                  <MenuItem onClick={handleClose} sx={{ fontSize: "18px" }}>
+                    <Link to="/myprofile" className="w-full block"><Person2Icon />   <span className="ml-2">Profile</span></Link>
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout} sx={{ fontSize: "18px" }}>
+                    <LogoutIcon />   <span className="ml-2">Logout</span>
+                  </MenuItem>
+                </>
+              )}
             </Menu>
           </div>
 
