@@ -1,211 +1,153 @@
-import { TextField, Button, Snackbar, Alert } from "@mui/material";
-import image1 from "../assets/images/reg-img.jpg";
-import axios from "axios";
 import React, { useState } from "react";
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Snackbar,
+  Alert,
+  Link,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-
-// ✅ Redux
+import axios from "axios";
 import { useDispatch } from "react-redux";
-import { setUserData } from "../redux/userSlice"; // update the path if different
+import { setUserData } from "../redux/userSlice";
 
-const commonInputStyle = {
-  "& .MuiOutlinedInput-root": {
-    "& fieldset": { borderColor: "#0F918F" },
-    "&:hover fieldset": { borderColor: "#0F918F" },
-    "&.Mui-focused fieldset": { borderColor: "#0F918F" },
-    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
-  },
-};
+const LoginPage = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-  const dispatch = useDispatch(); // ✅ Redux dispatch
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "info",
-  });
-
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [showResendOTP, setShowResendOTP] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setShowResendOTP(false);
+    setLoading(true);
 
     try {
-      const res = await axios.post(
-        "https://shasthomeds-backend.onrender.com/login/",
-        { email, password }
-      );
+      const res = await axios.post("https://shasthomeds-backend.onrender.com/login/", {
+        email,
+        password,
+      });
 
       const { access, refresh, user } = res.data;
 
-      // Save to localStorage
+      // Save tokens and user info to localStorage
       localStorage.setItem("access", access);
       localStorage.setItem("refresh", refresh);
-      localStorage.setItem("user_role", res.data.user.role);
+      localStorage.setItem("user_role", user.role);
+      localStorage.setItem("user", JSON.stringify(user));
 
-      // Dispatch to Redux
+      // Dispatch user data to Redux store
       dispatch(setUserData({ user, access, refresh }));
 
-      // Navigate
-      navigate("/myaccount");
-
       // Show success message
-      setSnackbar({
-        open: true,
-        message: "Login successful!",
-        severity: "success",
-      });
+      setSnackbar({ open: true, message: "Login successful!", severity: "success" });
+
+      // Redirect after slight delay to allow Snackbar display
+      setTimeout(() => {
+        navigate("/myaccount");
+      }, 500);
     } catch (error) {
-      console.error("Login error:", error);
       const errorMsg = error?.response?.data?.detail || "Invalid credentials.";
       setSnackbar({ open: true, message: errorMsg, severity: "error" });
 
       if (errorMsg.toLowerCase().includes("not verified")) {
         setShowResendOTP(true);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleResendOTP = async () => {
-    if (!email) {
-      setSnackbar({
-        open: true,
-        message: "Please enter your email first.",
-        severity: "warning",
-      });
-      return;
-    }
-
     try {
-      const response = await axios.post(
-        "https://shasthomeds-backend.onrender.com/resend-otp/",
-        { email }
-      );
-
+      const response = await axios.post("https://shasthomeds-backend.onrender.com/resend-otp/", {
+        email,
+      });
+      setSnackbar({ open: true, message: "OTP resent successfully!", severity: "info" });
+    } catch (error) {
       setSnackbar({
         open: true,
-        message: response.data.message || "OTP sent!",
-        severity: "success",
+        message: error.response?.data?.detail || "Failed to resend OTP.",
+        severity: "error",
       });
-    } catch (error) {
-      const errMsg = error?.response?.data?.detail || "Failed to resend OTP.";
-      setSnackbar({ open: true, message: errMsg, severity: "error" });
     }
   };
 
   return (
-    <div className="flex bg-gray-100 my-5">
-      {/* Left Side image */}
-      <div className="hidden md:flex md:w-[40%] lg:w-1/2 items-center justify-center shadow-lg">
-        <div className="relative w-full h-full">
-          <img
-            src={image1}
-            alt="Registration Illustration"
-            className="w-full h-full"
+    <Container maxWidth="sm">
+      <Box className="bg-white p-6 rounded shadow-md mt-10">
+        <Typography variant="h4" gutterBottom align="center">
+          Login to ShasthoMeds
+        </Typography>
+        <form onSubmit={handleLogin}>
+          <TextField
+            label="Email"
+            type="email"
+            fullWidth
+            required
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
           />
-          <div className="bg-black opacity-50 absolute inset-0">
-            <div className="absolute top-20 left-2 lg:left-10">
-              <h2 className="text-xl lg:text-3xl font-semibold text-white">
-                Welcome to Shasthomeds
-              </h2>
-              <p className="text-white pt-5">
-                “Let food be thy medicine and medicine be thy food.” ―
-                Hippocrates
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            required
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
+          />
 
-      {/* Right Side Form */}
-      <div className="w-full md:w-[60%] lg:w-1/2 py-12 px-5">
-        <div className="w-full px-5">
-          <h2 className="text-3xl font-semibold text-gray-800 mb-6">Login</h2>
-          <form onSubmit={handleLogin}>
-            <TextField
-              fullWidth
-              label="Email"
-              variant="outlined"
-              placeholder="Enter your email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              sx={commonInputStyle}
-            />
-            <TextField
-              fullWidth
-              label="Password"
-              variant="outlined"
-              type="password"
-              placeholder="Enter your password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              sx={commonInputStyle}
-              style={{ margin: "16px 0" }}
-            />
-            <Button
-              variant="contained"
-              fullWidth
-              type="submit"
-              size="large"
-              className="mt-4"
-              sx={{
-                backgroundColor: "#0F918F",
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              Login
-            </Button>
+          <Button
+            variant="contained"
+            fullWidth
+            type="submit"
+            size="large"
+            className="mt-4"
+            disabled={loading}
+            sx={{
+              backgroundColor: "#0F918F",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+        </form>
 
-            {showResendOTP && (
-              <Button
-                variant="outlined"
-                fullWidth
-                onClick={handleResendOTP}
-                className="mt-4"
-                sx={{
-                  borderColor: "#0F918F",
-                  color: "#0F918F",
-                  marginTop: "16px",
-                }}
-              >
+        {showResendOTP && (
+          <Box mt={2} textAlign="center">
+            <Typography variant="body2">
+              Didn't receive OTP?{" "}
+              <Link component="button" onClick={handleResendOTP}>
                 Resend OTP
-              </Button>
-            )}
-
-            <p className="text-center text-gray-600 mt-4">
-              Don't have any account?{" "}
-              <Link to="/register" className="text-[#0F918F] hover:underline">
-                Sign up
               </Link>
-            </p>
-          </form>
-        </div>
-      </div>
+            </Typography>
+          </Box>
+        )}
+      </Box>
 
-      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={4000}
+        autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-        >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity}>
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </div>
+    </Container>
   );
-}
+};
 
 export default LoginPage;
