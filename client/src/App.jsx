@@ -7,6 +7,7 @@ import Footer from "./components/Footer.jsx";
 import ScrollToTop from "./routers/ScrollToTop.jsx";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
+import { setUserData } from "./redux/userSlice.js";
 
 function App() {
   // Redux
