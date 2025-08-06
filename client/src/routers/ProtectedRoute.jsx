@@ -1,15 +1,24 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+// src/routers/ProtectedRoute.jsx
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  const accessToken = localStorage.getItem("access_token");
-  const userRole = localStorage.getItem("user_role");
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { Navigate, Outlet } from 'react-router-dom';
 
-  if (!accessToken) return <Navigate to="/login" />;
-  if (!allowedRoles.includes(userRole))
-    return <Navigate to="*" />;
+const ProtectedRoute = ({ allowedRoles }) => {
+  const user = useSelector((state) => state.user.user);
 
-  return children;
+  if (!user) {
+    // Not logged in? ➔ redirect to login
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!allowedRoles.includes(user.role)) {
+    // Logged in but wrong role ➔ redirect to Error Page
+    return <Navigate to="*" replace />; 
+  }
+
+  // Logged in + correct role ➔ show content
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

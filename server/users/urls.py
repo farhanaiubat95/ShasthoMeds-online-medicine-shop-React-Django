@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import APIRootView, LogoutView, RegisterAPIView, ResendOTPView, VerifyOTPView, CustomTokenObtainPairView
+from .views import APIRootView, LogoutView, RegisterAPIView, ResendOTPView, UpdateProfileView, VerifyOTPView, CustomTokenObtainPairView
 
 from rest_framework_simplejwt.views import ( # pyright: ignore[reportMissingImports]
     TokenObtainPairView,
@@ -16,6 +16,9 @@ urlpatterns = [
     # Login
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # Update Profile
+    path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
 
     # Logout
     path('api/logout/', LogoutView.as_view(), name='logout')

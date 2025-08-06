@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: null,
@@ -7,7 +7,7 @@ const initialState = {
 };
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState,
   reducers: {
     setUserData: (state, action) => {
@@ -16,16 +16,21 @@ const userSlice = createSlice({
       state.accessToken = access;
       state.refreshToken = refresh;
     },
+
+    updateUser: (state, action) => {
+      state.user = { ...state.user, ...action.payload.user }; // or just action.payload if it's plain
+    },
+
     logoutUser: (state) => {
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
     },
   },
 });
 
-export const { setUserData, logoutUser } = userSlice.actions;
+export const { setUserData, logoutUser, updateUser  } = userSlice.actions;
 
 export default userSlice.reducer;

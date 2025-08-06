@@ -53,7 +53,7 @@ function LoginPage() {
       dispatch(setUserData({ user, access, refresh }));
 
       // Navigate
-      navigate("/");
+      navigate("/myaccount");
 
       // Show success message
       setSnackbar({

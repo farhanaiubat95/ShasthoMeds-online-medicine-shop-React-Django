@@ -3,7 +3,7 @@ import random
 from django.core.mail import send_mail
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
-from .serializers import CustomTokenObtainPairSerializer, UserRegistrationSerializer
+from .serializers import CustomTokenObtainPairSerializer, UserProfileSerializer, UserRegistrationSerializer
 from .models import CustomUser, EmailOTP
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -131,6 +131,20 @@ class LogoutView(APIView):
             return Response({"message": "Logout successful"},status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response({"message": "Token is Blacklisted"},status=status.HTTP_400_BAD_REQUEST)
+    
+
+# View to update profile
+class UpdateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Profile updated successfully', 'user': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # Test email sending functionality
 # from django.core.mail import send_mail

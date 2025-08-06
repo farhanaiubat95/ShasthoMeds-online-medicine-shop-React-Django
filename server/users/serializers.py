@@ -89,3 +89,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         })
 
         return data
+    
+
+# Serializer to update user profile
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = [
+            'full_name', 'username', 'phone', 'gender', 'date_of_birth',
+            'city', 'address'
+        ]
+

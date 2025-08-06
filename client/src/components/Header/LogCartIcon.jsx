@@ -124,7 +124,7 @@ const LogCartIcon = () => {
                 // Logged In
                 <>
                   <MenuItem onClick={handleClose} sx={{ fontSize: "18px" }}>
-                    <Link to="/myprofile" className="w-full block">
+                    <Link to="/myaccount/profile" className="w-full block">
                       <Person2Icon /> <span className="ml-2">Profile</span>
                     </Link>
                   </MenuItem>
@@ -137,7 +137,7 @@ const LogCartIcon = () => {
           </div>
 
           {/* Cart Button */}
-          <Link to="/cart" className="cursor-pointer">
+          <Link to="/myaccount/cart" className="cursor-pointer">
             <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-6 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
               <IconButton>
                 <Badge badgeContent={0} color="error">
