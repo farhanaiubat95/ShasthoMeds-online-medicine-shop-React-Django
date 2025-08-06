@@ -3,7 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const AuthProtectedRoute = () => {
-  const user = useSelector((state) => state.user.user);
+  const user = useSelector((state) => state.auth.user);
 
   if (user) {
     // Already logged in → Redirect based on role

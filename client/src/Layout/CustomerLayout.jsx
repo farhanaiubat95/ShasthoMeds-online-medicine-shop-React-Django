@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 
 const CustomerLayout = () => {
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.auth.user);
 
   const navigate = useNavigate();
 

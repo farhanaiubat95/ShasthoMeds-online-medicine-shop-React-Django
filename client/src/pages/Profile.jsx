@@ -13,12 +13,12 @@ import { updateUser } from "../redux/userSlice";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
+  const user = useSelector((state) => state.auth.user);
   const [editMode, setEditMode] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const readOnlyFields = ["email", "username"]; // ❗ Fields not editable
+  const readOnlyFields = ["email", "username"]; // Fields not editable
   const visibleFields = [
     "full_name",
     "username",
@@ -55,7 +55,7 @@ const Profile = () => {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
       dispatch(updateUser(res.data));
       setEditMode(false);
@@ -76,11 +76,7 @@ const Profile = () => {
       >
         <CardContent>
           <div className="flex justify-between items-center">
-            <Typography
-              variant="h4"
-              gutterBottom
-              sx={{ color: "#0F918F" }}
-            >
+            <Typography variant="h4" gutterBottom sx={{ color: "#0F918F" }}>
               My Profile
             </Typography>
             <div className="space-x-2">

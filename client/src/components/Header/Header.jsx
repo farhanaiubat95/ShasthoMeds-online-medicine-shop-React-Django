@@ -20,8 +20,8 @@ import { useSelector } from "react-redux";
 
 export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const user = useSelector((state) => state.user.user);
   const toggleDrawer = (open) => () => setDrawerOpen(open);
+  const user = useSelector((state) => state.auth.user);
 
   return (
     <>
