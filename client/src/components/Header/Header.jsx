@@ -15,11 +15,12 @@ import { Menu as MenuIcon } from "@mui/icons-material";
 
 // Components
 import LogCartIcon from "./LogCartIcon.jsx";
-import Navbar from "./Navbar.jsx";
+// import Navbar from "./Navbar.jsx";
+import { useSelector } from "react-redux";
 
 export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-
+  const user = useSelector((state) => state.user.user);
   const toggleDrawer = (open) => () => setDrawerOpen(open);
 
   return (
@@ -57,7 +58,20 @@ export default function Header() {
                 fontSize: { xs: "16px", sm: "20px", md: "25px", lg: "30px" },
               }}
             >
-              <Link
+              {/* <Navbar /> */}
+              {user ? (
+                <Link
+                href="/myaccount"
+                sx={{
+                  color: "#0F918F",
+                  fontSize: { xs: "16px", sm: "20px", md: "25px", lg: "30px" },
+                  textDecoration: "none",
+                }}
+              >
+                Shasthomeds
+              </Link>
+              ) : (
+                <Link
                 href="/"
                 sx={{
                   color: "#0F918F",
@@ -67,6 +81,7 @@ export default function Header() {
               >
                 Shasthomeds
               </Link>
+              )}
             </Typography>
           </Box>
 

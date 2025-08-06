@@ -11,6 +11,8 @@ import ErrorPage from "../components/ErrorPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AuthProtectedRoute from "./AuthProtectedRoute";
+import CustomerLayout from "../Layout/CustomerLayout";
+import CustomerHome from "../pages/CustomerHome";
 
 const Routers = () => {
   return (
@@ -34,7 +36,8 @@ const Routers = () => {
         {/* My Profile */}
 
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
-          <Route path="/myaccount" element={<Home />}>
+          <Route path="/myaccount" element={<CustomerLayout />}>
+            <Route index element={<CustomerHome />} />
             <Route path="profile" element={<Profile />} />
             <Route path="cart" element={<Cart />} />
             {/* <Route path="checkout" element={<Checkout />} />
