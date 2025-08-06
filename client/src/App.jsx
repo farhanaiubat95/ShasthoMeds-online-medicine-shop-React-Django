@@ -6,6 +6,7 @@ import "./App.css";
 import Footer from "./components/Footer.jsx";
 import ScrollToTop from "./routers/ScrollToTop.jsx";
 import { useDispatch } from "react-redux";
+import { useEffect } from "react";
 
 function App() {
   // Redux
