@@ -9,14 +9,15 @@ import {
   ListItem,
   ListItemText,
   Box,
-  Link,
 } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 
 // Components
 import LogCartIcon from "./LogCartIcon.jsx";
 // import Navbar from "./Navbar.jsx";
+
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -61,7 +62,7 @@ export default function Header() {
               {/* <Navbar /> */}
               {user ? (
                 <Link
-                href="/myaccount"
+                  to="/myaccount"
                 sx={{
                   color: "#0F918F",
                   fontSize: { xs: "16px", sm: "20px", md: "25px", lg: "30px" },
@@ -72,7 +73,7 @@ export default function Header() {
               </Link>
               ) : (
                 <Link
-                href="/"
+                to="/"
                 sx={{
                   color: "#0F918F",
                   fontSize: { xs: "16px", sm: "20px", md: "25px", lg: "30px" },
