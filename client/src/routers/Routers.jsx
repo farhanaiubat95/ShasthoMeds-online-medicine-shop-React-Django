@@ -13,16 +13,31 @@ import "react-toastify/dist/ReactToastify.css";
 import AuthProtectedRoute from "./AuthProtectedRoute";
 import CustomerLayout from "../Layout/CustomerLayout";
 import CustomerHome from "../pages/CustomerHome";
+import ProductDetail from "../components/product/ProductDetail";
+import HomeMain from "../components/Home/HomeMain";
+import AdminDashboard from "../pages/AdminDashboard";
+import AdminLayout from "../Layout/AdminLayout";
+import Main from "../components/Admin/Main";
+import Categories from "../components/Admin/Categories";
+import Products from "../components/Admin/Products";
+import AllCustomer from "../components/Admin/AllCustomer";
+import Notification from "../components/Admin/Notification";
+import Payment from "../components/Admin/Payment";
 
 const Routers = () => {
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* Parent Route with Nested Pages */}
+        <Route path="/" element={<Home />}>
+          <Route index element={<HomeMain />} /> {/* Default view */}
+          <Route path="productdetails" element={<ProductDetail />} />
+        </Route>
 
         {/* Catch All */}
         <Route path="*" element={<ErrorPage />} />
+        <Route path="/productdetails" element={<ProductDetail />} />
         {/* <Route path="/product/:id" element={<DetailView />} /> */}
 
         {/* ==> Public Routes protected for logged-in users */}
@@ -50,21 +65,19 @@ const Routers = () => {
         </Route>
 
         {/* Admin */}
-        {/* <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route path="dashboard" element={<Dashboard />}>
+            <Route path="dashboard" element={<AdminDashboard />}>
               <Route index element={<Main />} />
-              <Route path="alladmin" element={<AllAdmin />} />
-
-              <Route path="allcustomer" element={<AllCustomer />} />
-              <Route path="allseller" element={<AllSeller />} />
-              <Route path="edit-admin/:id" element={<Edit />} />
-              <Route path="category" element={<Category />} />
+              <Route path="category" element={<Categories />} />
+              <Route path="product" element={<Products />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="all-user" element={<AllCustomer />} />
               <Route path="payment" element={<Payment />} />
               <Route path="notification" element={<Notification />} />
             </Route>
           </Route>
-        </Route> */}
+        </Route>
       </Routes>
     </>
   );

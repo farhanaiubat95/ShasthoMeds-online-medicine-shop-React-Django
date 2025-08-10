@@ -8,6 +8,7 @@ import image1 from "../assets/images/reg-img.jpg";
 // Redux
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice";
+import { CircularProgress } from "@mui/material";
 
 const commonInputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -31,15 +32,17 @@ function LoginPage() {
   });
 
   const [showResendOTP, setShowResendOTP] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setShowResendOTP(false);
+    setLoading(true); // Start loading
 
     try {
       const res = await axios.post(
         "https://shasthomeds-backend.onrender.com/login/",
-        { email, password }
+        { email, password },
       );
 
       const { access, refresh, user } = res.data;
@@ -53,8 +56,14 @@ function LoginPage() {
       // Dispatch to Redux store
       dispatch(setUserData({ user, access, refresh }));
 
-      // Navigate
-      navigate("/myaccount");
+      // Navigate based on user role
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (user.role === "user") {
+        navigate("/myaccount");
+      } else {
+        navigate("/login");
+      }
 
       setSnackbar({
         open: true,
@@ -69,6 +78,8 @@ function LoginPage() {
       if (errorMsg.toLowerCase().includes("not verified")) {
         setShowResendOTP(true);
       }
+    } finally {
+      setLoading(false); // Stop loading in both success & error cases
     }
   };
 
@@ -85,7 +96,7 @@ function LoginPage() {
     try {
       const response = await axios.post(
         "https://shasthomeds-backend.onrender.com/resend-otp/",
-        { email }
+        { email },
       );
 
       setSnackbar({
@@ -156,12 +167,18 @@ function LoginPage() {
               type="submit"
               size="large"
               className="mt-4"
+              disabled={loading}
               sx={{
                 backgroundColor: "#0F918F",
                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "8px",
               }}
             >
-              Login
+              {loading && <CircularProgress size={20} color="inherit" />}
+              {loading ? "Logging in..." : "Login"}
             </Button>
 
             {showResendOTP && (

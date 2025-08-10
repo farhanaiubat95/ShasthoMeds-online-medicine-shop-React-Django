@@ -8,7 +8,7 @@ const AuthProtectedRoute = () => {
   if (user) {
     // Already logged in → Redirect based on role
     if (user.role === "admin" || user.role === "Admin") {
-      return <Navigate to="/admin-dashboard" replace />;
+      return <Navigate to="/admin/dashboard" replace />;
     } else if (user.role === "user" || user.role === "User") {
       return <Navigate to="/myaccount" replace />;
     } else {

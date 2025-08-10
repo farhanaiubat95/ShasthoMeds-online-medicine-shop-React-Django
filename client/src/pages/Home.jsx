@@ -3,9 +3,8 @@ import React, { useState } from "react";
 import { Typography, IconButton, Drawer } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import Sidebar from "../components/Home/Sidebar";
-import ProductCard from "../components/product/ProductCard";
-import BannerCarousel from "../components/Home/BannerCarousel";
 import Navbar from "../components/Header/Navbar";
+import { Outlet } from "react-router-dom"; // import Outlet for nested routing
 
 export default function Home() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -50,12 +49,10 @@ export default function Home() {
         </Drawer>
 
         {/* Main Content */}
-        <main className="mt-11 md:ml-[270px] w-full flex-1 ">
-          <div className="border border-[#30C2C0] rounded-xl p-2">
-            <BannerCarousel />
+        <main className="mt-11 md:ml-[270px] w-full flex-1 overflow-hidden">
+          <div className="change-part">
+            <Outlet /> {/* This will change only this part based on nested route */}
           </div>
-
-          <ProductCard />
         </main>
       </div>
     </div>
