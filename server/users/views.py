@@ -171,6 +171,13 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [IsAdminUser]  # admin CRUD; you can relax list/retrieve later
 
+@action(detail=False, methods=['post'], url_path='add')
+def add_category(self, request):
+    serializer = self.get_serializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class BrandViewSet(viewsets.ModelViewSet):
     queryset = Brand.objects.all()
