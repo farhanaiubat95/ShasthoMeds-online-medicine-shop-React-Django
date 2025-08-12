@@ -21,9 +21,13 @@ import {
   KeyboardArrowDown,
   Menu as MenuIcon,
 } from "@mui/icons-material";
-import { Link, Navigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { logoutUser } from "../../redux/userSlice";
+import { useDispatch } from "react-redux";
 
 const AdminHeader = ({ onMenuClick, isMdUp }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const [hovered, setHovered] = useState(false);
@@ -39,11 +43,16 @@ const AdminHeader = ({ onMenuClick, isMdUp }) => {
     setAnchorEl(null);
   };
 
- 
-
   const handleLogout = () => {
-    alert("Logout clicked");
-    handleClose();
+    // Clear stored tokens / session
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+
+    // Optional: If you store user data in Redux, clear it here
+    dispatch(logoutUser());
+
+    // Redirect to login page
+    navigate("/login");
   };
 
   const theme = useTheme();
@@ -62,11 +71,12 @@ const AdminHeader = ({ onMenuClick, isMdUp }) => {
           "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06)",
       }}
     >
-      <Box
-        className="flex items-center justify-between w-full py-3"
-      >
+      <Box className="flex items-center justify-between w-full py-3">
         {/* Left section */}
-        <Box className="w-[50%] " sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+          className="w-[50%] "
+          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+        >
           {/* Show menu icon only on mobile */}
           {!isMdUp && (
             <IconButton
@@ -88,17 +98,14 @@ const AdminHeader = ({ onMenuClick, isMdUp }) => {
               fontWeight: 700,
               whiteSpace: "nowrap",
             }}
-            
           >
-            
-            <span className="text-xl lg:text-2xl">Shasthomeds</span> <span className="hidden lg:inline">- Online Medicine Store</span>
+            <span className="text-xl lg:text-2xl">Shasthomeds</span>{" "}
+            <span className="hidden lg:inline">- Online Medicine Store</span>
           </Typography>
         </Box>
 
         {/* Right section */}
-        <Box
-          className="w-[50%] "
-        >
+        <Box className="w-[50%] ">
           <div className="flex items-center gap-2 w-full justify-end">
             {/* Search */}
             <Box className="w-[60%] lg:w-[80%] flex items-center justify-end">
@@ -106,63 +113,61 @@ const AdminHeader = ({ onMenuClick, isMdUp }) => {
                 placeholder="Search Medicine"
                 variant="outlined"
                 size="small"
-            
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                color: "white",
-                backgroundColor: "rgba(255,255,255,0.1)",
-                borderRadius: 1,
-                height: { xs: 30 , md: 40}, // responsive minHeight
-                "& fieldset": {
-                  borderColor: "white",
-                },
-                "&:hover fieldset": {
-                  borderColor: "#0F918F",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#0F918F",
-                  boxShadow: "0 0 5px #0F918F",
-                },
-              },
-              "& .MuiInputBase-input::placeholder": {
-                color: "rgba(255,255,255,0.7)",
-                opacity: 1,
-              },
-              "& .MuiSvgIcon-root": {
-                color: "white",
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-          />
-
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    color: "white",
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    borderRadius: 1,
+                    height: { xs: 30, md: 40 }, // responsive minHeight
+                    "& fieldset": {
+                      borderColor: "white",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#0F918F",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#0F918F",
+                      boxShadow: "0 0 5px #0F918F",
+                    },
+                  },
+                  "& .MuiInputBase-input::placeholder": {
+                    color: "rgba(255,255,255,0.7)",
+                    opacity: 1,
+                  },
+                  "& .MuiSvgIcon-root": {
+                    color: "white",
+                  },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  ),
+                }}
+              />
             </Box>
-          {/* User icon + username + arrow */}
+            {/* User icon + username + arrow */}
             <Box
               className="w-[40%] lg:w-[20%]  flex items-center justify-center"
-            sx={{ 
-              flex: "0 0 auto",
-              display: "flex",
-              alignItems: "center",
-              cursor: "pointer",
-              color: "white",
-              userSelect: "none",
-              gap: 0.5,
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-            }}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onClick={handleClick}
-            aria-controls={open ? "account-menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? "true" : undefined}
-          >
+              sx={{
+                flex: "0 0 auto",
+                display: "flex",
+                alignItems: "center",
+                cursor: "pointer",
+                color: "white",
+                userSelect: "none",
+                gap: 0.5,
+                fontWeight: 600,
+                whiteSpace: "nowrap",
+              }}
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setHovered(false)}
+              onClick={handleClick}
+              aria-controls={open ? "account-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? "true" : undefined}
+            >
               <AccountCircle
                 sx={{
                   width: { xs: 20, md: 25 },
@@ -170,22 +175,23 @@ const AdminHeader = ({ onMenuClick, isMdUp }) => {
                 }}
               />
 
-            <Typography
-              sx={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                width: 100,
-              }}
-            >
-              {username}
-            </Typography>
-            <KeyboardArrowDown
-              sx={{
-                transition: "transform 0.3s ease",
-                transform: hovered || open ? "rotate(180deg)" : "rotate(0deg)",
-              }}
-            />
-          </Box>
+              <Typography
+                sx={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  width: 100,
+                }}
+              >
+                {username}
+              </Typography>
+              <KeyboardArrowDown
+                sx={{
+                  transition: "transform 0.3s ease",
+                  transform:
+                    hovered || open ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              />
+            </Box>
           </div>
         </Box>
 
@@ -211,19 +217,16 @@ const AdminHeader = ({ onMenuClick, isMdUp }) => {
           transformOrigin={{ horizontal: "right", vertical: "top" }}
           anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
-          
-            
           <Link to="/admin/dashboard/profile">
-            <MenuItem >
-            <ListItemIcon>
-              <AccountCircle fontSize="small" />
-            </ListItemIcon>
+            <MenuItem>
+              <ListItemIcon>
+                <AccountCircle fontSize="small" />
+              </ListItemIcon>
               Profile
-              </MenuItem>
+            </MenuItem>
           </Link>
 
-
-          <MenuItem >
+          <MenuItem onClick={handleLogout}>
             <ListItemIcon>
               <Logout fontSize="small" />
             </ListItemIcon>
