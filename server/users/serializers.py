@@ -64,7 +64,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
         send_mail(
             subject='Your OTP Code from ShasthoMeds',
-            message=f"Hello {user.full_name},\n\n Thank you for registering with ShasthoMeds.\n\nYour OTP code is: {otp}.",
+            message=f"Hello {user.username},\n\n Thank you for registering with ShasthoMeds.\n\nYour OTP code is: {otp}.",
             from_email=EMAIL_HOST_USER ,
             recipient_list=[user.email],
             fail_silently=False
