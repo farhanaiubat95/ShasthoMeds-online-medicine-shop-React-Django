@@ -46,8 +46,16 @@ function Registerpage() {
 
     console.log("Form Data Submitted:", formData);
 
+    // Password match check
     if (formData.password !== formData.password2) {
       toast.error("Passwords do not match!");
+      return;
+    }
+
+    // Phone number validation (exactly 11 digits)
+    const phonePattern = /^\d{11}$/; // only digits and exactly 11 characters
+    if (!phonePattern.test(formData.phone)) {
+      toast.error("Phone number must be exactly 11 digits.");
       return;
     }
 
@@ -78,8 +86,8 @@ function Registerpage() {
 
       console.log("Response Data:", response.data);
       toast.success("Registration successful!");
-      
-      // After successful registration:
+
+      // Store email for OTP verification
       localStorage.setItem("otp_email", formData.email);
       setTimeout(() => navigate("/verify-otp"));
 
