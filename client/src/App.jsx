@@ -13,14 +13,15 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-    const access = localStorage.getItem("access_token");
-    const refresh = localStorage.getItem("refresh_token");
-    const user = JSON.parse(localStorage.getItem("user"));
+  const access = localStorage.getItem("access_token");
+  const refresh = localStorage.getItem("refresh_token");
+  const user = JSON.parse(localStorage.getItem("user"));
 
-    if (access && refresh && user) {
-      dispatch(setUserData({ user, access, refresh }));
-    }
-  }, [dispatch]);
+  if (access && refresh && user) {
+    dispatch(setUserData({ user, access, refresh })); // restores Redux state
+  }
+}, [dispatch]);
+
 
 
   const isAdminRoute = location.pathname.startsWith("/admin/dashboard");
