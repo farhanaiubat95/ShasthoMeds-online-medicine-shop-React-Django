@@ -52,15 +52,18 @@ const Routers = () => {
 
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
           <Route path="/myaccount" element={<CustomerLayout />}>
-            <Route index element={<CustomerHome />} />
+            {/* CustomerHome is the parent page with <Outlet /> */}
+            <Route element={<CustomerHome />}>
+              <Route index element={<HomeMain />} /> {/* Default nested page */}
+              <Route path="productdetails" element={<ProductDetail />} />
+            </Route>
+
+            {/* Other sections */}
             <Route path="profile" element={<Profile />} />
             <Route path="cart" element={<Cart />} />
             {/* <Route path="checkout" element={<Checkout />} />
-            <Route
-              path="payment-success/:tran_id"
-              element={<PaymentSuccess />}
-            />
-            <Route path="AllOrders" element={<AllOrders />} /> */}
+    <Route path="payment-success/:tran_id" element={<PaymentSuccess />} />
+    <Route path="AllOrders" element={<AllOrders />} /> */}
           </Route>
         </Route>
 

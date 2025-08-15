@@ -24,6 +24,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'date_of_birth', 'city', 'address', 'password', 'password2', 'is_verified', 'is_active', 'role'
         ]
 
+    def validate_phone(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Phone number must contain only digits.")
+        if len(value) > 11:
+            raise serializers.ValidationError("Phone number must not be more than 11 digits.")
+        return value
+
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
@@ -54,19 +61,16 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
         EmailOTP.objects.create(user=user, otp_code=otp)
 
-        # For now, we will just print the OTP to console.
-        # Later we will send this via SMS/email
-        # print(f"OTP for user {user.phone}: {otp}")
-
         send_mail(
             subject='Your OTP Code from ShasthoMeds',
-            message=f"Hello {user.username},\n\n Thank you for registering with ShasthoMeds.\n\nYour OTP code is: {otp}.",
-            from_email=EMAIL_HOST_USER ,
+            message=f"Hello {user.username},\n\nThank you for registering with ShasthoMeds.\n\nYour OTP code is: {otp}.",
+            from_email=EMAIL_HOST_USER,
             recipient_list=[user.email],
             fail_silently=False
         )
 
         return user
+
 
 # User login serializer
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):

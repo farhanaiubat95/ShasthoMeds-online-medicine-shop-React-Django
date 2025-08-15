@@ -3,15 +3,15 @@ import { useSelector } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 const AdminLayout = () => {
-  const user = useSelector((state) => state.auth.user);
+//   const user = useSelector((state) => state.auth.user);
 
-  const navigate = useNavigate();
+//   const navigate = useNavigate();
 
-//   useEffect(() => {
-//     if (user && user.role !== 'admin') {
-//       navigate("/login"); // Not an admin? Kick out to home
-//     }
-//   }, [user, navigate]);
+// //   useEffect(() => {
+// //     if (user && user.role !== 'admin') {
+// //       navigate("/login"); // Not an admin? Kick out to home
+// //     }
+// //   }, [user, navigate]);
 
   return (
     <div>
