@@ -100,6 +100,16 @@ class Category(models.Model):
     
 # Product model
 class Product(models.Model):
+    UNIT_CHOICES = (
+        ('pcs', 'Pieces'),
+        ('tablet', 'Tablet'),
+        ('capsule', 'Capsule'),
+        ('ml', 'ml'),        # for suspension/liquid
+        ('g', 'g'),          # for powder/cream
+        ('bottle', 'Bottle'),
+        # add more if needed
+    )
+
     sku = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
@@ -114,7 +124,7 @@ class Product(models.Model):
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
     stock = models.PositiveIntegerField(default=0)
-    unit = models.CharField(max_length=50, default="pcs")
+    unit = models.CharField(max_length=50, choices=UNIT_CHOICES, default="pcs")
     prescription_required = models.BooleanField(default=False)
     
     image1 = models.ImageField(upload_to="products/", validators=[validate_image_size])
@@ -149,6 +159,5 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.sku})"
-
 
 #
