@@ -59,7 +59,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "id","sku", "name", "slug", "category", "brand", "price", 
-        "offer_price", "new_price", "discount_price", "stock", "is_active", "created_at", "updated_at"
+        "offer_price", "new_price", "discount_price", "stock","display_unit","is_active", "created_at", "updated_at"
     )
     search_fields = ("sku", "name")
     prepopulated_fields = {"slug": ("name",)}

@@ -132,7 +132,13 @@ class Product(models.Model):
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     stock = models.PositiveIntegerField(default=0)
-    unit = models.CharField(max_length=50, choices=UNIT_CHOICES, default="pcs")
+    unit = models.CharField(max_length=50, choices=UNIT_CHOICES, default='pcs')
+    unit_value = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="Specify the quantity or volume (e.g., '5 ml', '2 tablets')"
+    )
     prescription_required = models.BooleanField(default=False)
 
     image1 = models.ImageField(upload_to="products/", validators=[validate_image_size])
@@ -164,9 +170,18 @@ class Product(models.Model):
             self.discount_price = 0
 
         super().save(*args, **kwargs)
+    
+    def display_unit(self):
+        """Return the unit with its value if available"""
+        if self.unit_value:
+            return f"{self.unit_value} {self.get_unit_display()}"
+        return self.get_unit_display()
 
     def __str__(self):
         return f"{self.name} ({self.sku})"
+    
+
+
 
 
 #
