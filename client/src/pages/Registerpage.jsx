@@ -173,12 +173,19 @@ function Registerpage() {
               <TextField
                 name="phone"
                 value={formData.phone}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  // Allow only digits and max 11 chars
+                  if (/^\d*$/.test(value) && value.length <= 11) {
+                    setFormData((prev) => ({ ...prev, phone: value }));
+                  }
+                }}
                 fullWidth
                 label="Phone Number"
                 variant="outlined"
                 placeholder="Enter your phone number"
                 required
+                inputProps={{ maxLength: 11 }} // ⬅️ Prevents pasting > 11
                 sx={commonInputStyle}
               />
             </div>

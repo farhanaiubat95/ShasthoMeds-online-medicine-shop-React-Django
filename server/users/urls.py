@@ -1,3 +1,5 @@
+# Rest API endpoint
+
 from django.urls import path
 from .views import (
     APIRootView, BrandViewSet, LogoutView, RegisterAPIView, ResendOTPView,

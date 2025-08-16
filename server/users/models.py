@@ -47,10 +47,12 @@ class EmailOTP(models.Model):
 # Brand model
 
 def validate_image_size(image):
+    if not image:
+        return  # allow blank
     max_size = 2 * 1024 * 1024  # 2 MB
     if image.size > max_size:
         raise ValidationError("Image size must be 2 MB or less.")
-
+    
 class Brand(models.Model):
     name = models.CharField(max_length=120)
     slug = models.SlugField(unique=True, blank=True)
@@ -63,7 +65,11 @@ class Brand(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            base_slug = slugify(self.name)
+            slug = base_slug
+            while Brand.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{uuid4().hex[:6]}"
+                self.slug = slug
         super().save(*args, **kwargs)
 
     def __str__(self):
