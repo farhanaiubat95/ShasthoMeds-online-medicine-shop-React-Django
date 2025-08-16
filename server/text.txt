@@ -18,7 +18,7 @@
 6. register
    http://127.0.0.1:8000/shasthomeds/user/register/
    
-
+7. pip freeze > requirements.txt  ---> for update new pip install module
 
 
 
