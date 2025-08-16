@@ -107,30 +107,38 @@ class Product(models.Model):
         ('ml', 'ml'),        # for suspension/liquid
         ('g', 'g'),          # for powder/cream
         ('bottle', 'Bottle'),
-        # add more if needed
     )
 
     sku = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     description = models.TextField(blank=True)
-    
+
+    # Medical-specific fields
+    generic_name = models.CharField(max_length=255, blank=True)
+    indication = models.TextField(blank=True)
+    adult_dose = models.TextField(blank=True)
+    child_dose = models.TextField(blank=True)
+    contraindication = models.TextField(blank=True)
+    precaution = models.TextField(blank=True)
+    side_effect = models.TextField(blank=True)
+
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products")
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
-    
+
     price = models.DecimalField(max_digits=10, decimal_places=2)
     new_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     offer_price = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    
+
     stock = models.PositiveIntegerField(default=0)
     unit = models.CharField(max_length=50, choices=UNIT_CHOICES, default="pcs")
     prescription_required = models.BooleanField(default=False)
-    
+
     image1 = models.ImageField(upload_to="products/", validators=[validate_image_size])
     image2 = models.ImageField(upload_to="products/", null=True, blank=True, validators=[validate_image_size])
     image3 = models.ImageField(upload_to="products/", null=True, blank=True, validators=[validate_image_size])
-    
+
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -146,9 +154,9 @@ class Product(models.Model):
             while Product.objects.filter(slug=slug).exists():
                 slug = f"{base_slug}-{uuid4().hex[:6]}"
             self.slug = slug
-        
-        # Calculate new_price and discount_price if offer_price > 0
-        if self.offer_price > 0:
+
+        # Calculate new_price and discount_price
+        if self.offer_price and self.offer_price > 0:
             self.new_price = self.price - (self.price * self.offer_price / 100)
             self.discount_price = self.price - self.new_price
         else:
@@ -159,5 +167,6 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.sku})"
+
 
 #
