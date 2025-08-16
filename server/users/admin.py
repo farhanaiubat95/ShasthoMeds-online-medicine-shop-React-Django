@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.forms import ValidationError
 from shasthomeds.settings import EMAIL_HOST_USER
 from .models import (
     CustomUser, EmailOTP, Brand
@@ -35,6 +36,12 @@ class EmailOTPAdmin(admin.ModelAdmin):
 # Brand model
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    list_display = ("name", "created_at", "updated_at")
+    list_display = ("name", "slug", "created_at", "updated_at")
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
+
+    def save_model(self, request, obj, form, change):
+        # Extra check for image size (optional, redundant with validator)
+        if obj.image and obj.image.size > 2 * 1024 * 1024:
+            raise ValidationError("Image size must be 2 MB or less.")
+        super().save_model(request, obj, form, change)
