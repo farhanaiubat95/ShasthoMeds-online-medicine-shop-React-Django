@@ -7,8 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 
-from .models import Brand, Category
-from .serializers import BrandSerializer, CategorySerializer
+from .models import Brand, Category, Product
+from .serializers import BrandSerializer, CategorySerializer, ProductSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
@@ -172,3 +172,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by("-created_at")
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+# View to get all products
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all().order_by("-created_at")
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # anyone can read, only logged-in can create/update/delete

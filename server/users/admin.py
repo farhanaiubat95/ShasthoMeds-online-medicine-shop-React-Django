@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.forms import ValidationError
 from shasthomeds.settings import EMAIL_HOST_USER
 from .models import (
-    Category, CustomUser, EmailOTP, Brand
+    Category, CustomUser, EmailOTP, Brand, Product
 )
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -53,3 +53,22 @@ class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ("name",)
     list_filter = ("is_active", "created_at")
+
+# Product model
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = (
+        "id","sku", "name", "slug", "category", "brand", "price", 
+        "offer_price", "new_price", "discount_price", "stock", "is_active", "created_at", "updated_at"
+    )
+    search_fields = ("sku", "name")
+    prepopulated_fields = {"slug": ("name",)}
+    list_filter = ("is_active", "category", "brand", "created_at")
+
+    def save_model(self, request, obj, form, change):
+        # Validate image sizes again at admin level (optional)
+        for img_field in ['image1', 'image2', 'image3']:
+            img = getattr(obj, img_field)
+            if img and img.size > 2 * 1024 * 1024:
+                raise ValidationError(f"{img_field} must not exceed 2 MB.")
+        super().save_model(request, obj, form, change)

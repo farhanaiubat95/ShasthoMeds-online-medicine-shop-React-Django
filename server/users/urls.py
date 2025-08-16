@@ -2,7 +2,7 @@
 
 from django.urls import path
 from .views import (
-    APIRootView, BrandViewSet, CategoryViewSet, LogoutView, RegisterAPIView, ResendOTPView,
+    APIRootView, BrandViewSet, CategoryViewSet, LogoutView, ProductViewSet, RegisterAPIView, ResendOTPView,
     UpdateProfileView, VerifyOTPView, CustomTokenObtainPairView,
 )
 
@@ -15,7 +15,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r'brands', BrandViewSet, basename='brand')
 router.register(r'categories', CategoryViewSet, basename='category')
-
+router.register(r'products', ProductViewSet, basename='product')
 
 urlpatterns = [
     path('', APIRootView.as_view(), name='api-root'),
