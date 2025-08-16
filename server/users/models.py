@@ -42,3 +42,23 @@ class EmailOTP(models.Model):
     def __str__(self):
         return f"{self.user.email} - OTP: {self.otp_code}"
     
+
+# Brand model
+class Brand(models.Model):
+    name = models.CharField(max_length=120)
+    slug = models.SlugField(unique=True)
+    image = models.ImageField(upload_to="brands/", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def save(self, *args, **kwargs):
+        # Auto-generate slug if not provided
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name

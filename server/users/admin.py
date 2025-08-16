@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from shasthomeds.settings import EMAIL_HOST_USER
 from .models import (
-    CustomUser, EmailOTP
+    CustomUser, EmailOTP, Brand
 )
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -30,3 +30,11 @@ class CustomUserAdmin(UserAdmin):
 class EmailOTPAdmin(admin.ModelAdmin):
     list_display = ('user', 'otp_code', 'created_at')
     search_fields = ('user__email',)
+
+
+# Brand model
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ("name", "created_at", "updated_at")
+    search_fields = ("name",)
+    prepopulated_fields = {"slug": ("name",)}

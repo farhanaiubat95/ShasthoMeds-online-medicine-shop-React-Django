@@ -7,6 +7,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 
+from .models import Brand
+from .serializers import BrandSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+
 from django.conf import settings
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
@@ -120,7 +125,6 @@ class ResendOTPView(APIView):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-
 # Protected view
 class MyProtectedView(APIView):
     permission_classes = [IsAuthenticated]
@@ -145,7 +149,6 @@ class LogoutView(APIView):
         except Exception as e:
             return Response({"message": "Token is Blacklisted"},status=status.HTTP_400_BAD_REQUEST)
     
-
 # View to update profile
 class UpdateProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -158,3 +161,8 @@ class UpdateProfileView(APIView):
             return Response({'message': 'Profile updated successfully', 'user': serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# View to get all brands
+class BrandViewSet(viewsets.ModelViewSet):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # anyone can read, only logged-in users can create/update/delete

@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    APIRootView, LogoutView, RegisterAPIView, ResendOTPView,
+    APIRootView, BrandViewSet, LogoutView, RegisterAPIView, ResendOTPView,
     UpdateProfileView, VerifyOTPView, CustomTokenObtainPairView,
 
     # CRUD views
@@ -14,6 +14,8 @@ from rest_framework_simplejwt.views import ( # pyright: ignore[reportMissingImpo
 
 from rest_framework.routers import DefaultRouter
 
+router = DefaultRouter()
+router.register(r'brands', BrandViewSet, basename='brand')
 
 urlpatterns = [
     path('', APIRootView.as_view(), name='api-root'),

@@ -3,6 +3,8 @@ from shasthomeds.settings import EMAIL_HOST_USER
 from django.contrib.auth.password_validation import validate_password
 import random
 from django.core.mail import send_mail
+from .models import Brand
+
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer # pyright: ignore[reportMissingImports]
 
@@ -109,3 +111,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'city', 'address'
         ]
 
+
+# Serializer for Brand
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = ["id", "name", "slug", "image", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "slug"]
+
+    def validate_image(self, value):
+        max_size_mb = 2
+        if value.size > max_size_mb * 1024 * 1024:
+            raise serializers.ValidationError(f"Image size must not exceed {max_size_mb} MB.")
+        return value
