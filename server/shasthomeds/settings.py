@@ -8,12 +8,9 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security Settings
-# DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 SECRET_KEY = config("SECRET_KEY")
-# ALLOWED_HOSTS = ['shasthomeds-backend.onrender.com', 'localhost', '127.0.0.1']
-
-DEBUG = True  # Temporarily, only for debugging
-ALLOWED_HOSTS = ['*'] 
+ALLOWED_HOSTS = ['shasthomeds-backend.onrender.com', 'localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [

@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.forms import ValidationError
 from shasthomeds.settings import EMAIL_HOST_USER
 from .models import (
-    CustomUser, EmailOTP, Brand
+    Category, CustomUser, EmailOTP, Brand
 )
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -36,7 +36,7 @@ class EmailOTPAdmin(admin.ModelAdmin):
 # Brand model
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug", "created_at", "updated_at")
+    list_display = ("id","name", "slug", "created_at", "updated_at")
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
 
@@ -45,3 +45,11 @@ class BrandAdmin(admin.ModelAdmin):
         if obj.image and obj.image.size > 2 * 1024 * 1024:
             raise ValidationError("Image size must be 2 MB or less.")
         super().save_model(request, obj, form, change)
+
+# Category model
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "slug", "parent", "is_active", "created_at")
+    prepopulated_fields = {"slug": ("name",)}
+    search_fields = ("name",)
+    list_filter = ("is_active", "created_at")

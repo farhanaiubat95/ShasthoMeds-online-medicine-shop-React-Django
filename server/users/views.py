@@ -7,8 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 
-from .models import Brand
-from .serializers import BrandSerializer
+from .models import Brand, Category
+from .serializers import BrandSerializer, CategorySerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
@@ -163,6 +163,12 @@ class UpdateProfileView(APIView):
 
 # View to get all brands
 class BrandViewSet(viewsets.ModelViewSet):
-    queryset = Brand.objects.all()
+    queryset = Brand.objects.all().order_by("-created_at")
     serializer_class = BrandSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # anyone can read, only logged-in users can create/update/delete
+
+# View to get all categories
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all().order_by("-created_at")
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]

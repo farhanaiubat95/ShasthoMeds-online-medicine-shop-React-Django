@@ -44,15 +44,17 @@ class EmailOTP(models.Model):
         return f"{self.user.email} - OTP: {self.otp_code}"
     
 
-# Brand model
 
+# Image size validator
 def validate_image_size(image):
     if not image:
         return  # allow blank
     max_size = 2 * 1024 * 1024  # 2 MB
     if image.size > max_size:
         raise ValidationError("Image size must be 2 MB or less.")
-    
+
+
+# Brand model
 class Brand(models.Model):
     name = models.CharField(max_length=120)
     slug = models.SlugField(unique=True, blank=True)
@@ -70,6 +72,27 @@ class Brand(models.Model):
             while Brand.objects.filter(slug=slug).exists():
                 slug = f"{base_slug}-{uuid4().hex[:6]}"
                 self.slug = slug
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+# Category model
+class Category(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    image = models.ImageField(upload_to="categories/", validators=[validate_image_size], null=True, blank=True)
+    parent = models.ForeignKey(
+        "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="children"
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
     def __str__(self):
