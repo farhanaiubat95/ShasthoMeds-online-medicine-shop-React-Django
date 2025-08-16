@@ -140,6 +140,9 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at", "updated_at", "slug", "new_price", "discount_price"]
 
+    def get_display_unit(self, obj):
+        return obj.display_unit()
+    
     def validate_image1(self, value):
         max_size_mb = 2
         if value.size > max_size_mb * 1024 * 1024:
