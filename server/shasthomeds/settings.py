@@ -25,6 +25,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'rest_framework_simplejwt.token_blacklist',
+
+    # 3rd-party for media
+    "cloudinary_storage",
+    "cloudinary",
 ]
 
 MIDDLEWARE = [
@@ -135,7 +139,20 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
+USE_CLOUDINARY = config("CLOUDINARY_URL", default=None)
+if USE_CLOUDINARY:
+    # Store uploaded media on Cloudinary in production
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+    # Optional fine-tuning:
+    CLOUDINARY_STORAGE = {
+        "SECURE": True,          # serve https URLs
+        "OVERWRITE": False,      # don't overwrite files with same name
+    }
+else:
+    # Local dev: store under /media
+    MEDIA_ROOT = BASE_DIR / "media"
 
 
 # Security Headers
