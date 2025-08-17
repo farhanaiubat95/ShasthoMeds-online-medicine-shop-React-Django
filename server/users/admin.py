@@ -49,7 +49,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "id", "sku", "name", "slug", "category", "brand", "price", "new_price",
-        "offer_price", "discount_price", "stock", "display_unit", "is_active",
+        "offer_price", "discount_price", "stock", "display_unit","package_quantity","is_active",
         "created_at", "updated_at"
     )
     search_fields = ("sku", "name")
@@ -58,20 +58,31 @@ class ProductAdmin(admin.ModelAdmin):
     exclude = ('discount_price', "new_price")
 
     def save_model(self, request, obj, form, change):
-        # Auto-calculate offer_price or discount_price
         if obj.offer_price is None:
             obj.offer_price = obj.price
         if obj.discount_price is None:
             obj.discount_price = obj.price - (obj.price * 0.1)
+        
 
+        # Automatically set package_quantity based on unit
+        if obj.unit in ['tablet', 'capsule']:
+            obj.package_quantity = 'strip'
+        elif obj.unit == 'bottle':
+            obj.package_quantity = 'box'
+        else:
+            obj.package_quantity = None
+
+        
         # Check each image field for Cloudinary if used
         cloud_storage = getattr(settings, 'DEFAULT_FILE_STORAGE', '')
         for img_field in ['image1', 'image2', 'image3']:
             img = getattr(obj, img_field)
             if img:
                 print(f"{img_field} uploaded to: {img.url}")
-                if cloud_storage == "cloudinary_storage.storage.MediaCloudinaryStorage":
-                    if "res.cloudinary.com" not in img.url:
-                        raise ValidationError(f"{img_field} was not uploaded to Cloudinary!")
+            if cloud_storage == "cloudinary_storage.storage.MediaCloudinaryStorage":
+                if "res.cloudinary.com" not in img.url:
+                    raise ValidationError(f"{img_field} was not uploaded to Cloudinary!")
 
         super().save_model(request, obj, form, change)
+
+    

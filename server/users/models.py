@@ -107,14 +107,39 @@ class Category(models.Model):
         return self.name
     
 # Product model
+from django.db import models
+from django.forms import ValidationError
+from django.utils import timezone
+from django.utils.text import slugify
+from uuid import uuid4
+
+# Image size validator
+def validate_image_size(image):
+    if not image:
+        return
+    max_size = 2 * 1024 * 1024  # 2 MB
+    if image.size > max_size:
+        raise ValidationError("Image size must be 2 MB or less.")
+
+
 class Product(models.Model):
     UNIT_CHOICES = (
         ('pcs', 'Pieces'),
         ('tablet', 'Tablet'),
         ('capsule', 'Capsule'),
-        ('ml', 'ml'),        # for suspension/liquid
-        ('g', 'g'),          # for powder/cream
         ('bottle', 'Bottle'),
+    )
+
+    WEIGHT_CHOICES = (
+        ("mg", "mg"),
+        ("ml", "ml"),
+        ("g", "g"),
+    )
+
+    PACKAGE_CHOICES = (
+        ('strip', '1 Strip'),
+        ('box', '1 Box'),
+        ('pack', '1 Pack'),
     )
 
     sku = models.CharField(max_length=100, unique=True)
@@ -131,8 +156,8 @@ class Product(models.Model):
     precaution = models.TextField(blank=True)
     side_effect = models.TextField(blank=True)
 
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products")
-    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name="products")
+    brand = models.ForeignKey('Brand', on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
     new_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -147,6 +172,14 @@ class Product(models.Model):
         null=True,
         help_text="Specify the quantity or volume (e.g., '5 ml', '2 tablets')"
     )
+
+    # Weight fields
+    weight_value = models.PositiveIntegerField(blank=True, null=True)
+    weight_unit = models.CharField(max_length=10, choices=WEIGHT_CHOICES, blank=True, null=True)
+
+    # Package quantity (like 1 strip / 1 box)
+    package_quantity = models.CharField(max_length=20, choices=PACKAGE_CHOICES, blank=True, null=True)
+
     prescription_required = models.BooleanField(default=False)
 
     image1 = models.ImageField(upload_to="products/", validators=[validate_image_size])
@@ -161,6 +194,9 @@ class Product(models.Model):
         ordering = ["name"]
 
     def save(self, *args, **kwargs):
+        # Debug stock before save
+        print("Before save -> Stock:", self.stock)
+
         # Auto-generate slug if blank
         if not self.slug:
             base_slug = slugify(self.name)
@@ -177,8 +213,19 @@ class Product(models.Model):
             self.new_price = self.price
             self.discount_price = 0
 
+        # Determine package_quantity automatically
+        if self.unit == 'tablet' or self.unit == 'capsule':
+            self.package_quantity = 'strip'
+        elif self.unit == 'bottle':
+            self.package_quantity = 'box'
+        else:
+            self.package_quantity = None
+
         super().save(*args, **kwargs)
-    
+
+        # Debug stock after save
+        print("After save -> Stock:", self.stock)
+
     def display_unit(self):
         """Return the unit with its value if available"""
         if self.unit_value:
@@ -187,8 +234,6 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.sku})"
-    
-
 
 
 
