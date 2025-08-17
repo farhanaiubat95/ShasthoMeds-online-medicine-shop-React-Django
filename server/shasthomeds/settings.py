@@ -138,21 +138,17 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media
-MEDIA_URL = '/media/'
-
 USE_CLOUDINARY = config("CLOUDINARY_URL", default=None)
-if USE_CLOUDINARY:
-    # Store uploaded media on Cloudinary in production
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-    # Optional fine-tuning:
+if USE_CLOUDINARY:
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
     CLOUDINARY_STORAGE = {
-        "SECURE": True,          # serve https URLs
-        "OVERWRITE": False,      # don't overwrite files with same name
+        "SECURE": True,
+        "OVERWRITE": False,
     }
 else:
-    # Local dev: store under /media
     MEDIA_ROOT = BASE_DIR / "media"
+    MEDIA_URL = "/media/"
 
 
 # Security Headers

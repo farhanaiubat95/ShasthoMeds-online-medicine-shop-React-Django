@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.forms import ValidationError
-from shasthomeds.settings import EMAIL_HOST_USER
+from shasthomeds.settings import EMAIL_HOST_USER, USE_CLOUDINARY
 from .models import (
     Category, CustomUser, EmailOTP, Brand, Product
 )
@@ -50,17 +50,30 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
-        "id","sku", "name", "slug", "category", "brand", "price", 
-        "offer_price", "new_price", "discount_price", "stock","display_unit","is_active", "created_at", "updated_at"
+        "id", "sku", "name", "slug", "category", "brand", "price",
+        "offer_price", "discount_price", "stock", "display_unit", "is_active", "created_at", "updated_at"
     )
     search_fields = ("sku", "name")
     prepopulated_fields = {"slug": ("name",)}
     list_filter = ("is_active", "category", "brand", "created_at")
 
+    # Hide these fields from the admin add/change form
+    exclude = ('offer_price', 'discount_price')
+
     def save_model(self, request, obj, form, change):
-        # Validate image sizes again at admin level (optional)
+        # Auto-calculate offer_price or discount_price before saving
+        if obj.offer_price is None:
+            obj.offer_price = obj.price  # default: same as price
+        if obj.discount_price is None:
+            # Example: discount 10% of price
+            obj.discount_price = obj.price - (obj.price * 0.1)
+        
+        # Check each image field
         for img_field in ['image1', 'image2', 'image3']:
             img = getattr(obj, img_field)
-            if img and img.size > 2 * 1024 * 1024:
-                raise ValidationError(f"{img_field} must not exceed 2 MB.")
+            if img:
+                print(f"{img_field} uploaded to: {img.url}")  # <-- this prints the Cloudinary URL
+                if USE_CLOUDINARY and "res.cloudinary.com" not in img.url:
+                    raise ValidationError(f"{img_field} was not uploaded to Cloudinary!")
+                
         super().save_model(request, obj, form, change)
