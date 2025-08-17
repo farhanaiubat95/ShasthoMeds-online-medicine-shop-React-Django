@@ -150,6 +150,10 @@ cloudinary.config(
     secure=True
 )
 
+# Use Cloudinary for all uploaded media files
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+
 # Security Headers
 SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31536000
