@@ -3,11 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.forms import ValidationError
 from .models import Category, CustomUser, EmailOTP, Brand, Product
-from django.utils import timezone
 from django.core.mail import send_mail
-
-# Use settings to get cloud info
-cloud_name = getattr(settings, 'CLOUDINARY_STORAGE', {}).get('CLOUD_NAME', None)
 
 # CustomUser model
 @admin.register(CustomUser)
@@ -67,13 +63,15 @@ class ProductAdmin(admin.ModelAdmin):
             obj.offer_price = obj.price
         if obj.discount_price is None:
             obj.discount_price = obj.price - (obj.price * 0.1)
-        
-        # Check each image field for Cloudinary
+
+        # Check each image field for Cloudinary if used
+        cloud_storage = getattr(settings, 'DEFAULT_FILE_STORAGE', '')
         for img_field in ['image1', 'image2', 'image3']:
             img = getattr(obj, img_field)
             if img:
-                print(f"{img_field} uploaded to: {img.url}")  # Cloudinary URL
-                if cloud_name and "res.cloudinary.com" not in img.url:
-                    raise ValidationError(f"{img_field} was not uploaded to Cloudinary!")
-                
+                print(f"{img_field} uploaded to: {img.url}")
+                if cloud_storage == "cloudinary_storage.storage.MediaCloudinaryStorage":
+                    if "res.cloudinary.com" not in img.url:
+                        raise ValidationError(f"{img_field} was not uploaded to Cloudinary!")
+
         super().save_model(request, obj, form, change)

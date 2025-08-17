@@ -1,77 +1,161 @@
-from django.conf import settings
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.forms import ValidationError
-from .models import Category, CustomUser, EmailOTP, Brand, Product
+from rest_framework import serializers
+from shasthomeds.settings import EMAIL_HOST_USER
+from django.contrib.auth.password_validation import validate_password
+import random
 from django.core.mail import send_mail
+from .models import Brand, Category, Product
 
-# CustomUser model
-@admin.register(CustomUser)
-class CustomUserAdmin(UserAdmin):
-    model = CustomUser
-    list_display = (
-        'full_name', 'username', 'email', 'phone', 'gender', 'city', 'address',
-        'date_of_birth', 'is_verified', 'is_active', 'role'
-    )
-    fieldsets = UserAdmin.fieldsets + (
-        ("Personal Info", {
-            'fields': ('full_name', 'phone', 'gender', 'date_of_birth', 'city', 'address', 'is_verified', 'role')
-        }),
-    )
 
-@admin.register(EmailOTP)
-class EmailOTPAdmin(admin.ModelAdmin):
-    list_display = ('user', 'otp_code', 'created_at')
-    search_fields = ('user__email',)
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer # pyright: ignore[reportMissingImports]
 
-# Brand model
-@admin.register(Brand)
-class BrandAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "slug", "created_at", "updated_at")
-    search_fields = ("name",)
-    prepopulated_fields = {"slug": ("name",)}
+# Models
+from .models import (
+    CustomUser, EmailOTP,
+    
+)
 
-    def save_model(self, request, obj, form, change):
-        if obj.image and obj.image.size > 2 * 1024 * 1024:
-            raise ValidationError("Image size must be 2 MB or less.")
-        super().save_model(request, obj, form, change)
+# User registration serializer
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
 
-# Category model
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "slug", "parent", "is_active", "created_at")
-    prepopulated_fields = {"slug": ("name",)}
-    search_fields = ("name",)
-    list_filter = ("is_active", "created_at")
+    class Meta:
+        model = CustomUser
+        fields = [
+            'id', 'full_name', 'username', 'email', 'phone', 'gender',
+            'date_of_birth', 'city', 'address', 'password', 'password2', 'is_verified', 'is_active', 'role'
+        ]
 
-# Product model
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = (
-        "id", "sku", "name", "slug", "category", "brand", "price", "new_price",
-        "offer_price", "discount_price", "stock", "display_unit", "is_active",
-        "created_at", "updated_at"
-    )
-    search_fields = ("sku", "name")
-    prepopulated_fields = {"slug": ("name",)}
-    list_filter = ("is_active", "category", "brand", "created_at")
-    exclude = ('discount_price', "new_price")
+    def validate_phone(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Phone number must contain only digits.")
+        if len(value) > 11:
+            raise serializers.ValidationError("Phone number must not be more than 11 digits.")
+        return value
 
-    def save_model(self, request, obj, form, change):
-        # Auto-calculate offer_price or discount_price
-        if obj.offer_price is None:
-            obj.offer_price = obj.price
-        if obj.discount_price is None:
-            obj.discount_price = obj.price - (obj.price * 0.1)
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+        return attrs
 
-        # Check each image field for Cloudinary if used
-        cloud_storage = getattr(settings, 'DEFAULT_FILE_STORAGE', '')
-        for img_field in ['image1', 'image2', 'image3']:
-            img = getattr(obj, img_field)
-            if img:
-                print(f"{img_field} uploaded to: {img.url}")
-                if cloud_storage == "cloudinary_storage.storage.MediaCloudinaryStorage":
-                    if "res.cloudinary.com" not in img.url:
-                        raise ValidationError(f"{img_field} was not uploaded to Cloudinary!")
+    def create(self, validated_data):
+        validated_data.pop('password2')
+        role = validated_data.pop('role', 'user')  # default to 'user' if not provided
 
-        super().save_model(request, obj, form, change)
+        # Generate a random 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+
+        # Create the user and set is_verified = False
+        user = CustomUser.objects.create_user(
+            full_name=validated_data['full_name'],
+            username=validated_data['username'],
+            email=validated_data['email'],
+            phone=validated_data['phone'],
+            gender=validated_data['gender'],
+            date_of_birth=validated_data['date_of_birth'],
+            city=validated_data['city'],
+            address=validated_data['address'],
+            password=validated_data['password'],
+            role=role, 
+            is_verified=False,
+            is_active=False,
+        )
+
+        EmailOTP.objects.create(user=user, otp_code=otp)
+
+        send_mail(
+            subject='Your OTP Code from ShasthoMeds',
+            message=f"Hello {user.username},\n\nThank you for registering with ShasthoMeds.\n\nYour OTP code is: {otp}.",
+            from_email=EMAIL_HOST_USER,
+            recipient_list=[user.email],
+            fail_silently=False
+        )
+
+        return user
+
+
+# User login serializer
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        if not self.user.is_verified:
+            raise serializers.ValidationError("Please verify your email via OTP before logging in.")
+
+        # Add user details to the token response
+        data.update({
+            "user": {
+                "id": self.user.id,
+                "email": self.user.email,
+                "username": self.user.username,
+                "full_name": self.user.full_name,
+                "phone": self.user.phone,
+                "gender": self.user.gender,
+                "date_of_birth": self.user.date_of_birth,
+                "city": self.user.city,
+                "address": self.user.address,
+                "is_verified": self.user.is_verified,
+                "role": self.user.role, 
+            }
+        })
+
+        return data
+    
+
+# Serializer to update user profile
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = [
+            'full_name', 'username', 'phone', 'gender', 'date_of_birth',
+            'city', 'address'
+        ]
+
+
+# Serializer for Brand
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = ["id", "name", "slug", "image", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "slug"]
+
+    def validate_image(self, value):
+        max_size_mb = 2
+        if value.size > max_size_mb * 1024 * 1024:
+            raise serializers.ValidationError(f"Image size must not exceed {max_size_mb} MB.")
+        return value
+
+
+# Serializer for Category
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = "__all__"
+
+
+# Serializer for Product
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "updated_at", "slug", "new_price", "discount_price"]
+
+    def get_display_unit(self, obj):
+        return obj.display_unit()
+    
+    def validate_image1(self, value):
+        max_size_mb = 2
+        if value.size > max_size_mb * 1024 * 1024:
+            raise serializers.ValidationError(f"Image1 must not exceed {max_size_mb} MB.")
+        return value
+
+    def validate_image2(self, value):
+        if value and value.size > 2 * 1024 * 1024:
+            raise serializers.ValidationError("Image2 must not exceed 2 MB.")
+        return value
+
+    def validate_image3(self, value):
+        if value and value.size > 2 * 1024 * 1024:
+            raise serializers.ValidationError("Image3 must not exceed 2 MB.")
+        return value
+    
