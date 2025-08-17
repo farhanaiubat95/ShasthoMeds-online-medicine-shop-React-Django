@@ -50,7 +50,7 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "sku", "name", "slug", "category", "brand", "price",
+        "id", "sku", "name", "slug", "category", "brand", "price","new_price",
         "offer_price", "discount_price", "stock", "display_unit", "is_active", "created_at", "updated_at"
     )
     search_fields = ("sku", "name")
@@ -58,7 +58,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ("is_active", "category", "brand", "created_at")
 
     # Hide these fields from the admin add/change form
-    exclude = ('offer_price', 'discount_price')
+    exclude = ('discount_price', "new_price")
 
     def save_model(self, request, obj, form, change):
         # Auto-calculate offer_price or discount_price before saving
