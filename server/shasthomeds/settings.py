@@ -3,6 +3,7 @@ from decouple import config
 import os
 from datetime import timedelta
 import dj_database_url
+import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -141,15 +142,13 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
     
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": "shasthomedsme",
-    "API_KEY": "714554145812976",
-    "API_SECRET": "BtU0rBX5SDU7s1HYLI2YQUa-hJo",
-    "SECURE": True,
-    "OVERWRITE": False,
-}
 
+cloudinary.config(
+    cloud_name="shasthomedsme",
+    api_key="714554145812976", 
+    api_secret="BtU0rBX5SDU7s1HYLI2YQUa-hJo",
+    secure=True
+)
 
 # Security Headers
 SECURE_SSL_REDIRECT = True
