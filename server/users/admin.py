@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 
 # Use settings to get cloud info
-cloud_name = settings.CLOUDINARY_STORAGE.get("CLOUD_NAME")
+cloud_name = getattr(settings, 'CLOUDINARY_STORAGE', {}).get('CLOUD_NAME', None)
 
 # CustomUser model
 @admin.register(CustomUser)
