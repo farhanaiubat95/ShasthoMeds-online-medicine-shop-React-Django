@@ -107,20 +107,6 @@ class Category(models.Model):
         return self.name
     
 # Product model
-from django.db import models
-from django.forms import ValidationError
-from django.utils import timezone
-from django.utils.text import slugify
-from uuid import uuid4
-
-# Image size validator
-def validate_image_size(image):
-    if not image:
-        return
-    max_size = 2 * 1024 * 1024  # 2 MB
-    if image.size > max_size:
-        raise ValidationError("Image size must be 2 MB or less.")
-
 
 class Product(models.Model):
     UNIT_CHOICES = (
