@@ -1,3 +1,5 @@
+import cloudinary
+import cloudinary.api
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.forms import ValidationError
@@ -52,7 +54,13 @@ def validate_image_size(image):
     max_size = 2 * 1024 * 1024  # 2 MB
     if image.size > max_size:
         raise ValidationError("Image size must be 2 MB or less.")
-
+    public_id = image.name.rsplit('.', 1)[0]  # remove extension
+    try:
+        res = cloudinary.api.resource(public_id)
+        # If resource exists, you can log or return True
+        print("Image already uploaded:", res['url'])
+    except cloudinary.exceptions.NotFound:
+        print("Image not found on Cloudinary, will be uploaded.")
 
 # Brand model
 class Brand(models.Model):
