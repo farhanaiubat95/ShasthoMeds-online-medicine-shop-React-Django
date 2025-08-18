@@ -2,15 +2,25 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// ---- 1. Async thunk to fetch products from backend ----
+// ---- 1. Async thunk to fetch products ----
 export const fetchProducts = createAsyncThunk(
   "product/fetchProducts",
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
         "https://shasthomeds-backend.onrender.com/products/"
-      ); // backend endpoint for products
-      return response.data; // return array of products
+      );
+
+      console.log("Fetched products:", response.data); // debug
+
+      // Handle paginated or plain array response
+      if (Array.isArray(response.data)) {
+        return response.data;
+      } else if (response.data.results) {
+        return response.data.results;
+      } else {
+        return [];
+      }
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -21,12 +31,11 @@ export const fetchProducts = createAsyncThunk(
 const productSlice = createSlice({
   name: "product",
   initialState: {
-    products: [],       // stores products list
-    loading: false,     // loading state
-    error: null,        // error message if fetch fails
+    products: [],
+    loading: false,
+    error: null,
   },
   reducers: {
-    // Optional: add/update/remove products manually
     addProduct: (state, action) => {
       state.products.push(action.payload);
     },
@@ -39,7 +48,6 @@ const productSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Handle fetchProducts async states
     builder
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
@@ -47,7 +55,7 @@ const productSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = action.payload;
+        state.products = action.payload; // array guaranteed
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
