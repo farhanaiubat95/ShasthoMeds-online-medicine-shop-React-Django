@@ -7,6 +7,7 @@ const initialState = {
   refresh_token: localStorage.getItem("refresh_token") || null,  // Changed: read from localStorage
 };
 
+// User slice
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -42,5 +43,10 @@ const userSlice = createSlice({
   },
 });
 
+
+// Export actions so they can be dispatched from components
 export const { setUserData, logoutUser, updateUser } = userSlice.actions;
+
+// Export reducer to include in store.js
 export default userSlice.reducer;
+

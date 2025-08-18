@@ -1,126 +1,59 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProducts } from "../../redux/productSlice";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import { Card, CardContent, CardMedia, Typography, Button, IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { IconButton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-import image1 from "../../assets/images/napa.jpg";
-import image2 from "../../assets/images/alatrol.webp";
-import image3 from "../../assets/images/vitaminc.jpeg";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom"; // Import navigation
-
-// Styled PrevArrow using MUI styled
+// Styled Arrows...
 const PrevArrowButton = styled(IconButton)(({ theme }) => ({
   position: "absolute",
   top: "50%",
-  left: "-16.2px", // adjust left position as needed
+  left: "-16.2px",
   transform: "translate(0, -50%)",
   backgroundColor: "#ffffff",
-  color: "black",
-  borderLeft: "1px solid #30C2C0",
-  borderRadius: "0 10px 10px 0",
-  "&:hover": {
-    border: "1px solid #30C2C0",
-  },
   zIndex: 10,
   width: 43,
   height: 80,
   boxShadow: theme.shadows[3],
 }));
-
 const NextArrowButton = styled(IconButton)(({ theme }) => ({
   position: "absolute",
   top: "50%",
-  right: "-17px", // adjust right position as needed
+  right: "-17px",
   transform: "translate(0, -50%)",
   backgroundColor: "#ffffff",
-  color: "black",
-  borderRadius: "10px 0px 0px 10px",
-  borderRight: "1px solid #30C2C0",
-  "&:hover": {
-    border: "1px solid #30C2C0",
-  },
   zIndex: 10,
   width: 43,
   height: 80,
   boxShadow: theme.shadows[3],
 }));
 
-// Custom PrevArrow component for react-slick
-const PrevArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <PrevArrowButton onClick={onClick} aria-label="Previous" size="small">
-      <ArrowBackIosNewIcon fontSize="small" />
-    </PrevArrowButton>
-  );
-};
-
-// Custom NextArrow component for react-slick
-const NextArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <NextArrowButton onClick={onClick} aria-label="Next" size="small">
-      <ArrowForwardIosIcon fontSize="small" />
-    </NextArrowButton>
-  );
-};
-
-const products = [
-  {
-    id: 1,
-    title:
-      "Napa | 500 mg | Tablet | নাপা ৫০০ মি.গ্রা. ট্যাবলেট | Beximco Pharmaceuticals Ltd. | Indications",
-    price: "200",
-    availability: "In Stock",
-    image: image1,
-  },
-  {
-    id: 2,
-    title:
-      "Alatrol Paediatric Drops 2.5mg/ml Pediatric Drops - Arogga Online Pharmacy",
-    price: "100",
-    availability: "In Stock",
-    image: image2,
-  },
-  {
-    id: 3,
-    title:
-      "500mg Vitamin C Chewable Tablets at best price in Hyderabad by Aditya Pharmacy",
-    price: "120",
-    availability: "In Stock",
-    image: image3,
-  },
-  {
-    id: 4,
-    title:
-      "500mg Vitamin C Chewable Tablets at best price in Hyderabad by Aditya Pharmacy",
-    price: "120",
-    availability: "In Stock",
-    image: image3,
-  },
-  {
-    id: 5,
-    title:
-      "500mg Vitamin C Chewable Tablets at best price in Hyderabad by Aditya Pharmacy",
-    price: "120",
-    availability: "In Stock",
-    image: image3,
-  },
-];
+const PrevArrow = (props) => (
+  <PrevArrowButton onClick={props.onClick} size="small">
+    <ArrowBackIosNewIcon fontSize="small" />
+  </PrevArrowButton>
+);
+const NextArrow = (props) => (
+  <NextArrowButton onClick={props.onClick} size="small">
+    <ArrowForwardIosIcon fontSize="small" />
+  </NextArrowButton>
+);
 
 const ProductCard = () => {
-  const navigate = useNavigate(); // Create navigate function
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // ---- 1. Get products from Redux ----
+  const { products, loading, error } = useSelector((state) => state.product);
+
+  // ---- 2. Fetch products on component mount ----
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   const sliderSettings = {
     dots: false,
@@ -140,6 +73,9 @@ const ProductCard = () => {
     ],
   };
 
+  if (loading) return <p>Loading products...</p>;
+  if (error) return <p>Error: {error}</p>;
+
   return (
     <div className="border border-[#30C2C0] rounded-xl p-4 mt-4 pb-10 bg-white overflow-visible">
       <Slider {...sliderSettings}>
@@ -148,55 +84,31 @@ const ProductCard = () => {
             <Card className="rounded-xl shadow-md h-full flex flex-col">
               <CardMedia
                 component="img"
-                image={product.image}
-                alt={product.title}
+                image={product.image1} // use your backend image field
+                alt={product.name || product.title}
                 className="h-40 object-contain p-3"
               />
               <CardContent className="flex flex-col flex-grow overflow-hidden">
-                <Typography
-                  variant="subtitle2"
-                  className="line-clamp-2 font-semibold mb-1 h-[40px]"
-                >
-                  {product.title}
+                <Typography variant="subtitle2" className="line-clamp-2 font-semibold mb-1 h-[40px]">
+                  {product.name || product.title}
                 </Typography>
-                <div className="mt-2">
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "#30C2C0",
-                      fontWeight: "semibold",
-                      fontSize: "20px",
-                    }}
-                  >
-                    TK {product.price}
-                  </Typography>
-                </div>
-                <div className="my-2">
-                  <Typography variant="body2" color="success.main">
-                    Availability: {product.availability}
-                  </Typography>
-                </div>
-
+                <Typography sx={{ color: "#30C2C0", fontWeight: "semibold", fontSize: "20px" }}>
+                  TK {product.price}
+                </Typography>
+                <Typography variant="body2" color="success.main" className="my-2">
+                  Availability: {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                </Typography>
                 <div className="flex gap-2">
                   <Button
                     variant="contained"
-                    className="!text-xs lg:!text-[10px]"
-                    sx={{
-                      backgroundColor: "#626F47",
-                      "&:hover": { backgroundColor: "#A4B465" },
-                    }}
-                    onClick={() => navigate("/productdetails")} // Navigation
+                    onClick={() => navigate(`/productdetails/${product.id}`)}
+                    sx={{ backgroundColor: "#626F47", "&:hover": { backgroundColor: "#A4B465" } }}
                   >
                     View details
                   </Button>
-
                   <Button
                     variant="contained"
-                    className="!text-xs  lg:!text-[10px]"
-                    sx={{
-                      backgroundColor: "#CA7842",
-                      "&:hover": { backgroundColor: "#FF9B45" },
-                    }}
+                    sx={{ backgroundColor: "#CA7842", "&:hover": { backgroundColor: "#FF9B45" } }}
                   >
                     Add To Cart
                   </Button>
