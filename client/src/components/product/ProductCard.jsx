@@ -55,7 +55,7 @@ const ProductCard = () => {
   const navigate = useNavigate();
 
   // ---- 1. Get products from Redux ----
-  const { products, loading, error } = useSelector((state) => state.products.product);
+  const { products, loading, error } = useSelector((state) => state.products);
 
   // ---- 2. Fetch products on component mount ----
   useEffect(() => {
