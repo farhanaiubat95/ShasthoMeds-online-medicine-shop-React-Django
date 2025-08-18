@@ -4,9 +4,12 @@ import os
 from datetime import timedelta
 import dj_database_url
 import cloudinary
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / ".env")
 
 # Security Settings
 # DEBUG = config('DEBUG', default=True, cast=bool)
@@ -144,9 +147,9 @@ MEDIA_ROOT = BASE_DIR / "media"
     
 
 cloudinary.config(
-    cloud_name="shasthomedsme",
-    api_key="714554145812976", 
-    api_secret="BtU0rBX5SDU7s1HYLI2YQUa-hJo",
+    cloud_name=config('CLOUDINARY_CLOUD_NAME'),
+    api_key=config('CLOUDINARY_API_KEY'),
+    api_secret=config('CLOUDINARY_API_SECRET'),
     secure=True
 )
 
