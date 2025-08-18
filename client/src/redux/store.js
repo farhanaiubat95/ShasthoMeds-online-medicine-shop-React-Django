@@ -6,6 +6,6 @@ import productReducer from './productSlice';
 export const store = configureStore({
   reducer: {
     auth: userReducer,        // Handles authentication state (login, logout, tokens)
-    product: productReducer,  // Handles product state (list, add, update, remove)
+    products: productReducer,  // Handles product state (list, add, update, remove)
   },
 });

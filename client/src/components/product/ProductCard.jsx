@@ -2,7 +2,14 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../../redux/productSlice";
 import Slider from "react-slick";
-import { Card, CardContent, CardMedia, Typography, Button, IconButton } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Button,
+  IconButton,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -48,7 +55,7 @@ const ProductCard = () => {
   const navigate = useNavigate();
 
   // ---- 1. Get products from Redux ----
-  const { products, loading, error } = useSelector((state) => state.product);
+  const { products, loading, error } = useSelector((state) => state.products.product);
 
   // ---- 2. Fetch products on component mount ----
   useEffect(() => {
@@ -89,26 +96,46 @@ const ProductCard = () => {
                 className="h-40 object-contain p-3"
               />
               <CardContent className="flex flex-col flex-grow overflow-hidden">
-                <Typography variant="subtitle2" className="line-clamp-2 font-semibold mb-1 h-[40px]">
+                <Typography
+                  variant="subtitle2"
+                  className="line-clamp-2 font-semibold mb-1 h-[40px]"
+                >
                   {product.name || product.title}
                 </Typography>
-                <Typography sx={{ color: "#30C2C0", fontWeight: "semibold", fontSize: "20px" }}>
+                <Typography
+                  sx={{
+                    color: "#30C2C0",
+                    fontWeight: "semibold",
+                    fontSize: "20px",
+                  }}
+                >
                   TK {product.price}
                 </Typography>
-                <Typography variant="body2" color="success.main" className="my-2">
-                  Availability: {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                <Typography
+                  variant="body2"
+                  color="success.main"
+                  className="my-2"
+                >
+                  Availability:{" "}
+                  {product.stock > 0 ? "In Stock" : "Out of Stock"}
                 </Typography>
                 <div className="flex gap-2">
                   <Button
                     variant="contained"
                     onClick={() => navigate(`/productdetails/${product.id}`)}
-                    sx={{ backgroundColor: "#626F47", "&:hover": { backgroundColor: "#A4B465" } }}
+                    sx={{
+                      backgroundColor: "#626F47",
+                      "&:hover": { backgroundColor: "#A4B465" },
+                    }}
                   >
                     View details
                   </Button>
                   <Button
                     variant="contained"
-                    sx={{ backgroundColor: "#CA7842", "&:hover": { backgroundColor: "#FF9B45" } }}
+                    sx={{
+                      backgroundColor: "#CA7842",
+                      "&:hover": { backgroundColor: "#FF9B45" },
+                    }}
                   >
                     Add To Cart
                   </Button>
