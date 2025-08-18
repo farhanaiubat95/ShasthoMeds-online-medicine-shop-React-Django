@@ -1,6 +1,6 @@
 # Rest API endpoint
 
-from django.urls import path
+from django.urls import include, path
 from .views import (
     APIRootView, BrandViewSet, CategoryViewSet, LogoutView, ProductViewSet, RegisterAPIView, ResendOTPView,
     UpdateProfileView, VerifyOTPView, CustomTokenObtainPairView,
@@ -26,5 +26,9 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
     path('api/logout/', LogoutView.as_view(), name='logout'),
+
+
+    # Include router URLs
+    path('', include(router.urls)),
     
 ] 
