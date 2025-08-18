@@ -72,16 +72,12 @@ class ProductAdmin(admin.ModelAdmin):
         else:
             obj.package_quantity = None
 
-        
-        # Check each image field for Cloudinary if used
-        cloud_storage = getattr(settings, 'DEFAULT_FILE_STORAGE', '')
+
+        # Optional: validate image size (max 2MB each)
         for img_field in ['image1', 'image2', 'image3']:
             img = getattr(obj, img_field)
-            if img:
-                print(f"{img_field} uploaded to: {img.url}")
-            if cloud_storage == "cloudinary_storage.storage.MediaCloudinaryStorage":
-                if "res.cloudinary.com" not in img.url:
-                    raise ValidationError(f"{img_field} was not uploaded to Cloudinary!")
+        if img and hasattr(img, 'size') and img.size > 2 * 1024 * 1024:
+            raise ValidationError(f"{img_field} size must be 2 MB or less.")
 
         super().save_model(request, obj, form, change)
 
