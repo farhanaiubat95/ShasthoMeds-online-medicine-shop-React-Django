@@ -32,12 +32,12 @@ const Routers = () => {
         {/* Parent Route with Nested Pages */}
         <Route path="/" element={<Home />}>
           <Route index element={<HomeMain />} /> {/* Default view */}
-          <Route path="productdetails" element={<ProductDetail />} />
+          <Route path="productdetails/:id" element={<ProductDetail />} />
         </Route>
 
         {/* Catch All */}
         <Route path="*" element={<ErrorPage />} />
-        <Route path="/productdetails" element={<ProductDetail />} />
+        
         {/* <Route path="/product/:id" element={<DetailView />} /> */}
 
         {/* ==> Public Routes protected for logged-in users */}
@@ -55,7 +55,7 @@ const Routers = () => {
             {/* CustomerHome is the parent page with <Outlet /> */}
             <Route element={<CustomerHome />}>
               <Route index element={<HomeMain />} /> {/* Default nested page */}
-              <Route path="productdetails" element={<ProductDetail />} />
+              <Route path="productdetails/:id" element={<ProductDetail />} />
             </Route>
 
             {/* Other sections */}

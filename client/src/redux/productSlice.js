@@ -27,6 +27,23 @@ export const fetchProducts = createAsyncThunk(
   }
 );
 
+// ---- 2. Async thunk to fetch product by ID ----
+export const fetchProductById = createAsyncThunk(
+  "product/fetchProductById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `https://shasthomeds-backend.onrender.com/products/${id}/` // Dynamic ID endpoint
+      );
+      console.log("Fetched product by ID:", response.data); // debug
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+
 // ---- 2. Product slice ----
 const productSlice = createSlice({
   name: "product",
