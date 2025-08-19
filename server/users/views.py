@@ -175,6 +175,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 # View to get all products
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all().order_by("-created_at")
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # anyone can read, only logged-in can create/update/delete
+    permission_classes = [IsAuthenticatedOrReadOnly] # anyone can read, only logged-in can create/update/delete

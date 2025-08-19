@@ -135,18 +135,39 @@ class CategorySerializer(serializers.ModelSerializer):
 
 # Serializer for Product
 class ProductSerializer(serializers.ModelSerializer):
+    # Return full Cloudinary URLs
+    image1 = serializers.SerializerMethodField()
+    image2 = serializers.SerializerMethodField()
+    image3 = serializers.SerializerMethodField()
+    display_unit = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
         fields = "__all__"
         read_only_fields = ["id", "created_at", "updated_at", "slug", "new_price", "discount_price"]
 
+    def get_image1(self, obj):
+        if obj.image1:
+            return obj.image1.url  # Cloudinary URL
+        return None
+
+    def get_image2(self, obj):
+        if obj.image2:
+            return obj.image2.url
+        return None
+
+    def get_image3(self, obj):
+        if obj.image3:
+            return obj.image3.url
+        return None
+
     def get_display_unit(self, obj):
         return obj.display_unit()
-    
+
+    # Optional: keep your validators
     def validate_image1(self, value):
-        max_size_mb = 2
-        if value.size > max_size_mb * 1024 * 1024:
-            raise serializers.ValidationError(f"Image1 must not exceed {max_size_mb} MB.")
+        if value.size > 2 * 1024 * 1024:
+            raise serializers.ValidationError("Image1 must not exceed 2 MB.")
         return value
 
     def validate_image2(self, value):
@@ -158,4 +179,3 @@ class ProductSerializer(serializers.ModelSerializer):
         if value and value.size > 2 * 1024 * 1024:
             raise serializers.ValidationError("Image3 must not exceed 2 MB.")
         return value
-    

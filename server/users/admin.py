@@ -49,7 +49,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "id", "sku", "name", "slug", "category", "brand", "price", "new_price",
-        "offer_price", "discount_price", "stock", "display_unit","package_quantity","is_active",
+        "offer_price", "discount_price", "stock", "display_unit", "package_quantity", "is_active",
         "created_at", "updated_at"
     )
     search_fields = ("sku", "name")
@@ -63,7 +63,6 @@ class ProductAdmin(admin.ModelAdmin):
         if obj.discount_price is None:
             obj.discount_price = obj.price - (obj.price * 0.1)
         
-
         # Automatically set package_quantity based on unit
         if obj.unit in ['tablet', 'capsule']:
             obj.package_quantity = 'strip'
@@ -72,13 +71,10 @@ class ProductAdmin(admin.ModelAdmin):
         else:
             obj.package_quantity = None
 
-
-        # Optional: validate image size (max 2MB each)
+        # Validate image size (max 2MB each)
         for img_field in ['image1', 'image2', 'image3']:
             img = getattr(obj, img_field)
-        if img and hasattr(img, 'size') and img.size > 2 * 1024 * 1024:
-            raise ValidationError(f"{img_field} size must be 2 MB or less.")
+            if img and hasattr(img, 'size') and img.size > 2 * 1024 * 1024:
+                raise ValidationError(f"{img_field} size must be 2 MB or less.")
 
         super().save_model(request, obj, form, change)
-
-    
