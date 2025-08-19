@@ -1,3 +1,4 @@
+from cloudinary.models import CloudinaryField
 import cloudinary
 import cloudinary.api
 from django.contrib.auth.models import AbstractUser
@@ -66,7 +67,7 @@ def validate_image_size(image):
 class Brand(models.Model):
     name = models.CharField(max_length=120)
     slug = models.SlugField(unique=True, blank=True)
-    image = models.ImageField(upload_to="brands/", null=True, blank=True, validators=[validate_image_size])
+    image = CloudinaryField('image', folder='brands', null=True, blank=True, validators=[validate_image_size])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -90,7 +91,7 @@ class Category(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
-    image = models.ImageField(upload_to="categories/", validators=[validate_image_size], null=True, blank=True)
+    image = CloudinaryField('image', folder='categories', validators=[validate_image_size], null=True, blank=True)
     parent = models.ForeignKey(
         "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="children"
     )
@@ -107,7 +108,6 @@ class Category(models.Model):
         return self.name
     
 # Product model
-
 class Product(models.Model):
     UNIT_CHOICES = (
         ('pcs', 'Pieces'),
@@ -168,9 +168,9 @@ class Product(models.Model):
 
     prescription_required = models.BooleanField(default=False)
 
-    image1 = models.ImageField(upload_to="products/", validators=[validate_image_size])
-    image2 = models.ImageField(upload_to="products/", null=True, blank=True, validators=[validate_image_size])
-    image3 = models.ImageField(upload_to="products/", null=True, blank=True, validators=[validate_image_size])
+    image1 = CloudinaryField('image1', folder='products', validators=[validate_image_size])
+    image2 = CloudinaryField('image2', folder='products', null=True, blank=True, validators=[validate_image_size])
+    image3 = CloudinaryField('image3', folder='products', null=True, blank=True, validators=[validate_image_size])
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -220,7 +220,3 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.sku})"
-
-
-
-#

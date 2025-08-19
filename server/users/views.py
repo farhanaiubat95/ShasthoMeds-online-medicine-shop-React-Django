@@ -1,4 +1,4 @@
-from datetime import timezone
+from django.utils import timezone
 import random
 from django.core.mail import send_mail
 from rest_framework import generics
@@ -11,7 +11,6 @@ from .models import Brand, Category, Product
 from .serializers import BrandSerializer, CategorySerializer, ProductSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-
 from django.conf import settings
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
@@ -22,14 +21,15 @@ from django.shortcuts import get_object_or_404
 from decimal import Decimal
 
 from .models import (
-    CustomUser, EmailOTP
+    CustomUser,
+    EmailOTP,
 )
 from .serializers import (
-    CustomTokenObtainPairSerializer, UserProfileSerializer, UserRegistrationSerializer,
-
+    CustomTokenObtainPairSerializer,
+    UserProfileSerializer,
+    UserRegistrationSerializer,
 )
 from users.models import CustomUser
-
 
 # pyright: ignore[reportMissingImports]
 from rest_framework_simplejwt.views import TokenObtainPairView  # pyright: ignore[reportMissingImports]
@@ -57,6 +57,9 @@ class VerifyOTPView(APIView):
         email = request.data.get('email')
         otp = request.data.get('otp')
 
+        if not email or not otp:
+            return Response({'error': 'Email and OTP are required'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
@@ -73,7 +76,6 @@ class VerifyOTPView(APIView):
         if otp_obj.is_expired():
             otp_obj.delete()  # Clean up expired OTPs
             return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
-
 
         user.is_verified = True
         user.is_active = True
@@ -104,22 +106,24 @@ class ResendOTPView(APIView):
             # Save or update the OTP record
             EmailOTP.objects.update_or_create(
                 user=user,
-                defaults={"otp": otp, "created_at": timezone.now()}
+                defaults={"otp_code": otp, "created_at": timezone.now()}
             )
 
             # Send OTP to user's email
-            send_mail(
-                subject="Your New OTP for ShasthoMeds",
-                message=f"Your new OTP is: {otp}",
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[email],
-            )
+            try:
+                send_mail(
+                    subject="Your New OTP for ShasthoMeds",
+                    message=f"Your new OTP is: {otp}",
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[email],
+                )
+            except Exception as e:
+                return Response({"error": f"Failed to send OTP: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             return Response({"message": "OTP resent successfully."}, status=status.HTTP_200_OK)
 
         except CustomUser.DoesNotExist:
             return Response({"error": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
-
 
 # View to obtain JWT token
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -129,9 +133,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 class MyProtectedView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        return Response({"message": "You are authenticated!"})
-    
     def get(self, request):
         user = request.user  # from token
         return Response({"email": user.email, "username": user.username, "role": user.role, "id": user.id})
@@ -145,9 +146,9 @@ class LogoutView(APIView):
             refresh_token = request.data["refresh"]
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return Response({"message": "Logout successful"},status=status.HTTP_205_RESET_CONTENT)
+            return Response({"message": "Logout successful"}, status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            return Response({"message": "Token is Blacklisted"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": f"Token is invalid or already blacklisted: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
     
 # View to update profile
 class UpdateProfileView(APIView):
@@ -177,4 +178,4 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly] # anyone can read, only logged-in can create/update/delete
+    permission_classes = [IsAuthenticatedOrReadOnly]  # anyone can read, only logged-in can create/update/delete

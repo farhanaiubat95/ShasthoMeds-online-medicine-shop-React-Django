@@ -30,11 +30,7 @@ class BrandAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "slug", "created_at", "updated_at")
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
-
-    def save_model(self, request, obj, form, change):
-        if obj.image and obj.image.size > 2 * 1024 * 1024:
-            raise ValidationError("Image size must be 2 MB or less.")
-        super().save_model(request, obj, form, change)
+    # Removed save_model as validation is handled by CloudinaryField
 
 # Category model
 @admin.register(Category)
@@ -58,11 +54,6 @@ class ProductAdmin(admin.ModelAdmin):
     exclude = ('discount_price', "new_price")
 
     def save_model(self, request, obj, form, change):
-        if obj.offer_price is None:
-            obj.offer_price = obj.price
-        if obj.discount_price is None:
-            obj.discount_price = obj.price - (obj.price * 0.1)
-        
         # Automatically set package_quantity based on unit
         if obj.unit in ['tablet', 'capsule']:
             obj.package_quantity = 'strip'
@@ -70,11 +61,5 @@ class ProductAdmin(admin.ModelAdmin):
             obj.package_quantity = 'box'
         else:
             obj.package_quantity = None
-
-        # Validate image size (max 2MB each)
-        for img_field in ['image1', 'image2', 'image3']:
-            img = getattr(obj, img_field)
-            if img and hasattr(img, 'size') and img.size > 2 * 1024 * 1024:
-                raise ValidationError(f"{img_field} size must be 2 MB or less.")
 
         super().save_model(request, obj, form, change)

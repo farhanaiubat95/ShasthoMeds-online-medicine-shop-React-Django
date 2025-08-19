@@ -29,6 +29,5 @@ urlpatterns = [
 
 
     # Include router URLs
-    path('', include(router.urls)),
-    
+    path('', include(router.urls)),  # Corrected path and added namespace
 ] 

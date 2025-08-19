@@ -4,14 +4,12 @@ from django.contrib.auth.password_validation import validate_password
 import random
 from django.core.mail import send_mail
 from .models import Brand, Category, Product
-
-
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer # pyright: ignore[reportMissingImports]
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer  # pyright: ignore[reportMissingImports]
 
 # Models
 from .models import (
-    CustomUser, EmailOTP,
-    
+    CustomUser,
+    EmailOTP,
 )
 
 # User registration serializer
@@ -56,20 +54,23 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             city=validated_data['city'],
             address=validated_data['address'],
             password=validated_data['password'],
-            role=role, 
+            role=role,
             is_verified=False,
             is_active=False,
         )
 
         EmailOTP.objects.create(user=user, otp_code=otp)
 
-        send_mail(
-            subject='Your OTP Code from ShasthoMeds',
-            message=f"Hello {user.username},\n\nThank you for registering with ShasthoMeds.\n\nYour OTP code is: {otp}.",
-            from_email=EMAIL_HOST_USER,
-            recipient_list=[user.email],
-            fail_silently=False
-        )
+        try:
+            send_mail(
+                subject='Your OTP Code from ShasthoMeds',
+                message=f"Hello {user.username},\n\nThank you for registering with ShasthoMeds.\n\nYour OTP code is: {otp}.",
+                from_email=EMAIL_HOST_USER,
+                recipient_list=[user.email],
+                fail_silently=False
+            )
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to send OTP: {str(e)}")
 
         return user
 
@@ -82,7 +83,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not self.user.is_verified:
             raise serializers.ValidationError("Please verify your email via OTP before logging in.")
 
-        # Add user details to the token response
+        # Add user details to the token response (limit sensitive data)
         data.update({
             "user": {
                 "id": self.user.id,
@@ -93,9 +94,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 "gender": self.user.gender,
                 "date_of_birth": self.user.date_of_birth,
                 "city": self.user.city,
-                "address": self.user.address,
+                # Exclude 'address' unless needed
                 "is_verified": self.user.is_verified,
-                "role": self.user.role, 
+                "role": self.user.role,
             }
         })
 
@@ -119,18 +120,15 @@ class BrandSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "slug", "image", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at", "slug"]
 
-    def validate_image(self, value):
-        max_size_mb = 2
-        if value.size > max_size_mb * 1024 * 1024:
-            raise serializers.ValidationError(f"Image size must not exceed {max_size_mb} MB.")
-        return value
+    # Removed validate_image as it's handled by model-level validator
 
 
 # Serializer for Category
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = ["id", "name", "slug", "image", "parent", "is_active", "created_at", "updated_at"]
+        # Explicitly define fields instead of "__all__" for better control
 
 
 # Serializer for Product
@@ -164,18 +162,4 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_display_unit(self, obj):
         return obj.display_unit()
 
-    # Optional: keep your validators
-    def validate_image1(self, value):
-        if value.size > 2 * 1024 * 1024:
-            raise serializers.ValidationError("Image1 must not exceed 2 MB.")
-        return value
-
-    def validate_image2(self, value):
-        if value and value.size > 2 * 1024 * 1024:
-            raise serializers.ValidationError("Image2 must not exceed 2 MB.")
-        return value
-
-    def validate_image3(self, value):
-        if value and value.size > 2 * 1024 * 1024:
-            raise serializers.ValidationError("Image3 must not exceed 2 MB.")
-        return value
+    # Removed validate_imageX methods as they are handled by model-level validator
