@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// src/pages/ProductDetail.jsx
+import React, { useState } from "react";
 import {
   Button,
   IconButton,
@@ -7,49 +8,46 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProductById } from "../../redux/productSlice"; // Adjust the import path
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 
-// Styled components or additional imports if needed can stay the same
+/*
+  - Tailwind classes used heavily for layout & spacing
+  - MUI used for icons, buttons & typography consistency
+  - product object is the "list" shape you can replace with backend data
+*/
+
+const product = {
+  id: 1,
+  name: "A-MYCIN Lotion 25 ml",
+  subtitle: "Erythromycin 2% | External Use Only",
+  price: "৳ 120.00",
+  availability: "In stock",
+  images: [
+    "/images/amycine-main.jpg", // main image
+    "/images/amycine-1.jpg",
+    "/images/amycine-2.jpg",
+    "/images/amycine-3.jpg",
+  ],
+  features: [
+    "Size 1900mm*900mm*500mm",
+    "Framework of rectangular mild steel tube",
+    "Backrest positions up to 75°",
+    "Provision of telescopic IV rod",
+    "Mounted on PVC stumps",
+  ],
+  shipping:
+    "Delivery normally within 2-5 business days. Charges may vary by area.",
+  refund:
+    "Refund allowed within 7 days for unopened items — subject to verification.",
+  cancellation:
+    "Orders can be cancelled within 1 hour of placement. See full policy page for details.",
+  badges: ["Fast Shipping", "100% Authentic", "Cash on Delivery"],
+};
 
 export default function ProductDetail() {
-  const { id } = useParams(); // Extract ID from URL (e.g., /productdetails/1)
-  const dispatch = useDispatch();
-  const { product, loading, error } = useSelector((state) => state.products); // Adjust selector based on your slice
-  const [mainImage, setMainImage] = useState(null);
-
-  // Fetch product data on mount or when ID changes
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchProductById(id));
-    }
-  }, [dispatch, id]);
-
-  // Set initial main image when product data is available
-  useEffect(() => {
-    if (product && product.image1) {
-      setMainImage(product.image1);
-    }
-  }, [product]);
-
-  // Handle loading and error states
-  if (loading) return <p>Loading product details...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!product) return <p>Product not found</p>;
-
-  // Construct images array from API response (image1, image2, image3)
-  const images = [product.image1, product.image2, product.image3].filter(
-    (img) => img !== null && img !== undefined
-  );
-
-  // Fallback if no images are available
-  if (images.length === 0) {
-    images.push("/images/placeholder.jpg"); // Replace with your placeholder
-  }
+  const [mainImage, setMainImage] = useState(product.images[0]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-1">
@@ -57,6 +55,7 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left sidebar (Categories / small info) */}
         <aside className="lg:col-span-3">
+          {/* FEATURE box */}
           <Card className="mt-6 border-2 border-[#0F918F] hidden md:flex">
             <CardContent>
               <Typography
@@ -66,9 +65,9 @@ export default function ProductDetail() {
                 FEATURES
               </Typography>
               <ul className="mt-3 space-y-2 list-disc list-inside text-gray-700">
-                {product.features && product.features.length > 0
-                  ? product.features.map((f, i) => <li key={i}>{f}</li>)
-                  : "No features available"}
+                {product.features.map((f, i) => (
+                  <li key={i}>{f}</li>
+                ))}
               </ul>
 
               <div className="mt-4 grid grid-cols-1 gap-2">
@@ -94,7 +93,7 @@ export default function ProductDetail() {
           <div className="bg-white rounded-md shadow p-4">
             <div className="border border-[#0F918F] rounded-lg p-2">
               <img
-                src={mainImage || "/images/placeholder.jpg"} // Fallback image
+                src={mainImage}
                 alt={product.name}
                 className="w-full h-[360px] object-contain rounded"
               />
@@ -102,7 +101,7 @@ export default function ProductDetail() {
 
             {/* thumbnails */}
             <div className="mt-4 flex gap-3">
-              {images.map((src, i) => (
+              {product.images.map((src, i) => (
                 <button
                   key={i}
                   onClick={() => setMainImage(src)}
@@ -122,7 +121,7 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* big promotional banner under image */}
+          {/* big promotional banner under image (like screenshot) */}
           <div className="mt-6 border border-[#0F918F] rounded-lg p-4 bg-white">
             <div className="bg-gradient-to-r from-pink-400 to-orange-400 rounded p-6 text-center text-white">
               <h3 className="text-2xl font-bold">FLASH SALE</h3>
@@ -143,7 +142,7 @@ export default function ProductDetail() {
               {product.name}
             </Typography>
             <Typography variant="body2" className="text-gray-600 mt-1">
-              {product.subtitle || "No subtitle available"}
+              {product.subtitle}
             </Typography>
 
             <div className="mt-4">
@@ -151,7 +150,7 @@ export default function ProductDetail() {
                 {product.price}
               </span>
               <div className="text-sm text-green-600 mt-1">
-                {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                {product.availability}
               </div>
             </div>
 
@@ -172,10 +171,10 @@ export default function ProductDetail() {
 
             <div className="text-sm text-gray-700 space-y-2">
               <div>
-                <b>Brand:</b> {product.brand?.name || "N/A"}
+                <b>Brand:</b> Astropharma
               </div>
               <div>
-                <b>Category:</b> {product.category?.name || "N/A"}
+                <b>Category:</b> Antibiotic
               </div>
             </div>
           </div>
@@ -190,7 +189,7 @@ export default function ProductDetail() {
                 SHIPPING POLICY
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
-                {product.shipping || "Delivery details not available"}
+                {product.shipping}
               </Typography>
             </div>
 
@@ -202,7 +201,7 @@ export default function ProductDetail() {
                 REFUND POLICY
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
-                {product.refund || "Refund details not available"}
+                {product.refund}
               </Typography>
             </div>
 
@@ -214,7 +213,7 @@ export default function ProductDetail() {
                 CANCELLATION / RETURN
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
-                {product.cancellation || "Cancellation details not available"}
+                {product.cancellation}
               </Typography>
             </div>
           </div>
