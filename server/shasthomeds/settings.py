@@ -9,8 +9,8 @@ import cloudinary
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security Settings
-# DEBUG = config('DEBUG', default=True, cast=bool)
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
+# DEBUG = True
 SECRET_KEY = config("SECRET_KEY")
 ALLOWED_HOSTS = ['shasthomeds-backend.onrender.com', 'localhost', '127.0.0.1']
 
