@@ -14,6 +14,8 @@ import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import "slick-carousel/slick/slick.css"; // Ensure these are imported
+import "slick-carousel/slick/slick-theme.css";
 
 // Styled Arrows...
 const PrevArrowButton = styled(IconButton)(({ theme }) => ({
@@ -27,6 +29,7 @@ const PrevArrowButton = styled(IconButton)(({ theme }) => ({
   height: 80,
   boxShadow: theme.shadows[3],
 }));
+
 const NextArrowButton = styled(IconButton)(({ theme }) => ({
   position: "absolute",
   top: "50%",
@@ -44,6 +47,7 @@ const PrevArrow = (props) => (
     <ArrowBackIosNewIcon fontSize="small" />
   </PrevArrowButton>
 );
+
 const NextArrow = (props) => (
   <NextArrowButton onClick={props.onClick} size="small">
     <ArrowForwardIosIcon fontSize="small" />
@@ -54,10 +58,10 @@ const ProductCard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // ---- 1. Get products from Redux ----
+  // Get products from Redux
   const { products, loading, error } = useSelector((state) => state.products);
 
-  // ---- 2. Fetch products on component mount ----
+  // Fetch products on component mount
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
@@ -82,20 +86,24 @@ const ProductCard = () => {
 
   if (loading) return <p>Loading products...</p>;
   if (error) return <p>Error: {error}</p>;
+  if (!products || products.length === 0) return <p>No products available</p>;
 
   return (
-    <div className="border border-[#30C2C0] rounded-xl p-4 mt-4 pb-10 bg-white overflow-visible">
+    <div
+      className="border border-[#30C2C0] rounded-xl p-4 mt-4 pb-10 bg-white"
+      style={{ width: "100%", position: "relative" }} // Ensure container has width and context for arrows
+    >
       <Slider {...sliderSettings}>
         {products.map((product) => (
-          <div key={product.id} className="p-2 overflow-hidden">
-            <Card className="rounded-xl shadow-md h-full flex flex-col">
+          <div key={product.id} className="p-2" style={{ width: "auto" }}>
+            <Card className="rounded-xl shadow-md flex flex-col" style={{ width: "100%" }}>
               <CardMedia
                 component="img"
-                image={product.image1} // use your backend image field
+                image={product.image1 || "/placeholder-image.jpg"} // Fallback for missing image
                 alt={product.name || product.title}
                 className="h-40 object-contain p-3"
               />
-              <CardContent className="flex flex-col flex-grow overflow-hidden">
+              <CardContent className="flex flex-col flex-grow">
                 <Typography
                   variant="subtitle2"
                   className="line-clamp-2 font-semibold mb-1 h-[40px]"
