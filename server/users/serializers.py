@@ -133,11 +133,17 @@ class CategorySerializer(serializers.ModelSerializer):
 
 # Serializer for Product
 class ProductSerializer(serializers.ModelSerializer):
+    # Replace brand/category IDs with full nested objects
+    brand = BrandSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
+
     # Return full Cloudinary URLs
     image1 = serializers.SerializerMethodField()
     image2 = serializers.SerializerMethodField()
     image3 = serializers.SerializerMethodField()
     display_unit = serializers.SerializerMethodField()
+
+    images = serializers.SerializerMethodField()  # collect all images in one array
 
     class Meta:
         model = Product

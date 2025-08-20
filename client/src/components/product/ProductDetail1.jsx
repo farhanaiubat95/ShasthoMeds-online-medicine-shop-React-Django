@@ -1,5 +1,5 @@
 // src/pages/ProductDetail.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   IconButton,
@@ -7,52 +7,55 @@ import {
   Divider,
   Card,
   CardContent,
+  Box,
 } from "@mui/material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
+import RegisterImage from "../../assets/images/reg-img.jpg";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import GpsFixedIcon from "@mui/icons-material/GpsFixed";
+import NoteAltIcon from "@mui/icons-material/NoteAlt";
+import CommonProductInfo from "./CommonProductInfo";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
-
-const product = {
-  id: 1,
-  name: "A-MYCIN Lotion 25 ml",
-  subtitle: "Erythromycin 2% | External Use Only",
-  price: "৳ 120.00",
-  availability: "In stock",
-  unit: "Tablat",
-  display_unit: "10 tablets",
-  package_quantity: "1 strip",
-  images: [
-    "/images/amycine-main.jpg", // main image
-    "/images/amycine-1.jpg",
-    "/images/amycine-2.jpg",
-    "/images/amycine-3.jpg",
-  ],
-  features: [
-    "Size 1900mm*900mm*500mm",
-    "Framework of rectangular mild steel tube",
-    "Backrest positions up to 75°",
-    "Provision of telescopic IV rod",
-    "Mounted on PVC stumps",
-  ],
-  shipping:
-    "Delivery normally within 2-5 business days. Charges may vary by area.",
-  refund:
-    "Refund allowed within 7 days for unopened items — subject to verification.",
-  cancellation:
-    "Orders can be cancelled within 1 hour of placement. See full policy page for details.",
-  badges: ["Fast Shipping", "100% Authentic", "Cash on Delivery"],
-};
 
 export default function ProductDetail1() {
-  const [mainImage, setMainImage] = useState(product.images[0]);
+  const { id } = useParams(); // 👈 get product id from URL
+  const [product, setProduct] = useState(null);
+  const [mainImage, setMainImage] = useState("");
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(
+          `https://shasthomeds-backend.onrender.com/products/${id}/`,
+        );
+        setProduct(res.data);
+        setMainImage(res.data.image1); // set first image as default
+      } catch (err) {
+        console.error("Error fetching product:", err);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (!product) {
+    return <p className="text-center mt-6">Loading product...</p>;
+  }
+
+  // collect images (some may be null)
+  const images = [product.image1, product.image2, product.image3].filter(
+    Boolean,
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-1">
       {/* Top area */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left sidebar (Categories / small info) */}
-        <aside className="lg:col-span-3">
+        <aside className="hidden xl:flex xl:col-span-3">
           {/* FEATURE box */}
           <Card className="mt-6 border-2 border-[#0F918F] hidden md:flex">
             <CardContent>
@@ -87,7 +90,7 @@ export default function ProductDetail1() {
         </aside>
 
         {/* Main image / gallery */}
-        <main className="lg:col-span-6">
+        <main className="xl:col-span-5 order-1 xl:order-2">
           <div className="bg-white rounded-md shadow p-4">
             <div className="border border-[#0F918F] rounded-lg p-2">
               <img
@@ -119,37 +122,81 @@ export default function ProductDetail1() {
             </div>
           </div>
 
-          {/* big promotional banner under image (like screenshot) */}
-          <div className="mt-6 border border-[#0F918F] rounded-lg p-4 bg-white">
-            <div className="bg-gradient-to-r from-pink-400 to-orange-400 rounded p-6 text-center text-white">
-              <h3 className="text-2xl font-bold">FLASH SALE</h3>
-              <p className="mt-2 text-sm">
-                UNBELIEVABLE DISCOUNT ON WIDE RANGE OF PRODUCTS
-              </p>
-              <button className="mt-4 px-6 py-2 bg-white text-[#ff4d4d] rounded font-semibold">
-                ORDER NOW
-              </button>
-            </div>
+          {/* Product info */}
+          <div className="hidden xl:block">
+            <CommonProductInfo product={product} />
           </div>
         </main>
 
         {/* Right product info */}
-        <aside className="lg:col-span-3">
+        <aside className="xl:col-span-4 common-right-sidebar order-2 xl:order-3">
           <div className="bg-white rounded-md shadow p-5 border border-gray-100">
-            <Typography variant="h5" sx={{ fontWeight: 700, color: "#0F918F" }}>
-              {product.name}
-            </Typography>
-            <Typography variant="body2" className="text-gray-600 mt-1">
-              {product.subtitle}
-            </Typography>
+            {/* product Name */}
+            <div>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 700, color: "#0F918F" }}
+              >
+                {product.name}
+              </Typography>
+              <Typography variant="body2" className="font-semibold mt-1">
+                <span className="text-[#718096] font-thin text-[18px]">
+                  {product.unit}
+                </span>
+                <span className="text-[#718096] font-semibold text-[18px]">
+                  - ({product.weight_display})
+                </span>
+              </Typography>
+            </div>
 
+            {/* Brand Name */}
+            <div className="mt-4 flex items-center gap-2 border-b-1 pb-3 border-gray-200">
+              <img
+                src={product.brandIMG}
+                className="h-10 w-10 rounded-full border-2 border-[#FFC900]"
+                alt=""
+              />
+              <Typography className="mt-2 text-[#FF9B00] text-[25px]">
+                {product.brandNAME}
+              </Typography>
+              <ArrowRightIcon className="text-[#FFC900]" />
+            </div>
+
+            {/* Generic Name */}
+            <div className="mt-4 flex items-center gap-2 border-b-1 pb-3 border-gray-200">
+              <GpsFixedIcon className="text-[#0F918F]" />
+              <Typography variant="body2" className="mt-2">
+                <span className="text-[#718096] text-[17px]">Generic :</span>{" "}
+                <span className="text-[#0F918F] text-[18px]">
+                  {product.generic_name}
+                </span>
+              </Typography>
+            </div>
+
+            {/* Price */}
             <div className="mt-4">
-              <span className="text-lg font-bold text-rose-600">
-                {product.price}
-              </span>
-              <div className="text-sm text-green-600 mt-1">
-                {product.availability}
+              <div>
+                <Typography style={{ fontSize: "17px", fontWeight: "400" }}>
+                  {product.unit_display} ({product.package_quantity})
+                </Typography>
               </div>
+
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-lg font-bold text-[25px] text-[#ba2b21]">
+                  ৳ {product.new_price}
+                </span>
+                <span className="text-sm text-[18px] text-gray-600 line-through mr-3">
+                  ৳ {product.price}
+                </span>
+                {/* Discount Badge */}
+                <div className="relative inline-block">
+                  <span className="absolute top-0 left-[-9px] w-0 h-0 border-t-[14px] border-b-[14px] border-r-[10px] border-t-transparent border-b-transparent border-r-red-400"></span>
+                  <span className="bg-red-400 text-white text-xs font-bold px-3 py-1 rounded-r-md">
+                    {product.offer_price}% OFF
+                  </span>
+                </div>
+              </div>
+              <div className="text-sm text-green-600 mt-1">{product.stock}</div>
             </div>
 
             <div className="mt-5 mb-2 space-y-3">
@@ -169,10 +216,7 @@ export default function ProductDetail1() {
 
             <div className="text-sm text-gray-700 space-y-2">
               <div>
-                <b>Brand:</b> Astropharma
-              </div>
-              <div>
-                <b>Category:</b> Antibiotic
+                <b>Category:</b> {product.category}
               </div>
             </div>
           </div>
@@ -214,6 +258,11 @@ export default function ProductDetail1() {
                 {product.cancellation}
               </Typography>
             </div>
+          </div>
+
+          {/* Product info */}
+          <div className=" xl:hidden">
+            <CommonProductInfo product={product} />
           </div>
         </aside>
       </div>
