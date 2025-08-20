@@ -1,5 +1,9 @@
 import { Card, CardContent, Typography } from "@mui/material";
 import React from "react";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import CreditCardIcon from "@mui/icons-material/CreditCard";
+import RegisterImage from "../../assets/images/reg-img.jpg";
 
 const features_list = {
   features: [

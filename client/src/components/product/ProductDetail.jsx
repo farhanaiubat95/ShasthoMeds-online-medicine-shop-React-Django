@@ -9,10 +9,7 @@ import {
   CardContent,
   Box,
 } from "@mui/material";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import VerifiedIcon from "@mui/icons-material/Verified";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
-import RegisterImage from "../../assets/images/reg-img.jpg";
+
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import GpsFixedIcon from "@mui/icons-material/GpsFixed";
 import CommonProductInfo from "./CommonProductInfo";
