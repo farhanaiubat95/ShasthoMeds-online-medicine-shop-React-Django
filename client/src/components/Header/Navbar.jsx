@@ -3,9 +3,9 @@ import React from "react";
 
 const Navbar = ({ Title }) => {
   return (
-    <div className="fixed w-full z-50">
+    <div className="fixed w-full z-50 ">
       <Box
-        className="flex items-center rounded-md  mb-4 mr-10 sm:mr-20 lg:mr-30  xl:mr-60"
+        className="flex items-center rounded-md  mb-4 mr-10 sm:mr-20 lg:mr-25  xl:mr-48"
         sx={{
           boxShadow:
             "rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px",

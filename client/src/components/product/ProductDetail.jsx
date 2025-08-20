@@ -18,6 +18,7 @@ import GpsFixedIcon from "@mui/icons-material/GpsFixed";
 import CommonProductInfo from "./CommonProductInfo";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import Features from "./Features";
 
 export default function ProductDetail1() {
   const { id } = useParams(); // get product id from URL
@@ -49,14 +50,6 @@ export default function ProductDetail1() {
   );
 
   const features_list = {
-    features: [
-      "Size 1900mm*900mm*500mm",
-      "Framework of rectangular mild steel tube",
-      "Backrest positions up to 75°",
-      "Provision of telescopic IV rod",
-      "Mounted on PVC stumps",
-    ],
-
     shipping:
       "Delivery normally within 2-5 business days. Charges may vary by area.",
     refund:
@@ -69,43 +62,8 @@ export default function ProductDetail1() {
     <div className="max-w-7xl mx-auto px-4 py-1">
       {/* Top area */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left sidebar (Categories / small info) */}
-        <aside className="hidden xl:flex xl:col-span-3">
-          {/* FEATURE box */}
-          <Card className="mt-6 border-2 border-[#0F918F] hidden md:flex">
-            <CardContent>
-              <Typography
-                variant="h6"
-                sx={{ color: "#0F918F", fontWeight: 700 }}
-              >
-                FEATURES
-              </Typography>
-              <ul className="mt-3 space-y-2 list-disc list-inside text-gray-700">
-                {features_list.features.map((f, i) => (
-                  <li key={i}>{f}</li>
-                ))}
-              </ul>
-
-              <div className="mt-4 grid grid-cols-1 gap-2">
-                <div className="flex items-center gap-2">
-                  <LocalShippingIcon sx={{ color: "#ef4444" }} />
-                  <span className="text-sm">FAST SHIPPING</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <VerifiedIcon sx={{ color: "#f59e0b" }} />
-                  <span className="text-sm">100% AUTHENTIC PRODUCTS</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CreditCardIcon sx={{ color: "#06b6d4" }} />
-                  <span className="text-sm">COD AVAILABLE</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </aside>
-
         {/* Main image / gallery */}
-        <main className="xl:col-span-5 order-1 xl:order-2">
+        <main className="xl:col-span-7 order-1 xl:order-2">
           <div className="bg-white rounded-md shadow p-4">
             <div className="border border-[#0F918F] rounded-lg p-2">
               <img
@@ -144,7 +102,7 @@ export default function ProductDetail1() {
         </main>
 
         {/* Right product info */}
-        <aside className="xl:col-span-4 common-right-sidebar order-2 xl:order-3">
+        <aside className="xl:col-span-5 common-right-sidebar order-2 xl:order-3">
           <div className="bg-white rounded-md shadow p-5 border border-gray-100">
             {/* product Name */}
             <div>
@@ -275,9 +233,19 @@ export default function ProductDetail1() {
             </div>
           </div>
 
-          {/* Product info */}
+          {/* Left sidebar (Categories / small info) */}
+          <div className="hidden xl:block ">
+            <Features />
+          </div>
+
+          {/* Product info  mobile*/}
           <div className=" xl:hidden">
             <CommonProductInfo product={product} />
+          </div>
+
+          {/* Left sidebar (Categories / small info) mobile*/}
+          <div className="block xl:hidden ">
+            <Features />
           </div>
         </aside>
       </div>
