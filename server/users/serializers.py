@@ -115,21 +115,33 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 # Serializer for Brand
 class BrandSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()  # override default field
+
     class Meta:
         model = Brand
         fields = ["id", "name", "slug", "image", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at", "slug"]
 
+    def get_image(self, obj):
+        if obj.image:
+            return obj.image.url  # full Cloudinary URL
+        return None
     # Removed validate_image as it's handled by model-level validator
 
 
 # Serializer for Category
 class CategorySerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()  # override default field
+
     class Meta:
         model = Category
         fields = ["id", "name", "slug", "image", "parent", "is_active", "created_at", "updated_at"]
-        # Explicitly define fields instead of "__all__" for better control
+        read_only_fields = ["id", "created_at", "updated_at", "slug"]
 
+    def get_image(self, obj):
+        if obj.image:
+            return obj.image.url  # full Cloudinary URL
+        return None
 
 # Serializer for Product
 class ProductSerializer(serializers.ModelSerializer):
