@@ -2,12 +2,9 @@
 import React, { useEffect, useState } from "react";
 import {
   Button,
-  IconButton,
   Typography,
   Divider,
-  Card,
-  CardContent,
-  Box,
+
 } from "@mui/material";
 
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
@@ -166,7 +163,11 @@ export default function ProductDetail1() {
                   </span>
                 </div>
               </div>
-              <div className="text-sm text-green-600 mt-1">{product.stock}</div>
+              <div className="text-sm text-green-600 mt-1">
+                {
+                  product.stock > 0 ? "In Stock" : "Out of Stock"
+                }
+              </div>
             </div>
 
             <div className="mt-5 mb-2 space-y-3">

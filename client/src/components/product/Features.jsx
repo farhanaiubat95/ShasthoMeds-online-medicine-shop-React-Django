@@ -18,7 +18,7 @@ const features_list = {
 const Features = () => {
   return (
     <div>
-      <aside className="hidden xl:flex xl:col-span-3">
+      <aside>
         {/* FEATURE box */}
         <Card className="mt-6 border-2 border-[#0F918F] hidden md:flex">
           <CardContent>
