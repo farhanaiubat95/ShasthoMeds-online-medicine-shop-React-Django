@@ -143,8 +143,6 @@ class ProductSerializer(serializers.ModelSerializer):
     image3 = serializers.SerializerMethodField()
     display_unit = serializers.SerializerMethodField()
 
-    images = serializers.SerializerMethodField()  # collect all images in one array
-
     class Meta:
         model = Product
         fields = "__all__"
