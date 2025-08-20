@@ -55,7 +55,7 @@ export default function ProductDetail1() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-1">
       {/* Top area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* Main image / gallery */}
         <main className="xl:col-span-7 order-1 xl:order-2">
           <div className="bg-white rounded-md shadow p-4">
