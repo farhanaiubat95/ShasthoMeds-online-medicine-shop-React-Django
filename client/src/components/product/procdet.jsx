@@ -12,11 +12,6 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 
-/*
-  - Tailwind classes used heavily for layout & spacing
-  - MUI used for icons, buttons & typography consistency
-  - product object is the "list" shape you can replace with backend data
-*/
 
 const product = {
   id: 1,

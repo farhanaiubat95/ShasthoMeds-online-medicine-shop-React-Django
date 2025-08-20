@@ -29,58 +29,44 @@ const Routers = () => {
     <>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        {/* Parent Route with Nested Pages */}
+        {/* Public Home with nested pages */}
         <Route path="/" element={<Home />}>
-          <Route index element={<HomeMain />} /> {/* Default view */}
+          <Route index element={<HomeMain />} />
           <Route path="productdetails/:id" element={<ProductDetail />} />
         </Route>
 
-        {/* Catch All */}
-        <Route path="*" element={<ErrorPage />} />
-        
-        {/* <Route path="/product/:id" element={<DetailView />} /> */}
-
-        {/* ==> Public Routes protected for logged-in users */}
+        {/* Public routes only for NON-logged-in users */}
         <Route element={<AuthProtectedRoute />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Registerpage />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
         </Route>
 
-        {/* =========== Protected Routes =========== */}
-        {/* My Profile */}
-
+        {/* Protected User Routes */}
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
           <Route path="/myaccount" element={<CustomerLayout />}>
-            {/* CustomerHome is the parent page with <Outlet /> */}
-            <Route element={<CustomerHome />}>
-              <Route index element={<HomeMain />} /> {/* Default nested page */}
-              <Route path="productdetails/:id" element={<ProductDetail />} />
-            </Route>
-
-            {/* Other sections */}
+            <Route index element={<CustomerHome />} />
             <Route path="profile" element={<Profile />} />
             <Route path="cart" element={<Cart />} />
-            {/* <Route path="checkout" element={<Checkout />} />
-    <Route path="payment-success/:tran_id" element={<PaymentSuccess />} />
-    <Route path="AllOrders" element={<AllOrders />} /> */}
+            <Route path="productdetails/:id" element={<ProductDetail />} />
           </Route>
         </Route>
 
-        {/* Admin */}
+        {/* Protected Admin Routes */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route path="dashboard" element={<AdminDashboard />}>
-              <Route index element={<Main />} />
-              <Route path="category" element={<Categories />} />
-              <Route path="product" element={<Products />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="all-user" element={<AllCustomer />} />
-              <Route path="payment" element={<Payment />} />
-              <Route path="notification" element={<Notification />} />
-            </Route>
+            <Route index element={<AdminDashboard />} />
+            <Route path="category" element={<Categories />} />
+            <Route path="product" element={<Products />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="all-user" element={<AllCustomer />} />
+            <Route path="payment" element={<Payment />} />
+            <Route path="notification" element={<Notification />} />
           </Route>
         </Route>
+
+        {/* Catch-All */}
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
     </>
   );

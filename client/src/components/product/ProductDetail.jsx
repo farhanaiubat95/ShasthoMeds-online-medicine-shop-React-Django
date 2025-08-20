@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// src/pages/ProductDetail.jsx
+import React, { useState, useEffect } from "react";
 import {
   Button,
   IconButton,
@@ -7,55 +8,43 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProductById } from "../../redux/productSlice"; // Adjust the import path
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
-
-// Styled components or additional imports if needed can stay the same
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 export default function ProductDetail() {
-  const { id } = useParams(); // Extract ID from URL (e.g., /productdetails/1)
-  const dispatch = useDispatch();
-  const { product, loading, error } = useSelector((state) => state.products); // Adjust selector based on your slice
-  const [mainImage, setMainImage] = useState(null);
+  const { id } = useParams(); // 👈 get product id from URL
+  const [product, setProduct] = useState(null);
+  const [mainImage, setMainImage] = useState("");
 
-  // Fetch product data on mount or when ID changes
   useEffect(() => {
-    if (id) {
-      dispatch(fetchProductById(id));
-    }
-  }, [dispatch, id]);
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(
+          `https://shasthomeds-backend.onrender.com/api/products/${id}/`
+        );
+        setProduct(res.data);
+        setMainImage(res.data.image1); // set first image as default
+      } catch (err) {
+        console.error("Error fetching product:", err);
+      }
+    };
+    fetchProduct();
+  }, [id]);
 
-  // Set initial main image when product data is available
-  useEffect(() => {
-    if (product && product.image1) {
-      setMainImage(product.image1);
-    }
-  }, [product]);
-
-  // Handle loading and error states
-  if (loading) return <p>Loading product details...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!product) return <p>Product not found</p>;
-
-  // Construct images array from API response (image1, image2, image3)
-  const images = [product.image1, product.image2, product.image3].filter(
-    (img) => img !== null && img !== undefined
-  );
-
-  // Fallback if no images are available
-  if (images.length === 0) {
-    images.push("/images/placeholder.jpg"); // Replace with your placeholder
+  if (!product) {
+    return <p className="text-center mt-6">Loading product...</p>;
   }
+
+  // collect images (some may be null)
+  const images = [product.image1, product.image2, product.image3].filter(Boolean);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-1">
-      {/* Top area */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left sidebar (Categories / small info) */}
+        {/* Left sidebar */}
         <aside className="lg:col-span-3">
           <Card className="mt-6 border-2 border-[#0F918F] hidden md:flex">
             <CardContent>
@@ -66,9 +55,9 @@ export default function ProductDetail() {
                 FEATURES
               </Typography>
               <ul className="mt-3 space-y-2 list-disc list-inside text-gray-700">
-                {product.features && product.features.length > 0
-                  ? product.features.map((f, i) => <li key={i}>{f}</li>)
-                  : "No features available"}
+                <li>High Quality Medicine</li>
+                <li>Verified by ShasthoMeds</li>
+                <li>Available for fast delivery</li>
               </ul>
 
               <div className="mt-4 grid grid-cols-1 gap-2">
@@ -94,7 +83,7 @@ export default function ProductDetail() {
           <div className="bg-white rounded-md shadow p-4">
             <div className="border border-[#0F918F] rounded-lg p-2">
               <img
-                src={mainImage || "/images/placeholder.jpg"} // Fallback image
+                src={mainImage}
                 alt={product.name}
                 className="w-full h-[360px] object-contain rounded"
               />
@@ -122,7 +111,7 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* big promotional banner under image */}
+          {/* promotional banner */}
           <div className="mt-6 border border-[#0F918F] rounded-lg p-4 bg-white">
             <div className="bg-gradient-to-r from-pink-400 to-orange-400 rounded p-6 text-center text-white">
               <h3 className="text-2xl font-bold">FLASH SALE</h3>
@@ -142,13 +131,15 @@ export default function ProductDetail() {
             <Typography variant="h5" sx={{ fontWeight: 700, color: "#0F918F" }}>
               {product.name}
             </Typography>
-            <Typography variant="body2" className="text-gray-600 mt-1">
-              {product.subtitle || "No subtitle available"}
-            </Typography>
+            {product.subtitle && (
+              <Typography variant="body2" className="text-gray-600 mt-1">
+                {product.subtitle}
+              </Typography>
+            )}
 
             <div className="mt-4">
               <span className="text-lg font-bold text-rose-600">
-                {product.price}
+                TK {product.price}
               </span>
               <div className="text-sm text-green-600 mt-1">
                 {product.stock > 0 ? "In Stock" : "Out of Stock"}
@@ -171,12 +162,16 @@ export default function ProductDetail() {
             <Divider className="my-4" />
 
             <div className="text-sm text-gray-700 space-y-2">
-              <div>
-                <b>Brand:</b> {product.brand?.name || "N/A"}
-              </div>
-              <div>
-                <b>Category:</b> {product.category?.name || "N/A"}
-              </div>
+              {product.brand && (
+                <div>
+                  <b>Brand:</b> {product.brand}
+                </div>
+              )}
+              {product.category && (
+                <div>
+                  <b>Category:</b> {product.category}
+                </div>
+              )}
             </div>
           </div>
 
@@ -190,7 +185,8 @@ export default function ProductDetail() {
                 SHIPPING POLICY
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
-                {product.shipping || "Delivery details not available"}
+                Delivery normally within 2-5 business days. Charges may vary by
+                area.
               </Typography>
             </div>
 
@@ -202,7 +198,8 @@ export default function ProductDetail() {
                 REFUND POLICY
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
-                {product.refund || "Refund details not available"}
+                Refund allowed within 7 days for unopened items — subject to
+                verification.
               </Typography>
             </div>
 
@@ -214,7 +211,8 @@ export default function ProductDetail() {
                 CANCELLATION / RETURN
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
-                {product.cancellation || "Cancellation details not available"}
+                Orders can be cancelled within 1 hour of placement. See full
+                policy page for details.
               </Typography>
             </div>
           </div>

@@ -133,6 +133,7 @@ const ProductCard = () => {
                     onClick={() => navigate(`/productdetails/${product.id}`)}
                     sx={{
                       backgroundColor: "#626F47",
+                      fontSize: "10px",
                       "&:hover": { backgroundColor: "#A4B465" },
                     }}
                   >
@@ -142,6 +143,7 @@ const ProductCard = () => {
                     variant="contained"
                     sx={{
                       backgroundColor: "#CA7842",
+                      fontSize: "10px",
                       "&:hover": { backgroundColor: "#FF9B45" },
                     }}
                   >
