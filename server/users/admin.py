@@ -45,13 +45,13 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "id", "sku", "name", "slug", "category", "brand", "price", "new_price",
-        "offer_price", "discount_price", "stock", "display_unit", "package_quantity","prescription_required","weight_display","is_active",
+        "offer_price", "discount_price", "stock","weight_display","unit_display", "package_quantity","prescription_required","is_active",
         "created_at", "updated_at"
     )
     search_fields = ("sku", "name")
     prepopulated_fields = {"slug": ("name",)}
     list_filter = ("is_active", "category", "brand", "created_at")
-    exclude = ('discount_price', "new_price")
+    exclude = ('discount_price', "new_price", "weight_display","unit_display" )
 
     def save_model(self, request, obj, form, change):
         # Automatically set package_quantity based on unit

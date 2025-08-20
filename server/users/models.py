@@ -51,17 +51,26 @@ class EmailOTP(models.Model):
 # Image size validator
 def validate_image_size(image):
     if not image:
-        return  # allow blank
+        return
+
     max_size = 2 * 1024 * 1024  # 2 MB
-    if image.size > max_size:
-        raise ValidationError("Image size must be 2 MB or less.")
-    public_id = image.name.rsplit('.', 1)[0]  # remove extension
+
     try:
-        res = cloudinary.api.resource(public_id)
-        # If resource exists, you can log or return True
-        print("Image already uploaded:", res['url'])
+        # Cloudinary stores file metadata, fetch it
+        public_id = image.public_id if hasattr(image, "public_id") else str(image).rsplit(".", 1)[0]
+        resource = cloudinary.api.resource(public_id)
+        size_in_bytes = resource.get("bytes", 0)
+
+        if size_in_bytes > max_size:
+            raise ValidationError("Image size must be 2 MB or less.")
+
     except cloudinary.exceptions.NotFound:
-        print("Image not found on Cloudinary, will be uploaded.")
+        # image not yet uploaded, skip check
+        pass
+    except Exception as e:
+        # fallback if API call fails
+        print("Cloudinary validation error:", e)
+        pass
 
 # Brand model
 class Brand(models.Model):
