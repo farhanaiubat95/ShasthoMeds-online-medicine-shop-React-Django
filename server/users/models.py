@@ -163,6 +163,10 @@ class Product(models.Model):
     weight_value = models.PositiveIntegerField(blank=True, null=True)
     weight_unit = models.CharField(max_length=10, choices=WEIGHT_CHOICES, blank=True, null=True)
 
+    # NEW stored fields
+    weight_display = models.CharField(max_length=50, blank=True, null=True)
+    unit_display = models.CharField(max_length=50, blank=True, null=True)
+
     # Package quantity (like 1 strip / 1 box)
     package_quantity = models.CharField(max_length=20, choices=PACKAGE_CHOICES, blank=True, null=True)
 
@@ -206,6 +210,19 @@ class Product(models.Model):
             self.package_quantity = 'box'
         else:
             self.package_quantity = None
+        
+        # auto-generate display fields before saving
+        if self.weight_value and self.weight_unit:
+            self.weight_display = f"{self.weight_value} {self.weight_unit}"
+        else:
+            self.weight_display = None
+
+        if self.unit_value and self.unit:
+            self.unit_display = f"{self.unit_value} {self.get_unit_display()}"
+        elif self.unit:
+            self.unit_display = self.get_unit_display()
+        else:
+            self.unit_display = None
 
         super().save(*args, **kwargs)
 
@@ -217,6 +234,12 @@ class Product(models.Model):
         if self.unit_value:
             return f"{self.unit_value} {self.get_unit_display()}"
         return self.get_unit_display()
+    
+    def display_weight(self):
+        """Return weight_value + weight_unit (e.g., '500 mg')"""
+        if self.weight_value and self.weight_unit:
+            return f"{self.weight_value} {self.weight_unit}"
+        return None  # or return "-" if want a default
 
     def __str__(self):
         return f"{self.name} ({self.sku})"

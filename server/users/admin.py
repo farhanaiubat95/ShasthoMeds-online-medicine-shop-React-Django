@@ -45,7 +45,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "id", "sku", "name", "slug", "category", "brand", "price", "new_price",
-        "offer_price", "discount_price", "stock", "display_unit", "package_quantity", "is_active",
+        "offer_price", "discount_price", "stock", "display_unit", "package_quantity","prescription_required","weight_display","is_active",
         "created_at", "updated_at"
     )
     search_fields = ("sku", "name")

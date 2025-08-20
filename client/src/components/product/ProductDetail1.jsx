@@ -19,6 +19,9 @@ const product = {
   subtitle: "Erythromycin 2% | External Use Only",
   price: "৳ 120.00",
   availability: "In stock",
+  unit: "Tablat",
+  display_unit: "10 tablets",
+  package_quantity: "1 strip",
   images: [
     "/images/amycine-main.jpg", // main image
     "/images/amycine-1.jpg",
@@ -41,7 +44,7 @@ const product = {
   badges: ["Fast Shipping", "100% Authentic", "Cash on Delivery"],
 };
 
-export default function ProductDetail() {
+export default function ProductDetail1() {
   const [mainImage, setMainImage] = useState(product.images[0]);
 
   return (

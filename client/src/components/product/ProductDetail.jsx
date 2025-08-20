@@ -131,6 +131,8 @@ export default function ProductDetail() {
             <Typography variant="h5" sx={{ fontWeight: 700, color: "#0F918F" }}>
               {product.name}
             </Typography>
+            
+
             {product.subtitle && (
               <Typography variant="body2" className="text-gray-600 mt-1">
                 {product.subtitle}

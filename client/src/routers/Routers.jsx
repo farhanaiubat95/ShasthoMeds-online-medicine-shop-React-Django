@@ -23,6 +23,7 @@ import Products from "../components/Admin/Products";
 import AllCustomer from "../components/Admin/AllCustomer";
 import Notification from "../components/Admin/Notification";
 import Payment from "../components/Admin/Payment";
+import ProductDetail1 from "../components/product/ProductDetail1";
 
 const Routers = () => {
   return (
@@ -67,6 +68,7 @@ const Routers = () => {
 
         {/* Catch-All */}
         <Route path="*" element={<ErrorPage />} />
+        <Route path="productdetails1" element={<ProductDetail1 />} />
       </Routes>
     </>
   );
