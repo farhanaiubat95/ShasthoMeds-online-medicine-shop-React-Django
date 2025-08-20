@@ -22,7 +22,7 @@ import axios from "axios";
 
 
 export default function ProductDetail1() {
-  const { id } = useParams(); // 👈 get product id from URL
+  const { id } = useParams(); // get product id from URL
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState("");
 
