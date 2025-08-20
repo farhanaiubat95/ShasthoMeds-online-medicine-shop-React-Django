@@ -23,7 +23,7 @@ export default function ProductDetail() {
     const fetchProduct = async () => {
       try {
         const res = await axios.get(
-          `https://shasthomeds-backend.onrender.com/api/products/${id}/`
+          `https://shasthomeds-backend.onrender.com/products/${id}/`
         );
         setProduct(res.data);
         setMainImage(res.data.image1); // set first image as default
