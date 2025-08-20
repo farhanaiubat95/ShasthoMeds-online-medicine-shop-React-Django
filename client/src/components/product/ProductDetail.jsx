@@ -15,11 +15,9 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import RegisterImage from "../../assets/images/reg-img.jpg";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import GpsFixedIcon from "@mui/icons-material/GpsFixed";
-import NoteAltIcon from "@mui/icons-material/NoteAlt";
 import CommonProductInfo from "./CommonProductInfo";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-
 
 export default function ProductDetail1() {
   const { id } = useParams(); // get product id from URL
@@ -50,6 +48,23 @@ export default function ProductDetail1() {
     Boolean,
   );
 
+  const features_list = {
+    features: [
+      "Size 1900mm*900mm*500mm",
+      "Framework of rectangular mild steel tube",
+      "Backrest positions up to 75°",
+      "Provision of telescopic IV rod",
+      "Mounted on PVC stumps",
+    ],
+
+    shipping:
+      "Delivery normally within 2-5 business days. Charges may vary by area.",
+    refund:
+      "Refund allowed within 7 days for unopened items — subject to verification.",
+    cancellation: "Orders can be cancelled within 1 hour of placement.",
+    badges: ["Fast Shipping", "100% Authentic", "Cash on Delivery"],
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-1">
       {/* Top area */}
@@ -66,7 +81,7 @@ export default function ProductDetail1() {
                 FEATURES
               </Typography>
               <ul className="mt-3 space-y-2 list-disc list-inside text-gray-700">
-                {product.features.map((f, i) => (
+                {features_list.features.map((f, i) => (
                   <li key={i}>{f}</li>
                 ))}
               </ul>
@@ -102,7 +117,7 @@ export default function ProductDetail1() {
 
             {/* thumbnails */}
             <div className="mt-4 flex gap-3">
-              {product.images.map((src, i) => (
+              {images.map((src, i) => (
                 <button
                   key={i}
                   onClick={() => setMainImage(src)}
@@ -152,12 +167,12 @@ export default function ProductDetail1() {
             {/* Brand Name */}
             <div className="mt-4 flex items-center gap-2 border-b-1 pb-3 border-gray-200">
               <img
-                src={product.brandIMG}
+                src={product.brand?.image}
                 className="h-10 w-10 rounded-full border-2 border-[#FFC900]"
                 alt=""
               />
               <Typography className="mt-2 text-[#FF9B00] text-[25px]">
-                {product.brandNAME}
+                {product.brand?.name}
               </Typography>
               <ArrowRightIcon className="text-[#FFC900]" />
             </div>
@@ -216,7 +231,7 @@ export default function ProductDetail1() {
 
             <div className="text-sm text-gray-700 space-y-2">
               <div>
-                <b>Category:</b> {product.category}
+                <b>Category:</b> {product.category?.name}
               </div>
             </div>
           </div>
@@ -231,7 +246,7 @@ export default function ProductDetail1() {
                 SHIPPING POLICY
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
-                {product.shipping}
+                {features_list.shipping}
               </Typography>
             </div>
 
@@ -243,7 +258,7 @@ export default function ProductDetail1() {
                 REFUND POLICY
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
-                {product.refund}
+                {features_list.refund}
               </Typography>
             </div>
 
@@ -255,7 +270,7 @@ export default function ProductDetail1() {
                 CANCELLATION / RETURN
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
-                {product.cancellation}
+                {features_list.cancellation}
               </Typography>
             </div>
           </div>
