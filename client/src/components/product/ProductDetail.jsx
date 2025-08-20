@@ -113,10 +113,10 @@ export default function ProductDetail1() {
 
             {/* Brand Name */}
             <div className="mt-4 flex items-center gap-2 border-b-1 pb-3 border-gray-200">
-              <div className="h-10 w-10 rounded-full border-2 border-[#FFC900]">
+              <div className="h-10 w-10 rounded-full border-2 p-1 border-[#FFC900]">
                 <img
                   src={product.brand?.image}
-                  className="w-full "
+                  className="w-full rounded-full h-full object-cover"
                   alt=""
                 />
               </div>
