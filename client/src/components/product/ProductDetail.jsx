@@ -1,11 +1,6 @@
 // src/pages/ProductDetail.jsx
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Typography,
-  Divider,
-
-} from "@mui/material";
+import { Button, Typography, Divider } from "@mui/material";
 
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import GpsFixedIcon from "@mui/icons-material/GpsFixed";
@@ -118,11 +113,13 @@ export default function ProductDetail1() {
 
             {/* Brand Name */}
             <div className="mt-4 flex items-center gap-2 border-b-1 pb-3 border-gray-200">
-              <img
-                src={product.brand?.image}
-                className="h-10 w-10 rounded-full border-2 border-[#FFC900]"
-                alt=""
-              />
+              <div className="h-10 w-10 rounded-full border-2 border-[#FFC900]">
+                <img
+                  src={product.brand?.image}
+                  className="w-full "
+                  alt=""
+                />
+              </div>
               <Typography className="mt-2 text-[#FF9B00] text-[25px]">
                 {product.brand?.name}
               </Typography>
@@ -164,9 +161,7 @@ export default function ProductDetail1() {
                 </div>
               </div>
               <div className="text-sm text-green-600 mt-1">
-                {
-                  product.stock > 0 ? "In Stock" : "Out of Stock"
-                }
+                {product.stock > 0 ? "In Stock" : "Out of Stock"}
               </div>
             </div>
 
