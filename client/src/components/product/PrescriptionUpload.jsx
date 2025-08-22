@@ -35,14 +35,29 @@ const PrescriptionUpload = ({ open, onClose, product, token }) => {
     formData.append("notes", "Take care of prescription");
     formData.append("auto_add_to_cart", "true");
 
-    // Nested serializer fields must be indexed
     formData.append("items[0][product]", product.id);
     formData.append("items[0][quantity]", 1);
     formData.append("items[0][note]", "Optional note");
 
-    axios.post("https://shasthomeds-backend.onrender.com/prescriptions/requests/", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const access_token = localStorage.getItem("access_token"); // or pass via props
+
+    try {
+      const response = await axios.post(
+        "https://shasthomeds-backend.onrender.com/prescriptions/requests/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`, // add this
+          },
+        },
+      );
+      console.log("Prescription uploaded:", response.data);
+      alert("Prescription uploaded successfully!");
+    } catch (error) {
+      console.error("Upload failed:", error.response || error);
+      alert("Failed to upload prescription.");
+    }
   };
 
   return (

@@ -66,6 +66,7 @@ const ProductCard = () => {
 
   const [openPrescription, setOpenPrescription] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const access_token = localStorage.getItem("access_token");
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -197,6 +198,7 @@ const ProductCard = () => {
           open={openPrescription}
           onClose={() => setOpenPrescription(false)}
           product={selectedProduct}
+          token={access_token}
         />
       )}
     </>
