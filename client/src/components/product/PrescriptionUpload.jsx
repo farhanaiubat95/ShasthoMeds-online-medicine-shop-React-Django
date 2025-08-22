@@ -1,4 +1,4 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 
-const PrescriptionUpload = ({ open, onClose, product }) => {
+const PrescriptionUpload = ({ open, onClose, product, token }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleImageChange = (e) => {
@@ -29,10 +29,13 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
 
     try {
       const response = await axios.post(
-        "https://shasthomeds-backend.onrender.com/prescriptions/",
+        "https://shasthomeds-backend.onrender.com/prescriptions/requests/",
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`, // pass token here
+          },
         },
       );
       alert("Prescription uploaded successfully!");

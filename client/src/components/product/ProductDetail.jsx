@@ -53,8 +53,7 @@ export default function ProductDetail() {
   };
 
   // Add to cart
-  const handleAddToCart = (product) => {
-
+  const handleAddToCart = async (product) => {
     if (!user) {
       navigate("/login");
       return;
@@ -64,16 +63,27 @@ export default function ProductDetail() {
       setSelectedProduct(product);
       setOpenPrescription(true);
     } else {
-      // Dispatch Redux action
-      dispatch(addToCart({ productId: product.id, token: user.access }))
-        .unwrap()
-        .then(() => {
-          alert("Product added to cart successfully!");
-        })
-        .catch((err) => {
-          console.error("Add to cart failed:", err);
-          alert("Failed to add product to cart.");
-        });
+      try {
+        // Hit your backend API directly
+        const response = await axios.post(
+          "https://shasthomeds-backend.onrender.com/cart/",
+          { product: product.id, quantity: 1 },
+          {
+            headers: {
+              Authorization: `Bearer ${user.access}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        // Update Redux with response data
+        dispatch(addToCart.fulfilled(response.data));
+
+        alert("Product added to cart successfully!");
+      } catch (error) {
+        console.error("Add to cart failed:", error.response?.data || error);
+        alert("Failed to add product to cart.");
+      }
     }
   };
 

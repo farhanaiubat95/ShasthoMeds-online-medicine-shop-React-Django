@@ -17,7 +17,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import PrescriptionUpload from "./PrescriptionUpload";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { addToCart } from "../../redux/cartSlice.js";
+
 
 // Styled Arrows
 const PrevArrowButton = styled(IconButton)(({ theme }) => ({
@@ -71,27 +71,45 @@ const ProductCard = () => {
   }, [dispatch]);
 
   // Add to cart
-  const handleAddToCart = (product) => {
-
+  const handleAddToCart = async (product) => {
+    // Check if user is logged in
     if (!user) {
       navigate("/login");
       return;
     }
 
+    //If prescription is required
     if (product.prescription_required) {
       setSelectedProduct(product);
       setOpenPrescription(true);
+      return;
     } else {
-      // Dispatch Redux action
-      dispatch(addToCart({ productId: product.id, token: user.access }))
-        .unwrap()
-        .then(() => {
-          alert("Product added to cart successfully!");
-        })
-        .catch((err) => {
-          console.error("Add to cart failed:", err);
+      // Add to cart via API + update Redux
+      try {
+        const response = await axios.post(
+          "https://shasthomeds-backend.onrender.com/cart/",
+          { product: product.id },
+          {
+            headers: {
+              Authorization: `Bearer ${user.access}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        // Manually update Redux
+        dispatch(addToCartSuccess(response.data)); // make sure this action exists in your cartSlice
+
+        alert("Product added to cart successfully!");
+      } catch (error) {
+        console.error("Add to cart failed:", error.response || error);
+        if (error.response && error.response.status === 401) {
+          alert("Session expired. Please log in again.");
+          navigate("/login");
+        } else {
           alert("Failed to add product to cart.");
-        });
+        }
+      }
     }
   };
 

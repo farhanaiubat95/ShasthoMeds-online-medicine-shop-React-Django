@@ -2,21 +2,23 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Async thunk for adding product to cart
+// Thunk for adding item to cart
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({ productId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
         "https://shasthomeds-backend.onrender.com/cart/",
-        { product: productId },
+        { product_id: productId, quantity: 1 }, // send product_id + quantity
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
+      return response.data; // this gets pushed into items[]
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
     }
   }
 );
@@ -37,7 +39,7 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.items.push(action.payload);
+        state.items.push(action.payload); // add new cart item
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.loading = false;
