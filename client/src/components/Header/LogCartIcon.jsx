@@ -53,7 +53,7 @@ const LogCartIcon = () => {
   const handleLogout = () => {
     dispatch(logoutUser());
     handleClose();
-    navigate("/");
+    navigate("/login");
   };
 
   return (

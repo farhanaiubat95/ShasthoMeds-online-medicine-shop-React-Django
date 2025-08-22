@@ -77,35 +77,29 @@ const ProductCard = () => {
       navigate("/login");
       return;
     }
-
+    const access_token = localStorage.getItem("access_token");
+    console.log("Token:", access_token);
+    console.log("Request: /cart/add/, product_id:", product.id);
     try {
       let response;
-
       if (product.prescription_required) {
-        // Open prescription dialog
         setSelectedProduct(product);
         setOpenPrescription(true);
         return;
-      } else {
-        // Normal product, POST to /cart/add/
-        response = await axiosInstance.post("/cart/add/", {
-          product_id: product.id,
-        });
       }
-
-      // Update Redux state
-      dispatch(addToCart(response.data.cart)); // cart data is inside response.data.cart
-      alert("Product added to cart successfully!");
+      response = await axiosInstance.post("/cart/add/", {
+        product_id: product.id,
+      });
+      dispatch(addToCart(response.data.cart));
+      alert("Product added to cart!");
     } catch (error) {
-      console.error("Add to cart failed:", error.response?.data || error);
-      alert(
-        error.response?.data?.error ||
-          error.response?.data?.detail ||
-          "Failed to add product to cart.",
-      );
+      console.error("Error:", error.response?.data || error);
+      alert(error.response?.data?.detail || "Failed to add to cart.");
     }
   };
 
+
+  
   const sliderSettings = {
     dots: false,
     infinite: true,
