@@ -10,7 +10,7 @@ from django.db import transaction
 
 from django.db import models
 
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 from .models import Brand, Cart, CartItem, Category, PrescriptionRequest, Product
 from .serializers import BrandSerializer, CartSerializer, CategorySerializer, PrescriptionRequestCreateSerializer, PrescriptionRequestSerializer, ProductSerializer
@@ -214,7 +214,7 @@ class CartViewSet(viewsets.ViewSet):
         data = CartSerializer(cart).data
         return Response(data)
 
-    @action(detail=False, methods=["post"], url_path="add", parser_classes=[MultiPartParser, FormParser])
+    @action(detail=False, methods=["post"], url_path="add", parser_classes=[MultiPartParser, FormParser, JSONParser])
     @transaction.atomic
     def add_to_cart(self, request):
         """
