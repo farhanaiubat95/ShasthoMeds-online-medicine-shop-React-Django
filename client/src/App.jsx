@@ -13,16 +13,14 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-  const access = localStorage.getItem("access_token");
-  const refresh = localStorage.getItem("refresh_token");
-  const user = JSON.parse(localStorage.getItem("user"));
+    const access_token = localStorage.getItem("access_token");
+    const refresh_token = localStorage.getItem("refresh_token");
+    const user = JSON.parse(localStorage.getItem("user"));
 
-  if (access && refresh && user) {
-    dispatch(setUserData({ user, access, refresh })); // restores Redux state
-  }
-}, [dispatch]);
-
-
+    if (access_token && refresh_token && user) {
+      dispatch(setUserData({ user, access_token, refresh_token })); // match keys in slice
+    }
+  }, [dispatch]);
 
   const isAdminRoute = location.pathname.startsWith("/admin/dashboard");
 
@@ -30,7 +28,7 @@ function App() {
     <>
       <ScrollToTop />
       <div className={!isAdminRoute ? "mx-5 sm:mx-10 lg:mx-12 xl:mx-24" : ""}>
-        {!isAdminRoute ?<Header /> : ""}
+        {!isAdminRoute ? <Header /> : ""}
         <Routers />
         {!isAdminRoute && <Footer />}
       </div>

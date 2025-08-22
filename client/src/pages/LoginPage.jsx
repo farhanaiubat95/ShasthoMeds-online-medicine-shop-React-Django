@@ -48,13 +48,17 @@ function LoginPage() {
       const { access, refresh, user } = res.data;
 
       // Save to localStorage
-      localStorage.setItem("access", access);
-      localStorage.setItem("refresh", refresh);
+      // Save to localStorage with consistent keys
+      localStorage.setItem("access_token", access);
+      localStorage.setItem("refresh_token", refresh);
+
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("user_role", user.role);
 
       // Dispatch to Redux store
-      dispatch(setUserData({ user, access, refresh }));
+      dispatch(
+        setUserData({ user, access_token: access, refresh_token: refresh }),
+      );
 
       // Navigate based on user role
       if (user.role === "admin") {
