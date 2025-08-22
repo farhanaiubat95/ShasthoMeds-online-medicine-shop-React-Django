@@ -83,9 +83,7 @@ const ProductCard = () => {
       setOpenPrescription(true);
     } else {
       try {
-        const response = await axiosInstance.post("/cart/", {
-          product: product.id,
-        });
+        axiosInstance.post("/cart/add/", { product_id: product.id });
         dispatch(addToCart(response.data));
         alert("Product added to cart successfully!");
       } catch (error) {

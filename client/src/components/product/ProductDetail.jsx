@@ -69,8 +69,8 @@ export default function ProductDetail() {
       setOpenPrescription(true);
     } else {
       try {
-        const response = await axiosInstance.post("/cart/", {
-          product: product.id,
+        const response = await axiosInstance.post("/cart/add/", {
+          product_id: product.id,
         });
         dispatch(addToCart(response.data));
 

@@ -29,9 +29,12 @@ const PrescriptionUpload = ({ open, onClose, product, token }) => {
 
   const handleSubmit = async () => {
     if (!selectedImage) return;
+
     const formData = new FormData();
     formData.append("product_id", product.id);
-    formData.append("file", selectedImage);
+
+    // Use the correct field name for your serializer
+    formData.append("uploaded_image", selectedImage);
 
     try {
       await axiosInstance.post("/prescriptions/requests/", formData, {
@@ -41,7 +44,7 @@ const PrescriptionUpload = ({ open, onClose, product, token }) => {
       alert("Prescription uploaded successfully!");
       onClose();
     } catch (error) {
-      console.error("Upload failed:", error);
+      console.error("Upload failed:", error.response?.data || error);
       alert("Failed to upload prescription.");
     }
   };
