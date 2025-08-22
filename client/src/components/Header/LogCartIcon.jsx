@@ -21,7 +21,7 @@ import Person2Icon from "@mui/icons-material/Person2";
 import SearchBar from "./SearchBar.jsx";
 
 import { useSelector, useDispatch } from "react-redux";
-import { logoutUser } from "../../redux/userSlice"; // Adjust path to your slice
+import { logoutUser } from "../../redux/userSlice";
 
 // Styled rotating arrow
 const RotatingArrowIcon = styled(ArrowDropDownIcon)(({ theme }) => ({
@@ -42,6 +42,10 @@ const LogCartIcon = () => {
 
   // Get user from Redux store
   const user = useSelector((state) => state.auth.user);
+
+  // Get cart items from Redux store
+  const cartItems = useSelector((state) => state.cart.items);
+  const cartCount = cartItems.length; // Total number of items in cart
 
   const handleMenu = (event) => setMenuAnchor(event.currentTarget);
   const handleClose = () => setMenuAnchor(null);
@@ -140,7 +144,7 @@ const LogCartIcon = () => {
           <Link to="/myaccount/cart" className="cursor-pointer">
             <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-6 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
               <IconButton>
-                <Badge badgeContent={0} color="error">
+                <Badge badgeContent={cartCount} color="error">
                   <ShoppingCart
                     sx={{
                       color: "#0F918F",

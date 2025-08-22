@@ -8,6 +8,7 @@ import Features from "./Features";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import PrescriptionUpload from "./PrescriptionUpload"; // Prescription modal
+import { addToCart } from "../../redux/cartSlice.js";
 
 export default function ProductDetail() {
   const { id } = useParams(); // get product id from URL
@@ -23,7 +24,7 @@ export default function ProductDetail() {
     const fetchProduct = async () => {
       try {
         const res = await axios.get(
-          `https://shasthomeds-backend.onrender.com/products/${id}/`
+          `https://shasthomeds-backend.onrender.com/products/${id}/`,
         );
         setProduct(res.data);
         setMainImage(res.data.image1); // default image
@@ -37,7 +38,9 @@ export default function ProductDetail() {
   if (!product) return <p className="text-center mt-6">Loading product...</p>;
 
   // collect images
-  const images = [product.image1, product.image2, product.image3].filter(Boolean);
+  const images = [product.image1, product.image2, product.image3].filter(
+    Boolean,
+  );
 
   const features_list = {
     shipping:
@@ -48,21 +51,29 @@ export default function ProductDetail() {
     badges: ["Fast Shipping", "100% Authentic", "Cash on Delivery"],
   };
 
-  // Add To Cart handler
-  const handleAddToCart = async () => {
+  // Add to cart
+  const handleAddToCart = (product) => {
+    const user = useSelector((state) => state.auth.user); // get logged-in user
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     if (product.prescription_required) {
       setSelectedProduct(product);
       setOpenPrescription(true);
     } else {
-      try {
-        // Direct add to cart API call
-        const res = await axios.post(
-          `https://shasthomeds-backend.onrender.com/cart/add/${product.id}/`
-        );
-        console.log("Added to cart:", res.data);
-      } catch (err) {
-        console.error("Error adding to cart:", err);
-      }
+      // Dispatch Redux action
+      dispatch(addToCart({ productId: product.id, token: user.access }))
+        .unwrap()
+        .then(() => {
+          alert("Product added to cart successfully!");
+        })
+        .catch((err) => {
+          console.error("Add to cart failed:", err);
+          alert("Failed to add product to cart.");
+        });
     }
   };
 
@@ -90,7 +101,11 @@ export default function ProductDetail() {
                       : "border-gray-200"
                   }`}
                 >
-                  <img src={src} alt={`thumb-${i}`} className="w-full h-full object-cover" />
+                  <img
+                    src={src}
+                    alt={`thumb-${i}`}
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -135,7 +150,9 @@ export default function ProductDetail() {
               <GpsFixedIcon className="text-[#0F918F]" />
               <Typography variant="body2" className="mt-2">
                 <span className="text-[#718096] text-[17px]">Generic :</span>{" "}
-                <span className="text-[#0F918F] text-[18px]">{product.generic_name}</span>
+                <span className="text-[#0F918F] text-[18px]">
+                  {product.generic_name}
+                </span>
               </Typography>
             </div>
 
@@ -186,7 +203,10 @@ export default function ProductDetail() {
 
           <div className="mt-4 space-y-3">
             <div className="border rounded p-3">
-              <Typography variant="subtitle1" sx={{ color: "#0F918F", fontWeight: 700 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ color: "#0F918F", fontWeight: 700 }}
+              >
                 SHIPPING POLICY
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
@@ -195,7 +215,10 @@ export default function ProductDetail() {
             </div>
 
             <div className="border rounded p-3">
-              <Typography variant="subtitle1" sx={{ color: "#0F918F", fontWeight: 700 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ color: "#0F918F", fontWeight: 700 }}
+              >
                 REFUND POLICY
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
@@ -204,7 +227,10 @@ export default function ProductDetail() {
             </div>
 
             <div className="border rounded p-3">
-              <Typography variant="subtitle1" sx={{ color: "#0F918F", fontWeight: 700 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ color: "#0F918F", fontWeight: 700 }}
+              >
                 CANCELLATION / RETURN
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
@@ -230,6 +256,8 @@ export default function ProductDetail() {
         <PrescriptionUpload
           open={openPrescription}
           onClose={() => setOpenPrescription(false)}
+          product={selectedProduct}
+          token={user.access} // pass token for API call
         />
       )}
     </div>

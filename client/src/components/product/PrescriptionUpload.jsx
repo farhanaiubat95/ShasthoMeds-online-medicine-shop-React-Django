@@ -1,4 +1,3 @@
-// src/components/product/Findpagecheck.jsx
 import React, { useState } from "react";
 import {
   Dialog,
@@ -9,19 +8,42 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
+import axios from "axios";
 
-const PrescriptionUpload = ({ open, onClose }) => {
+const PrescriptionUpload = ({ open, onClose, product }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setSelectedImage(URL.createObjectURL(file));
+      setSelectedImage(file);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedImage) return;
+    const formData = new FormData();
+    formData.append("product_id", product.id);
+    formData.append("file", selectedImage);
+
+    try {
+      const response = await axios.post(
+        "https://shasthomeds-backend.onrender.com/prescriptions/",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+      alert("Prescription uploaded successfully!");
+      onClose();
+    } catch (error) {
+      console.error("Upload failed:", error);
+      alert("Failed to upload prescription.");
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" >
+    <Dialog open={open} onClose={onClose} maxWidth="md">
       <DialogTitle className="flex justify-between items-center text-lg font-semibold text-[#0F918F]">
         Upload Prescription
         <IconButton onClick={onClose}>
@@ -33,18 +55,21 @@ const PrescriptionUpload = ({ open, onClose }) => {
         <div className="w-[500px] h-[600px] border-2 border-dashed border-[#0F918F] rounded-2xl flex flex-col items-center justify-center bg-gray-50 shadow-inner">
           {selectedImage ? (
             <img
-              src={selectedImage}
+              src={URL.createObjectURL(selectedImage)}
               alt="Prescription Preview"
-              className="w-full h-full object-contain rounded-xl "
+              className="w-full h-full object-contain rounded-xl"
             />
           ) : (
             <label
               htmlFor="prescription-upload"
-              className="flex flex-col items-center justify-center cursor-pointer "
+              className="flex flex-col items-center justify-center cursor-pointer"
             >
-              <CloudUploadIcon className="text-gray-500 mb-2" fontSize="large" />
+              <CloudUploadIcon
+                className="text-gray-500 mb-2"
+                fontSize="large"
+              />
               <p className="text-[#0F918F]">Click to upload prescription</p>
-              <p className="text-sm text-[#0F918F]">Only JPG, PNG</p>
+              <p className="text-sm text-[#0F918F]">Only JPG, PNG, PDF</p>
               <input
                 id="prescription-upload"
                 type="file"
@@ -59,12 +84,13 @@ const PrescriptionUpload = ({ open, onClose }) => {
         {selectedImage && (
           <Button
             variant="contained"
+            onClick={handleSubmit}
             sx={{
               backgroundColor: "#0F918F",
               color: "white",
               marginTop: "1rem",
             }}
-            className="mt-4 px-6 rounded-lg shadow-md bg-[#0F918F] hover:bg-[#30C2C0] text-white"
+            className="mt-4 px-6 rounded-lg shadow-md hover:bg-[#30C2C0]"
           >
             Submit Prescription
           </Button>
@@ -74,4 +100,4 @@ const PrescriptionUpload = ({ open, onClose }) => {
   );
 };
 
-export default PrescriptionUpload
+export default PrescriptionUpload;
