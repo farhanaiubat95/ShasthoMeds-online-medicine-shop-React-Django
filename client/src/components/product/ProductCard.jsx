@@ -163,7 +163,7 @@ const ProductCard = () => {
                   <div className="flex gap-2">
                     <Button
                       variant="contained"
-                      onClick={() => navigate(user ? `/myaccount/productdetails/${product.id}` : `/productdetails/${product.id}`)}
+                      onClick={() => navigate(`/productdetails/${product.id}`)}
                       sx={{
                         backgroundColor: "#626F47",
                         fontSize: "10px",
