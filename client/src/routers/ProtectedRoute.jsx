@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const user = useSelector((state) => state.auth.user);             // Redux user
-  const access = localStorage.getItem("access_token");              // ✅ Read access_token from localStorage
+  const access = localStorage.getItem("access_token");              // Read access_token from localStorage
 
   // If user not logged in OR no access_token, redirect to login
   if (!access || !user) {

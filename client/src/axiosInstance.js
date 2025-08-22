@@ -5,10 +5,17 @@ const axiosInstance = axios.create({
   baseURL: "https://shasthomeds-backend.onrender.com",
 });
 
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+// Attach token automatically for every request
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // Get access token from localStorage
+    const access_token = localStorage.getItem("access_token");
+    if (access_token) {
+      config.headers.Authorization = `Bearer ${access_token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default axiosInstance;
