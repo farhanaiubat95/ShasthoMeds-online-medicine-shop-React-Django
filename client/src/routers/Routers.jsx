@@ -46,10 +46,13 @@ const Routers = () => {
         {/* Protected User Routes */}
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
           <Route path="/myaccount" element={<CustomerLayout />}>
-            <Route index element={<CustomerHome />} />
+            <Route index element={<CustomerHome />}>
+              <Route index element={<HomeMain />} />
+              <Route path="productdetails/:id" element={<ProductDetail />} />
+            </Route>
+
             <Route path="profile" element={<Profile />} />
             <Route path="cart" element={<Cart />} />
-            <Route path="productdetails/:id" element={<ProductDetail />} />
           </Route>
         </Route>
 

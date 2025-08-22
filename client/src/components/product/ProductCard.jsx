@@ -15,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import PrescriptionUpload from "./PrescriptionUpload";
-import axios from "axios"; // import axios for API calls
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { addToCart } from "../../redux/cartSlice.js";
@@ -62,6 +61,7 @@ const ProductCard = () => {
   const navigate = useNavigate();
 
   const { products, loading, error } = useSelector((state) => state.products);
+  const user = useSelector((state) => state.auth.user); // get logged-in user
 
   const [openPrescription, setOpenPrescription] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -72,7 +72,6 @@ const ProductCard = () => {
 
   // Add to cart
   const handleAddToCart = (product) => {
-    const user = useSelector((state) => state.auth.user); // get logged-in user
 
     if (!user) {
       navigate("/login");
@@ -164,7 +163,7 @@ const ProductCard = () => {
                   <div className="flex gap-2">
                     <Button
                       variant="contained"
-                      onClick={() => navigate(`/productdetails/${product.id}`)}
+                      onClick={() => navigate(user ? `/myaccount/productdetails/${product.id}` : `/productdetails/${product.id}`)}
                       sx={{
                         backgroundColor: "#626F47",
                         fontSize: "10px",

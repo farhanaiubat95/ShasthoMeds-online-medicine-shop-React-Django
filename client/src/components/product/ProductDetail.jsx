@@ -18,6 +18,7 @@ export default function ProductDetail() {
   // Prescription dialog state
   const [openPrescription, setOpenPrescription] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const user = useSelector((state) => state.auth.user); // get logged-in user
 
   // Fetch product
   useEffect(() => {
@@ -53,7 +54,6 @@ export default function ProductDetail() {
 
   // Add to cart
   const handleAddToCart = (product) => {
-    const user = useSelector((state) => state.auth.user); // get logged-in user
 
     if (!user) {
       navigate("/login");
