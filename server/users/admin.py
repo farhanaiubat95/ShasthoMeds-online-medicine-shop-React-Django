@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.forms import ValidationError
-from .models import Category, CustomUser, EmailOTP, Brand, Product
+from .models import Cart, CartItem, Category, CustomUser, EmailOTP, Brand, PrescriptionItem, PrescriptionRequest, Product
 from django.core.mail import send_mail
 
 # CustomUser model
@@ -63,3 +63,32 @@ class ProductAdmin(admin.ModelAdmin):
             obj.package_quantity = None
 
         super().save_model(request, obj, form, change)
+
+
+
+# Cart model
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "is_active", "updated_at")
+    list_filter = ("is_active",)
+    search_fields = ("user__email",)
+
+# Cart item model
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ("id", "cart", "product", "quantity", "unit_price", "added_at")
+    search_fields = ("cart__user__email", "product__name")
+
+# PrescriptionRequest model
+@admin.register(PrescriptionRequest)
+class PrescriptionRequestAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "status", "approved_at", "created_at")
+    list_filter = ("status",)
+    search_fields = ("user__email",)
+    readonly_fields = ("created_at", "updated_at", "approved_at")
+
+# PrescriptionItem model
+@admin.register(PrescriptionItem)
+class PrescriptionItemAdmin(admin.ModelAdmin):
+    list_display = ("id", "prescription_request", "product", "quantity")
+    search_fields = ("product__name",)

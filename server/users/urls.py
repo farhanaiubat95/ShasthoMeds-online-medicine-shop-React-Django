@@ -2,7 +2,7 @@
 
 from django.urls import include, path
 from .views import (
-    APIRootView, BrandViewSet, CategoryViewSet, LogoutView, ProductViewSet, RegisterAPIView, ResendOTPView,
+    APIRootView, BrandViewSet, CartViewSet, CategoryViewSet, LogoutView, PrescriptionRequestViewSet, ProductViewSet, RegisterAPIView, ResendOTPView,
     UpdateProfileView, VerifyOTPView, CustomTokenObtainPairView,
 )
 
@@ -16,6 +16,9 @@ router = DefaultRouter()
 router.register(r'brands', BrandViewSet, basename='brand')
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'products', ProductViewSet, basename='product')
+router.register(r'cart', CartViewSet, basename='cart')  # <--- add
+router.register(r'prescriptions/requests', PrescriptionRequestViewSet, basename='prescription-request')  # <--- add
+
 
 urlpatterns = [
     path('', APIRootView.as_view(), name='api-root'),

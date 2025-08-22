@@ -160,6 +160,12 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Cloudinary (all media goes here)
 import cloudinary
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+}
+
 # Add this after your CLOUDINARY_STORAGE configuration
 cloudinary.config(
     cloud_name=config('CLOUDINARY_CLOUD_NAME'),
