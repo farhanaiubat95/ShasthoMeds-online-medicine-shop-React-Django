@@ -87,6 +87,33 @@ class PrescriptionRequestAdmin(admin.ModelAdmin):
     search_fields = ("user__email",)
     readonly_fields = ("created_at", "updated_at", "approved_at")
 
+    def save_model(self, request, obj, form, change):
+        if change:
+            old_obj = PrescriptionRequest.objects.get(pk=obj.pk)
+            if old_obj.status != obj.status:
+                # Send email to user
+                items = "\n".join([f"{i.product.name} ({i.product.sku})" for i in obj.items.all()])
+                if obj.status == PrescriptionRequest.STATUS_APPROVED:
+                    subject = "Prescription Approved"
+                    message = f"Hello {obj.user.full_name},\n\nYour prescription has been APPROVED.\n\nProducts:\n{items}\n\nThank you!"
+                elif obj.status == PrescriptionRequest.STATUS_REJECTED:
+                    subject = "Prescription Rejected"
+                    message = f"Hello {obj.user.full_name},\n\nYour prescription has been REJECTED.\n\nProducts:\n{items}\n\nPlease upload a new prescription if needed."
+
+                try:
+                    send_mail(
+                        subject,
+                        message,
+                        settings.EMAIL_HOST_USER,
+                        [obj.user.email],
+                        fail_silently=False
+                    )
+                except Exception as e:
+                    print("Email sending failed:", e)
+
+        super().save_model(request, obj, form, change)
+
+        
 # PrescriptionItem model
 @admin.register(PrescriptionItem)
 class PrescriptionItemAdmin(admin.ModelAdmin):
