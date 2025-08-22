@@ -70,7 +70,7 @@ export default function ProductDetail() {
           { product: product.id, quantity: 1 },
           {
             headers: {
-              Authorization: `Bearer ${user.access}`,
+              Authorization: `Bearer ${user.access_token}`,
               "Content-Type": "application/json",
             },
           },
@@ -267,7 +267,7 @@ export default function ProductDetail() {
           open={openPrescription}
           onClose={() => setOpenPrescription(false)}
           product={selectedProduct}
-          token={user.access} // pass token for API call
+          token={user.access_token} // pass token for API call
         />
       )}
     </div>

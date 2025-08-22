@@ -10,7 +10,7 @@ const AuthProtectedRoute = () => {
     if (user.role === "admin" || user.role === "Admin") {
       return <Navigate to="/admin/dashboard" replace />;
     } else if (user.role === "user" || user.role === "User") {
-      return <Navigate to="/myaccount" replace />;
+      return <Navigate to="/" replace />;
     } else {
       return <Navigate to="/" replace />;
     }

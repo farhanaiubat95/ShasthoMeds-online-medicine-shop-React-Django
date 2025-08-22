@@ -165,7 +165,7 @@ const ProductCard = () => {
                       fontSize: "20px",
                     }}
                   >
-                    TK {product.price} {user?.access}
+                    TK {product.price} {user?.access_token}
                   </Typography>
                   <Typography
                     variant="body2"
@@ -212,7 +212,7 @@ const ProductCard = () => {
           open={openPrescription}
           onClose={() => setOpenPrescription(false)}
           product={selectedProduct}
-          token={user.access} // pass token for API call
+          token={user.access_token} // pass token for API call
         />
       )}
     </>
