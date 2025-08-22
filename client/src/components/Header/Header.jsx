@@ -9,6 +9,7 @@ import {
   ListItem,
   ListItemText,
   Box,
+
 } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 
@@ -63,32 +64,41 @@ export default function Header() {
               {user ? (
                 <Link
                   to="/myaccount"
-                sx={{
-                  color: "#0F918F",
-                  fontSize: { xs: "16px", sm: "20px", md: "25px", lg: "30px" },
-                  textDecoration: "none",
-                }}
-              >
-                Shasthomeds
-              </Link>
+                  sx={{
+                    color: "#0F918F",
+                    fontSize: {
+                      xs: "16px",
+                      sm: "20px",
+                      md: "25px",
+                      lg: "30px",
+                    },
+                    textDecoration: "none",
+                  }}
+                >
+                  Shasthomeds
+                </Link>
               ) : (
                 <Link
-                to="/"
-                sx={{
-                  color: "#0F918F",
-                  fontSize: { xs: "16px", sm: "20px", md: "25px", lg: "30px" },
-                  textDecoration: "none",
-                }}
-              >
-                Shasthomeds
-              </Link>
+                  to="/"
+                  sx={{
+                    color: "#0F918F",
+                    fontSize: {
+                      xs: "16px",
+                      sm: "20px",
+                      md: "25px",
+                      lg: "30px",
+                    },
+                    textDecoration: "none",
+                  }}
+                >
+                  Shasthomeds
+                </Link>
               )}
             </Typography>
           </Box>
 
           {/* Right - Icons */}
           <LogCartIcon />
-
         </Toolbar>
       </AppBar>
 
@@ -109,7 +119,6 @@ export default function Header() {
           </List>
         </Box>
       </Drawer>
-
     </>
   );
 }

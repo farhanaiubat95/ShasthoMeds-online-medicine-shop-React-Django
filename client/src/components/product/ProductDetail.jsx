@@ -1,27 +1,32 @@
 // src/pages/ProductDetail.jsx
 import React, { useEffect, useState } from "react";
 import { Button, Typography, Divider } from "@mui/material";
-
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import GpsFixedIcon from "@mui/icons-material/GpsFixed";
 import CommonProductInfo from "./CommonProductInfo";
+import Features from "./Features";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import Features from "./Features";
+import PrescriptionUpload from "./PrescriptionUpload"; // Prescription modal
 
-export default function ProductDetail1() {
+export default function ProductDetail() {
   const { id } = useParams(); // get product id from URL
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState("");
 
+  // Prescription dialog state
+  const [openPrescription, setOpenPrescription] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // Fetch product
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await axios.get(
-          `https://shasthomeds-backend.onrender.com/products/${id}/`,
+          `https://shasthomeds-backend.onrender.com/products/${id}/`
         );
         setProduct(res.data);
-        setMainImage(res.data.image1); // set first image as default
+        setMainImage(res.data.image1); // default image
       } catch (err) {
         console.error("Error fetching product:", err);
       }
@@ -29,14 +34,10 @@ export default function ProductDetail1() {
     fetchProduct();
   }, [id]);
 
-  if (!product) {
-    return <p className="text-center mt-6">Loading product...</p>;
-  }
+  if (!product) return <p className="text-center mt-6">Loading product...</p>;
 
-  // collect images (some may be null)
-  const images = [product.image1, product.image2, product.image3].filter(
-    Boolean,
-  );
+  // collect images
+  const images = [product.image1, product.image2, product.image3].filter(Boolean);
 
   const features_list = {
     shipping:
@@ -47,9 +48,26 @@ export default function ProductDetail1() {
     badges: ["Fast Shipping", "100% Authentic", "Cash on Delivery"],
   };
 
+  // Add To Cart handler
+  const handleAddToCart = async () => {
+    if (product.prescription_required) {
+      setSelectedProduct(product);
+      setOpenPrescription(true);
+    } else {
+      try {
+        // Direct add to cart API call
+        const res = await axios.post(
+          `https://shasthomeds-backend.onrender.com/cart/add/${product.id}/`
+        );
+        console.log("Added to cart:", res.data);
+      } catch (err) {
+        console.error("Error adding to cart:", err);
+      }
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-1">
-      {/* Top area */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* Main image / gallery */}
         <main className="xl:col-span-7 order-1 xl:order-2">
@@ -61,8 +79,6 @@ export default function ProductDetail1() {
                 className="w-full h-[360px] object-contain rounded"
               />
             </div>
-
-            {/* thumbnails */}
             <div className="mt-4 flex gap-3">
               {images.map((src, i) => (
                 <button
@@ -74,49 +90,38 @@ export default function ProductDetail1() {
                       : "border-gray-200"
                   }`}
                 >
-                  <img
-                    src={src}
-                    alt={`thumb-${i}`}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={src} alt={`thumb-${i}`} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Product info */}
           <div className="hidden xl:block">
             <CommonProductInfo product={product} />
           </div>
         </main>
 
-        {/* Right product info */}
-        <aside className="xl:col-span-5 common-right-sidebar order-2 xl:order-3">
+        {/* Right sidebar */}
+        <aside className="xl:col-span-5 order-2 xl:order-3">
           <div className="bg-white rounded-md shadow p-5 border border-gray-100">
-            {/* product Name */}
-            <div>
-              <Typography
-                variant="h5"
-                sx={{ fontWeight: 700, color: "#0F918F" }}
-              >
-                {product.name}
-              </Typography>
-              <Typography variant="body2" className="font-semibold mt-1">
-                <span className="text-[#718096] font-thin text-[18px]">
-                  {product.unit}
-                </span>
-                <span className="text-[#718096] font-semibold text-[18px]">
-                  - ({product.weight_display})
-                </span>
-              </Typography>
-            </div>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: "#0F918F" }}>
+              {product.name}
+            </Typography>
 
-            {/* Brand Name */}
+            <Typography variant="body2" className="font-semibold mt-1">
+              <span className="text-[#718096] font-thin text-[18px]">
+                {product.unit}
+              </span>
+              <span className="text-[#718096] font-semibold text-[18px]">
+                - ({product.weight_display})
+              </span>
+            </Typography>
+
             <div className="mt-4 flex items-center gap-2 border-b-1 pb-3 border-gray-200">
-              <div className="h-10 w-10 rounded-full border-2 p-1 border-[#FFC900]">
+              <div className="h-10 w-10 rounded-full border-2 p-1 border-[#FFC900] overflow-hidden flex items-center justify-center">
                 <img
                   src={product.brand?.image}
-                  className="w-full rounded-full h-full object-cover"
+                  className="max-w-full max-h-full object-contain"
                   alt=""
                 />
               </div>
@@ -126,25 +131,18 @@ export default function ProductDetail1() {
               <ArrowRightIcon className="text-[#FFC900]" />
             </div>
 
-            {/* Generic Name */}
             <div className="mt-4 flex items-center gap-2 border-b-1 pb-3 border-gray-200">
               <GpsFixedIcon className="text-[#0F918F]" />
               <Typography variant="body2" className="mt-2">
                 <span className="text-[#718096] text-[17px]">Generic :</span>{" "}
-                <span className="text-[#0F918F] text-[18px]">
-                  {product.generic_name}
-                </span>
+                <span className="text-[#0F918F] text-[18px]">{product.generic_name}</span>
               </Typography>
             </div>
 
-            {/* Price */}
             <div className="mt-4">
-              <div>
-                <Typography style={{ fontSize: "17px", fontWeight: "400" }}>
-                  {product.unit_display} ({product.package_quantity})
-                </Typography>
-              </div>
-
+              <Typography style={{ fontSize: "17px", fontWeight: "400" }}>
+                {product.unit_display} ({product.package_quantity})
+              </Typography>
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-lg font-bold text-[25px] text-[#ba2b21]">
                   ৳ {product.new_price}
@@ -152,7 +150,6 @@ export default function ProductDetail1() {
                 <span className="text-sm text-[18px] text-gray-600 line-through mr-3">
                   ৳ {product.price}
                 </span>
-                {/* Discount Badge */}
                 <div className="relative inline-block">
                   <span className="absolute top-0 left-[-9px] w-0 h-0 border-t-[14px] border-b-[14px] border-r-[10px] border-t-transparent border-b-transparent border-r-red-400"></span>
                   <span className="bg-red-400 text-white text-xs font-bold px-3 py-1 rounded-r-md">
@@ -173,13 +170,13 @@ export default function ProductDetail1() {
                   backgroundColor: "#CA7842",
                   "&:hover": { backgroundColor: "#FF9B45" },
                 }}
+                onClick={handleAddToCart}
               >
                 Add To Cart
               </Button>
             </div>
 
             <Divider className="my-4" />
-
             <div className="text-sm text-gray-700 space-y-2">
               <div>
                 <b>Category:</b> {product.category?.name}
@@ -187,13 +184,9 @@ export default function ProductDetail1() {
             </div>
           </div>
 
-          {/* Shipping / policy cards */}
           <div className="mt-4 space-y-3">
             <div className="border rounded p-3">
-              <Typography
-                variant="subtitle1"
-                sx={{ color: "#0F918F", fontWeight: 700 }}
-              >
+              <Typography variant="subtitle1" sx={{ color: "#0F918F", fontWeight: 700 }}>
                 SHIPPING POLICY
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
@@ -202,10 +195,7 @@ export default function ProductDetail1() {
             </div>
 
             <div className="border rounded p-3">
-              <Typography
-                variant="subtitle1"
-                sx={{ color: "#0F918F", fontWeight: 700 }}
-              >
+              <Typography variant="subtitle1" sx={{ color: "#0F918F", fontWeight: 700 }}>
                 REFUND POLICY
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
@@ -214,10 +204,7 @@ export default function ProductDetail1() {
             </div>
 
             <div className="border rounded p-3">
-              <Typography
-                variant="subtitle1"
-                sx={{ color: "#0F918F", fontWeight: 700 }}
-              >
+              <Typography variant="subtitle1" sx={{ color: "#0F918F", fontWeight: 700 }}>
                 CANCELLATION / RETURN
               </Typography>
               <Typography variant="body2" className="text-gray-600 mt-2">
@@ -226,22 +213,25 @@ export default function ProductDetail1() {
             </div>
           </div>
 
-          {/* Left sidebar (Categories / small info) */}
-          <div className="hidden xl:block ">
+          <div className="hidden xl:block">
             <Features />
           </div>
-
-          {/* Product info  mobile*/}
-          <div className=" xl:hidden">
+          <div className="xl:hidden">
             <CommonProductInfo product={product} />
           </div>
-
-          {/* Left sidebar (Categories / small info) mobile*/}
-          <div className="block xl:hidden ">
+          <div className="block xl:hidden">
             <Features />
           </div>
         </aside>
       </div>
+
+      {/* Prescription Upload Dialog */}
+      {selectedProduct && (
+        <PrescriptionUpload
+          open={openPrescription}
+          onClose={() => setOpenPrescription(false)}
+        />
+      )}
     </div>
   );
 }

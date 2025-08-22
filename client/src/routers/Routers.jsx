@@ -23,6 +23,7 @@ import Products from "../components/Admin/Products";
 import AllCustomer from "../components/Admin/AllCustomer";
 import Notification from "../components/Admin/Notification";
 import Payment from "../components/Admin/Payment";
+import Findpagecheck from "../components/product/Findpagecheck";
 
 const Routers = () => {
   return (
@@ -67,6 +68,7 @@ const Routers = () => {
 
         {/* Catch-All */}
         <Route path="*" element={<ErrorPage />} />
+        <Route path="/check" element={<Findpagecheck />} />
       </Routes>
     </>
   );

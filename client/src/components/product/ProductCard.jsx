@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../../redux/productSlice";
 import Slider from "react-slick";
@@ -14,10 +14,11 @@ import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import "slick-carousel/slick/slick.css"; // Ensure these are imported
+import PrescriptionUpload from "./PrescriptionUpload"; // import your dialog
+import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-// Styled Arrows...
+// Styled Arrows
 const PrevArrowButton = styled(IconButton)(({ theme }) => ({
   position: "absolute",
   top: "50%",
@@ -61,10 +62,25 @@ const ProductCard = () => {
   // Get products from Redux
   const { products, loading, error } = useSelector((state) => state.products);
 
-  // Fetch products on component mount
+  // Local state for prescription popup
+  const [openPrescription, setOpenPrescription] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  const handleAddToCart = (product) => {
+    if (product.prescription_required) {
+      // If prescription needed, open PrescriptionUpload
+      setSelectedProduct(product);
+      setOpenPrescription(true);
+    } else {
+      // Direct Add to Cart API call
+      console.log("Adding to cart:", product.id);
+      // dispatch(addToCart(product.id)) OR API call
+    }
+  };
 
   const sliderSettings = {
     dots: false,
@@ -89,73 +105,89 @@ const ProductCard = () => {
   if (!products || products.length === 0) return <p>No products available</p>;
 
   return (
-    <div
-      className="border border-[#30C2C0] rounded-xl p-4 mt-4 pb-10 bg-white"
-      style={{ width: "100%", position: "relative" }} // Ensure container has width and context for arrows
-    >
-      <Slider {...sliderSettings}>
-        {products.map((product) => (
-          <div key={product.id} className="p-2" style={{ width: "auto" }}>
-            <Card className="rounded-xl shadow-md flex flex-col" style={{ width: "100%" }}>
-              <CardMedia
-                component="img"
-                image={product.image1 || "/placeholder-image.jpg"} // Fallback for missing image
-                alt={product.name || product.title}
-                className="h-40 object-contain p-3"
-              />
-              <CardContent className="flex flex-col flex-grow">
-                <Typography
-                  variant="subtitle2"
-                  className="line-clamp-2 font-semibold mb-1 h-[40px]"
-                >
-                  {product.name || product.title}
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#30C2C0",
-                    fontWeight: "semibold",
-                    fontSize: "20px",
-                  }}
-                >
-                  TK {product.price}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="success.main"
-                  className="my-2"
-                >
-                  Availability:{" "}
-                  {product.stock > 0 ? "In Stock" : "Out of Stock"}
-                </Typography>
-                <div className="flex gap-2">
-                  <Button
-                    variant="contained"
-                    onClick={() => navigate(`/productdetails/${product.id}`)}
+    <>
+      <div
+        className="border border-[#30C2C0] rounded-xl p-4 mt-4 pb-10 bg-white"
+        style={{ width: "100%", position: "relative" }}
+      >
+        <Slider {...sliderSettings}>
+          {products.map((product) => (
+            <div key={product.id} className="p-2" style={{ width: "auto" }}>
+              <Card
+                className="rounded-xl shadow-md flex flex-col"
+                style={{ width: "100%" }}
+              >
+                <CardMedia
+                  component="img"
+                  image={product.image1 || "/placeholder-image.jpg"}
+                  alt={product.name || product.title}
+                  className="h-40 object-contain p-3"
+                />
+                <CardContent className="flex flex-col flex-grow">
+                  <Typography
+                    variant="subtitle2"
+                    className="line-clamp-2 font-semibold mb-1 h-[40px]"
+                  >
+                    {product.name || product.title}
+                  </Typography>
+                  <Typography
                     sx={{
-                      backgroundColor: "#626F47",
-                      fontSize: "10px",
-                      "&:hover": { backgroundColor: "#A4B465" },
+                      color: "#30C2C0",
+                      fontWeight: "semibold",
+                      fontSize: "20px",
                     }}
                   >
-                    View details
-                  </Button>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#CA7842",
-                      fontSize: "10px",
-                      "&:hover": { backgroundColor: "#FF9B45" },
-                    }}
+                    TK {product.price}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="success.main"
+                    className="my-2"
                   >
-                    Add To Cart
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        ))}
-      </Slider>
-    </div>
+                    Availability:{" "}
+                    {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                  </Typography>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="contained"
+                      onClick={() =>
+                        navigate(`/productdetails/${product.id}`)
+                      }
+                      sx={{
+                        backgroundColor: "#626F47",
+                        fontSize: "10px",
+                        "&:hover": { backgroundColor: "#A4B465" },
+                      }}
+                    >
+                      View details
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleAddToCart(product)}
+                      sx={{
+                        backgroundColor: "#CA7842",
+                        fontSize: "10px",
+                        "&:hover": { backgroundColor: "#FF9B45" },
+                      }}
+                    >
+                      Add To Cart
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ))}
+        </Slider>
+      </div>
+
+      {/* Prescription Dialog */}
+      {selectedProduct && (
+        <PrescriptionUpload
+          open={openPrescription}
+          onClose={() => setOpenPrescription(false)}
+        />
+      )}
+    </>
   );
 };
 
