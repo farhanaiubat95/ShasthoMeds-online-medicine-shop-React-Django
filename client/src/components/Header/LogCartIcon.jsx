@@ -44,7 +44,7 @@ const LogCartIcon = () => {
   const user = useSelector((state) => state.auth.user);
 
   // Get cart items from Redux store
-  const cartItems = useSelector((state) => state.cart.items);
+  const cartItems = useSelector((state) => state.carts.items);
   const cartCount = cartItems.length; // Total number of items in cart
 
   const handleMenu = (event) => setMenuAnchor(event.currentTarget);

@@ -1,112 +1,208 @@
-import React, { useState } from "react"; 
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProducts } from "../../redux/productSlice";
+import Slider from "react-slick";
 import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Button,
+  Card,
+  CardContent,
+  CardMedia,
   Typography,
+  Button,
+  IconButton,
 } from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import CloseIcon from "@mui/icons-material/Close";
-import axios from "axios";
+import { styled } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import PrescriptionUpload from "./PrescriptionUpload";
+import axios from "axios"; // import axios for API calls
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { addToCart } from "../../redux/cartSlice.js";
 
-const PrescriptionUpload = ({ open, onClose, product }) => {
-  const [selectedImage, setSelectedImage] = useState(null);
+// Styled Arrows
+const PrevArrowButton = styled(IconButton)(({ theme }) => ({
+  position: "absolute",
+  top: "50%",
+  left: "-16.2px",
+  transform: "translate(0, -50%)",
+  backgroundColor: "#ffffff",
+  zIndex: 10,
+  width: 43,
+  height: 80,
+  boxShadow: theme.shadows[3],
+}));
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
+const NextArrowButton = styled(IconButton)(({ theme }) => ({
+  position: "absolute",
+  top: "50%",
+  right: "-17px",
+  transform: "translate(0, -50%)",
+  backgroundColor: "#ffffff",
+  zIndex: 10,
+  width: 43,
+  height: 80,
+  boxShadow: theme.shadows[3],
+}));
+
+const PrevArrow = (props) => (
+  <PrevArrowButton onClick={props.onClick} size="small">
+    <ArrowBackIosNewIcon fontSize="small" />
+  </PrevArrowButton>
+);
+
+const NextArrow = (props) => (
+  <NextArrowButton onClick={props.onClick} size="small">
+    <ArrowForwardIosIcon fontSize="small" />
+  </NextArrowButton>
+);
+
+const ProductCard = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { products, loading, error } = useSelector((state) => state.products);
+
+  const [openPrescription, setOpenPrescription] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  // Add to cart
+  const handleAddToCart = (product) => {
+    const user = useSelector((state) => state.auth.user); // get logged-in user
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    if (product.prescription_required) {
+      setSelectedProduct(product);
+      setOpenPrescription(true);
+    } else {
+      // Dispatch Redux action
+      dispatch(addToCart({ productId: product.id, token: user.access }))
+        .unwrap()
+        .then(() => {
+          alert("Product added to cart successfully!");
+        })
+        .catch((err) => {
+          console.error("Add to cart failed:", err);
+          alert("Failed to add product to cart.");
+        });
     }
   };
 
-  const handleSubmit = async () => {
-    if (!selectedImage) return;
-    const formData = new FormData();
-    formData.append("product_id", product.id);
-    formData.append("file", selectedImage);
-
-    try {
-      const response = await axios.post(
-        "https://shasthomeds-backend.onrender.com/prescriptions/",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      );
-      alert("Prescription uploaded successfully!");
-      onClose();
-    } catch (error) {
-      console.error("Upload failed:", error);
-      alert("Failed to upload prescription.");
-    }
+  const sliderSettings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    arrows: true,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    prevArrow: <PrevArrow />,
+    nextArrow: <NextArrow />,
+    responsive: [
+      { breakpoint: 1280, settings: { slidesToShow: 3 } },
+      { breakpoint: 960, settings: { slidesToShow: 2 } },
+      { breakpoint: 600, settings: { slidesToShow: 1 } },
+    ],
   };
+
+  if (loading) return <p>Loading products...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!products || products.length === 0) return <p>No products available</p>;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md">
-      <DialogTitle className="flex justify-between items-center text-lg font-semibold text-[#0F918F]">
-        Upload Prescription
-        <IconButton onClick={onClose}>
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </DialogTitle>
-
-      {/* Show product name */}
-      <Typography
-        variant="subtitle1"
-        className="text-center mb-2 text-[#0F918F]"
+    <>
+      <div
+        className="border border-[#30C2C0] rounded-xl p-4 mt-4 pb-10 bg-white"
+        style={{ width: "100%", position: "relative" }}
       >
-        {product.name} requires a prescription
-      </Typography>
+        <Slider {...sliderSettings}>
+          {products.map((product) => (
+            <div key={product.id} className="p-2" style={{ width: "auto" }}>
+              <Card
+                className="rounded-xl shadow-md flex flex-col"
+                style={{ width: "100%" }}
+              >
+                <CardMedia
+                  component="img"
+                  image={product.image1 || "/placeholder-image.jpg"}
+                  alt={product.name || product.title}
+                  className="h-40 object-contain p-3"
+                />
+                <CardContent className="flex flex-col flex-grow">
+                  <Typography
+                    variant="subtitle2"
+                    className="line-clamp-2 font-semibold mb-1 h-[40px]"
+                  >
+                    {product.name || product.title}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "#30C2C0",
+                      fontWeight: "semibold",
+                      fontSize: "20px",
+                    }}
+                  >
+                    TK {product.price}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="success.main"
+                    className="my-2"
+                  >
+                    Availability:{" "}
+                    {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                  </Typography>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="contained"
+                      onClick={() => navigate(`/productdetails/${product.id}`)}
+                      sx={{
+                        backgroundColor: "#626F47",
+                        fontSize: "10px",
+                        "&:hover": { backgroundColor: "#A4B465" },
+                      }}
+                    >
+                      View details
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleAddToCart(product)}
+                      sx={{
+                        backgroundColor: "#CA7842",
+                        fontSize: "10px",
+                        "&:hover": { backgroundColor: "#FF9B45" },
+                      }}
+                    >
+                      Add To Cart
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ))}
+        </Slider>
+      </div>
 
-      <DialogContent className="flex flex-col items-center justify-center mb-4">
-        <div className="w-[500px] h-[600px] border-2 border-dashed border-[#0F918F] rounded-2xl flex flex-col items-center justify-center bg-gray-50 shadow-inner">
-          {selectedImage ? (
-            <img
-              src={URL.createObjectURL(selectedImage)}
-              alt="Prescription Preview"
-              className="w-full h-full object-contain rounded-xl"
-            />
-          ) : (
-            <label
-              htmlFor="prescription-upload"
-              className="flex flex-col items-center justify-center cursor-pointer"
-            >
-              <CloudUploadIcon
-                className="text-gray-500 mb-2"
-                fontSize="large"
-              />
-              <p className="text-[#0F918F]">Click to upload prescription</p>
-              <p className="text-sm text-[#0F918F]">Only JPG, PNG, PDF</p>
-              <input
-                id="prescription-upload"
-                type="file"
-                accept="image/*,.pdf"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            </label>
-          )}
-        </div>
-
-        {selectedImage && (
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            sx={{
-              backgroundColor: "#0F918F",
-              color: "white",
-              marginTop: "1rem",
-            }}
-            className="mt-4 px-6 rounded-lg shadow-md hover:bg-[#30C2C0]"
-          >
-            Submit Prescription
-          </Button>
-        )}
-      </DialogContent>
-    </Dialog>
+      {/* Prescription Upload Dialog */}
+      {selectedProduct && (
+        <PrescriptionUpload
+          open={openPrescription}
+          onClose={() => setOpenPrescription(false)}
+          product={selectedProduct}
+          token={user.access} // pass token for API call
+        />
+      )}
+    </>
   );
 };
 
-export default PrescriptionUpload;
+export default ProductCard;

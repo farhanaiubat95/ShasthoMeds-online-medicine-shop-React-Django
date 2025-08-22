@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; 
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   IconButton,
   Button,
+  Typography,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
@@ -50,6 +51,14 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
+
+      {/* Show product name */}
+      <Typography
+        variant="subtitle1"
+        className="text-center mb-2 text-[#0F918F]"
+      >
+        {product.name} requires a prescription
+      </Typography>
 
       <DialogContent className="flex flex-col items-center justify-center mb-4">
         <div className="w-[500px] h-[600px] border-2 border-dashed border-[#0F918F] rounded-2xl flex flex-col items-center justify-center bg-gray-50 shadow-inner">
