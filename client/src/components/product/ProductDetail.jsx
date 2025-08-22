@@ -63,22 +63,21 @@ export default function ProductDetail() {
       navigate("/login");
       return;
     }
-
-    if (product.prescription_required) {
-      setSelectedProduct(product);
-      setOpenPrescription(true);
-    } else {
-      try {
-        const response = await axiosInstance.post("/cart/add/", {
-          product_id: product.id,
-        });
-        dispatch(addToCart(response.data));
-
-        alert("Product added to cart successfully!");
-      } catch (error) {
-        console.error("Add to cart failed:", error.response?.data || error);
-        alert("Failed to add product to cart.");
+    const access_token = localStorage.getItem("access_token");
+    console.log("Token:", access_token, "Product ID:", product.id);
+    try {
+      let response;
+      if (product.prescription_required) {
+        setSelectedProduct(product);
+        setOpenPrescription(true);
+        return;
       }
+      await dispatch(addToCart({ productId: product.id, token: access_token }));
+      console.log("Product ID added to cart: ", product.id);
+      alert("Product added to cart!");
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error.message || "Failed to add to cart.");
     }
   };
 

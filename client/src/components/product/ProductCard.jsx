@@ -87,6 +87,7 @@ const ProductCard = () => {
         return;
       }
       await dispatch(addToCart({ productId: product.id, token: access_token }));
+      console.log("Product ID added to cart: ", product.id);
       alert("Product added to cart!");
     } catch (error) {
       console.error("Error:", error);

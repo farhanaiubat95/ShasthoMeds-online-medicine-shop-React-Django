@@ -31,21 +31,24 @@ const PrescriptionUpload = ({ open, onClose, product, token }) => {
     if (!selectedImage) return;
 
     const formData = new FormData();
-    formData.append("product_id", product.id);
-
-    // Use the correct field name for your serializer
     formData.append("uploaded_image", selectedImage);
+    formData.append("notes", "");
+    formData.append("auto_add_to_cart", "true");
+    formData.append("items[0][product]", product.id);
+    formData.append("items[0][quantity]", 1);
 
     try {
       await axiosInstance.post("/prescriptions/requests/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
       alert("Prescription uploaded successfully!");
       onClose();
     } catch (error) {
       console.error("Upload failed:", error.response?.data || error);
-      alert("Failed to upload prescription.");
+      alert(
+        "Failed to upload prescription: " +
+          (error.response?.data?.items?.[0] || ""),
+      );
     }
   };
 
