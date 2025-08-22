@@ -78,8 +78,7 @@ const ProductCard = () => {
       return;
     }
     const access_token = localStorage.getItem("access_token");
-    console.log("Token:", access_token);
-    console.log("Request: /cart/add/, product_id:", product.id);
+    console.log("Token:", access_token, "Product ID:", product.id);
     try {
       let response;
       if (product.prescription_required) {
@@ -87,19 +86,14 @@ const ProductCard = () => {
         setOpenPrescription(true);
         return;
       }
-      response = await axiosInstance.post("/cart/add/", {
-        product_id: product.id,
-      });
-      dispatch(addToCart(response.data.cart));
+      await dispatch(addToCart({ productId: product.id, token: access_token }));
       alert("Product added to cart!");
     } catch (error) {
-      console.error("Error:", error.response?.data || error);
-      alert(error.response?.data?.detail || "Failed to add to cart.");
+      console.error("Error:", error);
+      alert(error.message || "Failed to add to cart.");
     }
   };
 
-
-  
   const sliderSettings = {
     dots: false,
     infinite: true,

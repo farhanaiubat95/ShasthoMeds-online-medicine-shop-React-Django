@@ -8,19 +8,19 @@ export const addToCart = createAsyncThunk(
   async ({ productId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "https://shasthomeds-backend.onrender.com/cart/",
-        { product_id: productId, quantity: 1 }, // send product_id + quantity
+        "https://shasthomeds-backend.onrender.com/cart/add/",
+        { product_id: productId, quantity: 1 },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
-      return response.data; // this gets pushed into items[]
+      return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 const cartSlice = createSlice({
