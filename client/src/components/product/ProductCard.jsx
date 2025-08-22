@@ -17,6 +17,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import PrescriptionUpload from "./PrescriptionUpload";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import axios from "axios";
 
 
 // Styled Arrows
