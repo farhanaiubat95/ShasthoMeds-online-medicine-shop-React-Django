@@ -79,7 +79,6 @@ const ProductCard = () => {
       return;
     }
     const access_token = localStorage.getItem("access_token");
-    console.log("Token:", access_token, "Product ID:", product.id);
     try {
       let response;
       if (product.prescription_required) {

@@ -9,9 +9,9 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
-import axios from "axios";
+import axiosInstance from "../../axiosInstance";
 
-const PrescriptionUpload = ({ open, onClose, product, token }) => {
+const PrescriptionUpload = ({ open, onClose, product }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleImageChange = (e) => {
@@ -34,7 +34,6 @@ const PrescriptionUpload = ({ open, onClose, product, token }) => {
     formData.append("notes", "Take care of prescription");
     formData.append("auto_add_to_cart", "true");
 
-    // ✅ FIX: send items as JSON, not items[0][product]
     const items = [
       {
         product: product.id,
@@ -45,23 +44,21 @@ const PrescriptionUpload = ({ open, onClose, product, token }) => {
     formData.append("items", JSON.stringify(items));
 
     try {
-      console.log("token : ", token);
-      const response = await axios.post(
-        "https://shasthomeds-backend.onrender.com/prescriptions/requests/",
+      const response = await axiosInstance.post(
+        "/prescriptions/requests/",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       console.log("Prescription uploaded:", response.data);
       alert("Prescription uploaded successfully!");
     } catch (error) {
       console.error(
         "Upload failed:",
-        error.response?.data || error.message || error
+        error.response?.data || error.message || error,
       );
       alert("Failed to upload prescription.");
     }
