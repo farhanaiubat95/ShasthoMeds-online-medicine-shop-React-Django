@@ -40,7 +40,7 @@ const PrescriptionUpload = ({ open, onClose, product, token }) => {
     formData.append("items[0][quantity]", 1);
     formData.append("items[0][note]", "Optional note");
 
-    axios.post("/prescriptions/requests/", formData, {
+    axios.post("https://shasthomeds-backend.onrender.com/prescriptions/requests/", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   };
