@@ -18,6 +18,7 @@ import PrescriptionUpload from "./PrescriptionUpload";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import axios from "axios";
+import { addToCart } from "../../redux/cartSlice";
 
 
 // Styled Arrows
@@ -99,17 +100,12 @@ const ProductCard = () => {
         );
 
         // Manually update Redux
-        dispatch(addToCartSuccess(response.data)); // make sure this action exists in your cartSlice
+        dispatch(addToCart(response.data)); // make sure this action exists in your cartSlice
 
         alert("Product added to cart successfully!");
       } catch (error) {
         console.error("Add to cart failed:", error.response || error);
-        if (error.response && error.response.status === 401) {
-          alert("Session expired. Please log in again.");
-          navigate("/login");
-        } else {
-          alert("Failed to add product to cart.");
-        }
+        alert("Failed to add product to cart.");
       }
     }
   };
@@ -169,7 +165,7 @@ const ProductCard = () => {
                       fontSize: "20px",
                     }}
                   >
-                    TK {product.price} {user.access_token}
+                    TK {product.price} {user?.access}
                   </Typography>
                   <Typography
                     variant="body2"
@@ -216,7 +212,7 @@ const ProductCard = () => {
           open={openPrescription}
           onClose={() => setOpenPrescription(false)}
           product={selectedProduct}
-          token={user.access_token} // pass token for API call
+          token={user.access} // pass token for API call
         />
       )}
     </>

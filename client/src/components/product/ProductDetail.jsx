@@ -267,7 +267,7 @@ export default function ProductDetail() {
           open={openPrescription}
           onClose={() => setOpenPrescription(false)}
           product={selectedProduct}
-          token={user.access_token} // pass token for API call
+          token={user.access} // pass token for API call
         />
       )}
     </div>
