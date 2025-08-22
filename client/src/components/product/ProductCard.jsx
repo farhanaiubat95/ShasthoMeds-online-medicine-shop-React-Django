@@ -17,9 +17,8 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import PrescriptionUpload from "./PrescriptionUpload";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import axios from "axios";
 import { addToCart } from "../../redux/cartSlice";
-
+import axiosInstance from "../../axiosInstance";
 
 // Styled Arrows
 const PrevArrowButton = styled(IconButton)(({ theme }) => ({
@@ -74,37 +73,23 @@ const ProductCard = () => {
 
   // Add to cart
   const handleAddToCart = async (product) => {
-    // Check if user is logged in
     if (!user) {
       navigate("/login");
       return;
     }
 
-    //If prescription is required
     if (product.prescription_required) {
       setSelectedProduct(product);
       setOpenPrescription(true);
-      return;
     } else {
-      // Add to cart via API + update Redux
       try {
-        const response = await axios.post(
-          "https://shasthomeds-backend.onrender.com/cart/",
-          { product: product.id },
-          {
-            headers: {
-              Authorization: `Bearer ${user.access}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-
-        // Manually update Redux
-        dispatch(addToCart(response.data)); // make sure this action exists in your cartSlice
-
+        const response = await axiosInstance.post("/cart/", {
+          product: product.id,
+        });
+        dispatch(addToCart(response.data));
         alert("Product added to cart successfully!");
       } catch (error) {
-        console.error("Add to cart failed:", error.response || error);
+        console.error("Add to cart failed:", error.response?.data || error);
         alert("Failed to add product to cart.");
       }
     }
@@ -212,7 +197,6 @@ const ProductCard = () => {
           open={openPrescription}
           onClose={() => setOpenPrescription(false)}
           product={selectedProduct}
-          token={user.access_token} // pass token for API call
         />
       )}
     </>

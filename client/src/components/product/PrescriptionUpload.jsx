@@ -10,14 +10,20 @@ import {
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
+import axiosInstance from "../../axiosInstance";
 
 const PrescriptionUpload = ({ open, onClose, product, token }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
+    if (
+      file &&
+      ["image/jpeg", "image/png", "application/pdf"].includes(file.type)
+    ) {
       setSelectedImage(file);
+    } else {
+      alert("Invalid file type. Only JPG, PNG, or PDF allowed.");
     }
   };
 
@@ -28,16 +34,10 @@ const PrescriptionUpload = ({ open, onClose, product, token }) => {
     formData.append("file", selectedImage);
 
     try {
-      const response = await axios.post(
-        "https://shasthomeds-backend.onrender.com/prescriptions/requests/",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`, // pass token here
-          },
-        },
-      );
+      await axiosInstance.post("/prescriptions/requests/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       alert("Prescription uploaded successfully!");
       onClose();
     } catch (error) {

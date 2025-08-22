@@ -9,8 +9,14 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import PrescriptionUpload from "./PrescriptionUpload"; // Prescription modal
 import { addToCart } from "../../redux/cartSlice.js";
+import axiosInstance from "../../axiosInstance.js";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductDetail() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { id } = useParams(); // get product id from URL
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState("");
@@ -24,9 +30,8 @@ export default function ProductDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(
-          `https://shasthomeds-backend.onrender.com/products/${id}/`,
-        );
+        const res = await axiosInstance.get(`/products/${id}/`);
+
         setProduct(res.data);
         setMainImage(res.data.image1); // default image
       } catch (err) {
@@ -64,20 +69,10 @@ export default function ProductDetail() {
       setOpenPrescription(true);
     } else {
       try {
-        // Hit your backend API directly
-        const response = await axios.post(
-          "https://shasthomeds-backend.onrender.com/cart/",
-          { product: product.id, quantity: 1 },
-          {
-            headers: {
-              Authorization: `Bearer ${user.access_token}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-
-        // Update Redux with response data
-        dispatch(addToCart.fulfilled(response.data));
+        const response = await axiosInstance.post("/cart/", {
+          product: product.id,
+        });
+        dispatch(addToCart(response.data));
 
         alert("Product added to cart successfully!");
       } catch (error) {
@@ -197,7 +192,7 @@ export default function ProductDetail() {
                   backgroundColor: "#CA7842",
                   "&:hover": { backgroundColor: "#FF9B45" },
                 }}
-                onClick={handleAddToCart}
+                onClick={() => handleAddToCart(product)}
               >
                 Add To Cart
               </Button>
@@ -267,7 +262,6 @@ export default function ProductDetail() {
           open={openPrescription}
           onClose={() => setOpenPrescription(false)}
           product={selectedProduct}
-          token={user.access_token} // pass token for API call
         />
       )}
     </div>
