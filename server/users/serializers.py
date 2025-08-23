@@ -1,3 +1,4 @@
+from datetime import timezone
 from rest_framework import serializers
 from shasthomeds.settings import EMAIL_HOST_USER
 from django.contrib.auth.password_validation import validate_password
@@ -208,11 +209,11 @@ from django.core.mail import send_mail
 from shasthomeds.settings import EMAIL_HOST_USER
 
 class PrescriptionRequestSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
+    product = ProductSerializer(read_only=True)  # show full product details
     product_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(), write_only=True, source="product"
     )
-    uploaded_image = serializers.ImageField(write_only=True)  # for upload only
+    uploaded_image = serializers.ImageField(write_only=True)  # user uploads image
 
     class Meta:
         model = PrescriptionRequest
@@ -222,10 +223,19 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
             "status", "admin_comment",
             "created_at", "reviewed_at",
         ]
-        read_only_fields = ["id", "user", "status", "admin_comment", "created_at", "reviewed_at"]
+        read_only_fields = ["id", "user", "created_at", "reviewed_at"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get("request")
+
+        # Normal users cannot edit status/admin_comment
+        if request and not (request.user.is_staff or getattr(request.user, "role", "") == "admin"):
+            self.fields["status"].read_only = True
+            self.fields["admin_comment"].read_only = True
 
     def to_representation(self, instance):
-        """Override representation to return Cloudinary URL for uploaded_image"""
+        """Return Cloudinary URL for uploaded_image instead of file path"""
         ret = super().to_representation(instance)
         if instance.uploaded_image:
             ret['uploaded_image'] = instance.uploaded_image.url  # Cloudinary URL
@@ -233,22 +243,20 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
             ret['uploaded_image'] = None
         return ret
 
-
     def create(self, validated_data):
         user = self.context["request"].user
         validated_data["user"] = user
         prescription = super().create(validated_data)
 
-        # --- Send email to admin when new request submitted ---
+        # --- Send email to admin when a new request is submitted ---
         admin_email = EMAIL_HOST_USER
-        
-        # Format product list as table
+
         product_lines = [
-        "Product Name | SKU | Quantity",
-        "-----------------------------"
+            "Product Name | SKU | Quantity",
+            "-----------------------------"
         ]
         product = prescription.product
-        product_lines.append(f"{product.name} | {product.sku} | 1")  # default qty = 1
+        product_lines.append(f"{product.name} | {product.sku} | 1")
 
         product_table = "\n".join(product_lines)
         try:
@@ -257,13 +265,23 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
                 message=(
                     f"User {user.username} has uploaded a new prescription.\n\n"
                     f"Products:\n{product_table}\n\n"
-                    f"Please review it."
+                    f"Please review it in the admin panel."
                 ),
                 from_email=EMAIL_HOST_USER,
                 recipient_list=[admin_email],
                 fail_silently=False
-                )
+            )
         except Exception as e:
             print("Failed to send admin email:", str(e))
 
         return prescription
+
+    def update(self, instance, validated_data):
+        """
+        When admin updates a prescription (approve/reject),
+        automatically set reviewed_at timestamp.
+        """
+        if "status" in validated_data:
+            instance.reviewed_at = timezone.now()
+
+        return super().update(instance, validated_data)
