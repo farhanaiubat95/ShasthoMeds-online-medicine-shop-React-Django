@@ -236,22 +236,20 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_staff or user.role == "admin":
+        if user.is_staff or getattr(user, "role", None) == "admin":
             return PrescriptionRequest.objects.all()
         return PrescriptionRequest.objects.filter(user=user)
 
     def perform_update(self, serializer):
-        if not self.request.user.is_staff:
-            serializer.validated_data.pop('status', None)  # remove status if not admin
-        instance = serializer.save()
-        """
-        Admin approves/rejects prescription request
-        - On approve: add product to user's cart
-        - Send email to user about approval/rejection
-        """
-        instance = serializer.save()
+        # Prevent normal users from changing status
+        if not self.request.user.is_staff and getattr(self.request.user, "role", None) != "admin":
+            serializer.validated_data.pop("status", None)
+
+        instance = serializer.save()   # save only once
+
+        # ---------------- Handle status changes ----------------
         if instance.status == "approved":
-            # Add product to cart automatically
+            # Add product to cart
             cart, _ = Cart.objects.get_or_create(user=instance.user)
             cart_item, created = CartItem.objects.get_or_create(cart=cart, product=instance.product)
             if not created:
@@ -262,19 +260,18 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
 
             # Send approval email
             product_lines = [
-            "Product Name | SKU | Quantity",
-            "-----------------------------"
+                "Product Name | SKU | Quantity",
+                "-----------------------------",
+                f"{instance.product.name} | {instance.product.sku} | 1"
             ]
-            product_lines.append(f"{instance.product.name} | {instance.product.sku} | 1")  # default qty = 1
-
             product_table = "\n".join(product_lines)
 
             try:
                 send_mail(
                     subject="Prescription Approved - ShasthoMeds",
                     message=f"Hi {instance.user.full_name},\n\n"
-                            f"Your prescription request #{instance.product.id} has been approved.\n\n"
-                            f"the item(s) were added to your cart.\nProducts:\n{product_table}\n\n"
+                            f"Your prescription request #{instance.id} has been approved.\n\n"
+                            f"The item(s) were added to your cart.\n\n{product_table}\n\n"
                             f"Enjoy your medication!",
                     from_email=EMAIL_HOST_USER,
                     recipient_list=[instance.user.email],
@@ -291,7 +288,7 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
                     message=f"Hi {instance.user.full_name},\n\n"
                             f"Your prescription for {instance.product.name} was rejected.\n"
                             f"Reason: {instance.admin_comment or 'Not specified'}\n"
-                            f"Try again later with a validate prescription.",
+                            f"Try again later with a valid prescription.",
                     from_email=EMAIL_HOST_USER,
                     recipient_list=[instance.user.email],
                     fail_silently=True,
