@@ -260,184 +260,60 @@ class Product(models.Model):
         return f"{self.name} ({self.sku})"
 
 
-
-# =========================
-# PRESCRIPTION & CART MODELS
-# =========================
-
-class Cart(models.Model):
-    """
-    A user's shopping cart.
-    We keep exactly one active cart per user. Old carts can be closed or expired.
-    """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="carts")
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    expires_at = models.DateTimeField(null=True, blank=True)
-
-    class Meta:
-        ordering = ["-updated_at"]
-        constraints = [
-            # Ensure only one active cart per user (soft constraint; enforced in code too)
-            models.UniqueConstraint(
-                fields=["user"], condition=models.Q(is_active=True), name="uniq_active_cart_per_user"
-            )
-        ]
-
-    def __str__(self):
-        return f"Cart #{self.id} for {self.user.email} (active={self.is_active})"
-
-    @staticmethod
-    def get_or_create_active(user):
-        """
-        Reuse an existing active cart or create a fresh one.
-        """
-        cart, _ = Cart.objects.get_or_create(user=user, is_active=True)
-        return cart
-
-
-# Prescription request
+# Prescription Request model
 class PrescriptionRequest(models.Model):
-    STATUS_PENDING = "pending"
-    STATUS_APPROVED = "approved"
-    STATUS_REJECTED = "rejected"
-    STATUS_CHOICES = (
-        (STATUS_PENDING, "Pending"),
-        (STATUS_APPROVED, "Approved"),
-        (STATUS_REJECTED, "Rejected"),
-    )
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="prescription_requests")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
-    uploaded_image = CloudinaryField("image", folder="prescriptions", null=True, blank=True, validators=[validate_image_size])
-    uploaded_file = models.FileField(storage=RawMediaCloudinaryStorage(), upload_to="prescriptions/", null=True, blank=True)
+    product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="prescription_requests")
+    uploaded_image = CloudinaryField('prescription', folder='prescriptions', validators=[validate_image_size])
     notes = models.TextField(blank=True, null=True)
-    admin_notes = models.TextField(blank=True, null=True)
-    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="reviewed_prescriptions")
-    auto_add_to_cart = models.BooleanField(default=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    admin_comment = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.user.email} - {self.status}"
+
+
+
+# Cart model
+class Cart(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="cart"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    approved_at = models.DateTimeField(null=True, blank=True)
-
-    class Meta:
-        ordering = ["-created_at"]
 
     def __str__(self):
-        return f"PrescriptionRequest #{self.id} by {self.user.email} [{self.status}]"
+        return f"Cart ({self.user.email})"
 
-    # ------------------
-    # Approve / Reject
-    # ------------------
-    def approve(self, reviewer=None, admin_notes=None):
-        if self.status == self.STATUS_APPROVED:
-            return
-
-        self.status = self.STATUS_APPROVED
-        self.approved_at = timezone.now()
-        if reviewer:
-            self.reviewed_by = reviewer
-        if admin_notes is not None:
-            self.admin_notes = admin_notes
-        self.save()
-
-        # Add to cart if enabled
-        if self.auto_add_to_cart:
-            cart = Cart.get_or_create_active(self.user)
-            for item in self.items.all():
-                product = item.product
-                unit_price = product.new_price if product.new_price and product.new_price > 0 else product.price
-                cart_item, created = CartItem.objects.get_or_create(
-                    cart=cart,
-                    product=product,
-                    defaults={
-                        "quantity": item.quantity,
-                        "unit_price": unit_price,
-                        "prescription_request": self,
-                    },
-                )
-                if not created:
-                    cart_item.quantity = models.F("quantity") + item.quantity
-                    cart_item.prescription_request = self
-                    cart_item.save(update_fields=["quantity", "prescription_request"])
-
-        # Send approval email to user
-        product_lines = ["Product Name | SKU | Quantity", "-----------------------------"]
-        for item in self.items.all():
-            product_lines.append(f"{item.product.name} | {item.product.sku} | {item.quantity}")
-
-        product_table = "\n".join(product_lines)
-
-        try:
-            send_mail(
-                subject=f"Prescription Request #{self.id} Approved",
-                message=f"Hello {self.user.username},\n\nYour prescription request has been approved by the admin.\n\nProducts:\n{product_table}\n\nThank you for using ShasthoMeds!",
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[self.user.email],
-                fail_silently=False
-            )
-        except Exception as e:
-            print("Failed to send approval email:", e)
-
-    def reject(self, reviewer=None, admin_notes=None):
-        self.status = self.STATUS_REJECTED
-        if reviewer:
-            self.reviewed_by = reviewer
-        if admin_notes is not None:
-            self.admin_notes = admin_notes
-        self.save()
-
-        # Send rejection email to user
-# Format product list
-        product_lines = ["Product Name | SKU | Quantity", "-----------------------------"]
-        for item in self.items.all():
-            product_lines.append(f"{item.product.name} | {item.product.sku} | {item.quantity}")
-
-        product_table = "\n".join(product_lines)
-
-        try:
-            send_mail(
-                subject=f"Prescription Request #{self.id} Rejected",
-                message=f"Hello {self.user.username},\n\nYour prescription request has been rejected.\n\nProducts:\n{product_table}\n\nNotes from admin: {self.admin_notes or 'None'}",
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[self.user.email],
-                fail_silently=False
-            )
-        except Exception as e:
-            print("Failed to send rejection email:", e)
-
-
-# Prescription item
-class PrescriptionItem(models.Model):
-    """
-    Individual item (product + qty) contained in a PrescriptionRequest.
-    """
-    prescription_request = models.ForeignKey(PrescriptionRequest, on_delete=models.CASCADE, related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="prescription_items")
-    quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
-    note = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.product.name} x {self.quantity} (Req #{self.prescription_request_id})"
-
-
+# CartItem model
 class CartItem(models.Model):
-    """
-    A product entry inside a cart.
-    'prescription_request' is set when this cart item came from an approved prescription.
-    """
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="cart_items")
-    quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-    prescription_request = models.ForeignKey(
-        PrescriptionRequest, null=True, blank=True, on_delete=models.SET_NULL, related_name="cart_items"
+    cart = models.ForeignKey(
+        Cart,
+        on_delete=models.CASCADE,
+        related_name="items"
     )
+    product = models.ForeignKey(
+        "Product",
+        on_delete=models.CASCADE,
+        related_name="cart_items"
+    )
+    quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
     added_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ("cart", "product")  # merge quantities instead of duplicates
-        ordering = ["-added_at"]
-
     def __str__(self):
-        return f"{self.product.name} x {self.quantity} (Cart #{self.cart_id})"
+        return f"{self.product.name} (x{self.quantity})"
+
+    class Meta:
+        unique_together = ("cart", "product")  # Prevent duplicate entries of same product

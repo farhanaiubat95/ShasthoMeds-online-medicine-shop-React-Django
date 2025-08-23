@@ -6,14 +6,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status
-from django.db import transaction
 
-from django.db import models
-
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-
-from .models import Brand, Cart, CartItem, Category, PrescriptionRequest, Product
-from .serializers import BrandSerializer, CartSerializer, CategorySerializer, PrescriptionRequestCreateSerializer, PrescriptionRequestSerializer, ProductSerializer
+from .models import Brand, Cart, CartItem, Category, PrescriptionRequest,Product
+from .serializers import BrandSerializer, CartSerializer, CategorySerializer, PrescriptionRequestSerializer,ProductSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from django.conf import settings
@@ -35,7 +30,7 @@ from .serializers import (
     UserProfileSerializer,
     UserRegistrationSerializer,
 )
-from users.models import CustomUser
+
 
 # pyright: ignore[reportMissingImports]
 from rest_framework_simplejwt.views import TokenObtainPairView  # pyright: ignore[reportMissingImports]
@@ -186,217 +181,120 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # anyone can read, only logged-in can create/update/delete
 
-
-
-
-# =========================
-# PRESCRIPTION & CART VIEWS
-# =========================
-
-
-def _get_effective_price(product):
-    # Helper: choose discounted price if set, else base price
-    return product.new_price if product.new_price and product.new_price > 0 else product.price
-
-
+# ---------------- Cart ViewSet ----------------
 class CartViewSet(viewsets.ViewSet):
-    """
-    Simple cart endpoints:
-    - GET /cart/           -> get my active cart
-    - POST /cart/add/      -> add product (handles prescription vs non-prescription)
-    - POST /cart/item/{id}/update_qty/ -> update quantity
-    - POST /cart/item/{id}/remove/     -> remove item
-    """
     permission_classes = [IsAuthenticated]
 
     def list(self, request):
-        cart = Cart.get_or_create_active(request.user)
-        data = CartSerializer(cart).data
-        return Response(data)
+        # Get or create cart for user
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
 
-    @action(detail=False, methods=["post"], url_path="add", parser_classes=[MultiPartParser, FormParser, JSONParser])
-    @transaction.atomic
-    def add_to_cart(self, request):
+    @action(detail=False, methods=["post"])
+    def add(self, request):
         """
-        Smart add-to-cart:
-        - If product.prescription_required == False -> add immediately to cart.
-        - If True -> requires uploaded_image or uploaded_file; creates PrescriptionRequest and notifies admin.
-        Request fields:
-          product_id (required)
-          quantity (default 1)
-          uploaded_image (optional file)
-          uploaded_file (optional file)
-          notes (optional)
-          auto_add_to_cart (optional, default True)
+        Add product to cart.
+        If prescription_required -> create PrescriptionRequest
+        Else -> add directly to CartItem
         """
         product_id = request.data.get("product_id")
         quantity = int(request.data.get("quantity", 1))
-        notes = request.data.get("notes", "")
-        auto_add_to_cart = str(request.data.get("auto_add_to_cart", "true")).lower() != "false"
-
         if not product_id:
-            return Response({"error": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "product_id is required"}, status=400)
 
         product = get_object_or_404(Product, id=product_id)
 
+        # Case 1: Prescription NOT required
         if not product.prescription_required:
-            # Normal add-to-cart
-            cart = Cart.get_or_create_active(request.user)
-            unit_price = _get_effective_price(product)
-            item, created = CartItem.objects.get_or_create(
-                cart=cart, product=product,
-                defaults={"quantity": quantity, "unit_price": unit_price}
-            )
+            cart, _ = Cart.objects.get_or_create(user=request.user)
+            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
             if not created:
-                item.quantity = models.F("quantity") + quantity
-                item.save(update_fields=["quantity"])
-            return Response({"message": "Added to cart", "cart": CartSerializer(cart).data}, status=status.HTTP_200_OK)
+                cart_item.quantity += quantity
+            else:
+                cart_item.quantity = quantity
+            cart_item.save()
+            serializer = CartSerializer(cart)
+            return Response(serializer.data, status=201)
 
-        # Prescription-required branch
-        uploaded_image = request.data.get("uploaded_image")
-        uploaded_file = request.data.get("uploaded_file")
-
-        if not uploaded_image and not uploaded_file:
-            # Tell the client to show the upload UI
-            return Response(
-                {"error": "This product requires a valid prescription. Please upload an image or PDF."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        # Create prescription request + line item
-        presc_serializer = PrescriptionRequestCreateSerializer(
-            data={
-                "uploaded_image": uploaded_image,
-                "uploaded_file": uploaded_file,
-                "notes": notes,
-                "auto_add_to_cart": auto_add_to_cart,
-                "items": [{"product": product.id, "quantity": quantity}],
-            },
-            context={"request": request},
-        )
-        presc_serializer.is_valid(raise_exception=True)
-        presc = presc_serializer.save()
-
-        # Notify admin via email
-        try:
-            admin_recipient = getattr(settings, "ADMIN_EMAIL", None) or EMAIL_HOST_USER
-            send_mail(
-                subject="New Prescription Request Submitted",
-                message=(
-                    f"User: {request.user.email}\n"
-                    f"Request ID: {presc.id}\n"
-                    f"Product: {product.name}\n"
-                    f"Qty: {quantity}\n"
-                    f"View in Admin: /admin/ (PrescriptionRequest #{presc.id})"
-                ),
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[admin_recipient],
-                fail_silently=True,
-            )
-        except Exception as e:
-            # Do not fail the API because of email issues
-            print("Email error:", e)
-
-        return Response(
-            {"message": "Prescription submitted. Awaiting admin review.", "prescription_request_id": presc.id},
-            status=status.HTTP_201_CREATED,
-        )
-
-    @action(detail=False, methods=["post"], url_path="item/(?P<item_id>[^/.]+)/update_qty")
-    @transaction.atomic
-    def update_qty(self, request, item_id=None):
-        qty = int(request.data.get("quantity", 1))
-        item = get_object_or_404(CartItem, id=item_id, cart__user=request.user, cart__is_active=True)
-        if qty < 1:
-            return Response({"error": "Quantity must be >= 1"}, status=status.HTTP_400_BAD_REQUEST)
-        item.quantity = qty
-        item.save(update_fields=["quantity"])
-        return Response({"message": "Quantity updated"})
-
-    @action(detail=False, methods=["post"], url_path="item/(?P<item_id>[^/.]+)/remove")
-    @transaction.atomic
-    def remove_item(self, request, item_id=None):
-        item = get_object_or_404(CartItem, id=item_id, cart__user=request.user, cart__is_active=True)
-        item.delete()
-        return Response({"message": "Item removed"})
+        # Case 2: Prescription required -> user should upload image
+        return Response({"message": "Prescription required. Please upload image."}, status=200)
 
 
+# ---------------- PrescriptionRequest ViewSet ----------------
 class PrescriptionRequestViewSet(viewsets.ModelViewSet):
-    """
-    Endpoints for users to view their own requests, and for admins to approve/reject.
-    - GET /prescriptions/requests/           -> list my requests (user)
-    - POST /prescriptions/requests/          -> create with file upload (user)
-    - POST /prescriptions/requests/{id}/approve/  -> admin-only
-    - POST /prescriptions/requests/{id}/reject/   -> admin-only
-    """
-    queryset = PrescriptionRequest.objects.select_related("user", "reviewed_by").prefetch_related("items__product")
-    permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    queryset = PrescriptionRequest.objects.all().order_by("-created_at")
+    serializer_class = PrescriptionRequestSerializer
 
-    def get_serializer_class(self):
-        if self.action in ["create"]:
-            return PrescriptionRequestCreateSerializer
-        return PrescriptionRequestSerializer
+    def get_permissions(self):
+        # Admins can list all requests, users can only create / list their own
+        if self.action in ["list", "retrieve", "update", "partial_update", "destroy"]:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [p() for p in permission_classes]
 
     def get_queryset(self):
         user = self.request.user
-        # Non-admins can only see their own requests
-        if not user.is_staff and getattr(user, "role", "") != "admin":
-            return self.queryset.filter(user=user)
-        # Admins can see all
-        return self.queryset
+        if user.is_staff or user.role == "admin":
+            return PrescriptionRequest.objects.all()
+        return PrescriptionRequest.objects.filter(user=user)
 
-    def perform_create(self, serializer):
-        # The create() in serializer already ties to request.user; this ensures consistency
-        serializer.save()
+    def perform_update(self, serializer):
+        if not self.request.user.is_staff:
+            serializer.validated_data.pop('status', None)  # remove status if not admin
+        instance = serializer.save()
+        """
+        Admin approves/rejects prescription request
+        - On approve: add product to user's cart
+        - Send email to user about approval/rejection
+        """
+        instance = serializer.save()
+        if instance.status == "approved":
+            # Add product to cart automatically
+            cart, _ = Cart.objects.get_or_create(user=instance.user)
+            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=instance.product)
+            if not created:
+                cart_item.quantity += 1
+            else:
+                cart_item.quantity = 1
+            cart_item.save()
 
-        # Notify admin (same as in add_to_cart flow when created separately)
-        try:
-            admin_recipient = getattr(settings, "ADMIN_EMAIL", None) or EMAIL_HOST_USER
-            send_mail(
-                subject="New Prescription Request Submitted",
-                message=f"User: {self.request.user.email}\nRequest ID: {serializer.instance.id}",
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[admin_recipient],
-                fail_silently=True,
-            )
-        except Exception as e:
-            print("Email error:", e)
+            # Send approval email
+            product_lines = [
+            "Product Name | SKU | Quantity",
+            "-----------------------------"
+            ]
+            product_lines.append(f"{instance.product.name} | {instance.product.sku} | 1")  # default qty = 1
 
-    @action(detail=True, methods=["post"], permission_classes=[IsAdminUser])
-    def approve(self, request, pk=None):
-        presc = self.get_object()
-        presc.approve(reviewer=request.user, admin_notes=request.data.get("admin_notes", ""))
+            product_table = "\n".join(product_lines)
 
-        # Notify user
-        try:
-            send_mail(
-                subject="Your prescription was approved",
-                message=f"Your prescription request #{presc.id} has been approved and the item(s) were added to your cart.",
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[presc.user.email],
-                fail_silently=True,
-            )
-        except Exception as e:
-            print("Email error:", e)
+            try:
+                send_mail(
+                    subject="Prescription Approved - ShasthoMeds",
+                    message=f"Hi {instance.user.full_name},\n\n"
+                            f"Your prescription request #{instance.product.id} has been approved.\n\n"
+                            f"the item(s) were added to your cart.\nProducts:\n{product_table}\n\n"
+                            f"Enjoy your medication!",
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[instance.user.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                print("Failed sending approval email:", str(e))
 
-        return Response({"message": "Approved and added to cart"})
-
-    @action(detail=True, methods=["post"], permission_classes=[IsAdminUser])
-    def reject(self, request, pk=None):
-        presc = self.get_object()
-        presc.reject(reviewer=request.user, admin_notes=request.data.get("admin_notes", ""))
-
-        # Notify user
-        try:
-            send_mail(
-                subject="Your prescription was rejected",
-                message=f"Your prescription request #{presc.id} was rejected. Please re-upload a clear/valid prescription.",
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[presc.user.email],
-                fail_silently=True,
-            )
-        except Exception as e:
-            print("Email error:", e)
-
-        return Response({"message": "Rejected"})
+        elif instance.status == "rejected":
+            # Send rejection email
+            try:
+                send_mail(
+                    subject="Prescription Rejected - ShasthoMeds",
+                    message=f"Hi {instance.user.full_name},\n\n"
+                            f"Your prescription for {instance.product.name} was rejected.\n"
+                            f"Reason: {instance.admin_comment or 'Not specified'}\n"
+                            f"Try again later with a validate prescription.",
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[instance.user.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                print("Failed sending rejection email:", str(e))

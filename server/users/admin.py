@@ -1,9 +1,14 @@
+
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.forms import ValidationError
-from .models import Cart, CartItem, Category, CustomUser, EmailOTP, Brand, PrescriptionItem, PrescriptionRequest, Product
+from .models import  Cart, CartItem, Category, CustomUser, EmailOTP, Brand, PrescriptionRequest,Product
+from django.db import transaction
 from django.core.mail import send_mail
+from django.utils import timezone
+from django.utils.html import format_html
+
+EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
 # CustomUser model
 @admin.register(CustomUser)
@@ -65,57 +70,88 @@ class ProductAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-
 # Cart model
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "is_active", "updated_at")
-    list_filter = ("is_active",)
+    list_display = ("id", "user", "created_at", "updated_at")
     search_fields = ("user__email",)
+    list_filter = ("created_at",)
 
-# Cart item model
+# CartItem model
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
-    list_display = ("id", "cart", "product", "quantity", "unit_price", "added_at")
-    search_fields = ("cart__user__email", "product__name")
+    list_display = ("id", "cart", "product", "quantity", "added_at")
+    search_fields = ("product__name", "cart__user__email")
+    list_filter = ("added_at",)
 
-# PrescriptionRequest model
+# --- PrescriptionRequest admin ---
 @admin.register(PrescriptionRequest)
 class PrescriptionRequestAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "status", "approved_at", "created_at")
-    list_filter = ("status",)
-    search_fields = ("user__email",)
-    readonly_fields = ("created_at", "updated_at", "approved_at")
+    list_display = ("id", "user", "product", "status", "image_preview", "created_at", "reviewed_at")
+    list_filter = ("status", "created_at")
+    search_fields = ("user__email", "product__name")
+    actions = ["approve_selected", "reject_selected"]
 
-    def save_model(self, request, obj, form, change):
-        if change:
-            old_obj = PrescriptionRequest.objects.get(pk=obj.pk)
-            if old_obj.status != obj.status:
-                # Send email to user
-                items = "\n".join([f"{i.product.name} ({i.product.sku})" for i in obj.items.all()])
-                if obj.status == PrescriptionRequest.STATUS_APPROVED:
-                    subject = "Prescription Approved"
-                    message = f"Hello {obj.user.full_name},\n\nYour prescription has been APPROVED.\n\nProducts:\n{items}\n\nThank you!"
-                elif obj.status == PrescriptionRequest.STATUS_REJECTED:
-                    subject = "Prescription Rejected"
-                    message = f"Hello {obj.user.full_name},\n\nYour prescription has been REJECTED.\n\nProducts:\n{items}\n\nPlease upload a new prescription if needed."
+    # Image preview method
+    def image_preview(self, obj):
+        if obj.uploaded_image:
+            return format_html('<a href="{}" target="_blank"><img src="{}" width="100" /></a>', obj.uploaded_image.url, obj.uploaded_image.url)
+        return "-"
+    image_preview.short_description = "Prescription"
 
-                try:
-                    send_mail(
-                        subject,
-                        message,
-                        settings.EMAIL_HOST_USER,
-                        [obj.user.email],
-                        fail_silently=False
-                    )
-                except Exception as e:
-                    print("Email sending failed:", e)
+    @transaction.atomic
+    def approve_selected(self, request, queryset):
+        for pr in queryset.select_for_update().filter(status="pending"):
+            cart, _ = Cart.objects.get_or_create(user=pr.user)
+            item, created = CartItem.objects.get_or_create(cart=cart, product=pr.product)
+            if not created:
+                item.quantity += 1
+            item.save()
 
-        super().save_model(request, obj, form, change)
+            # Send email to user
+            product_lines = [
+                "Product Name | SKU | Quantity",
+                "-----------------------------",
+                f"{pr.product.name} | {pr.product.sku} | 1"
+            ]
+            product_table = "\n".join(product_lines)
+            try:
+                send_mail(
+                    subject="Prescription Approved - ShasthoMeds",
+                    message=f"Hi {pr.user.full_name},\n\nYour prescription request #{pr.product.id} has been approved."
+                            f" The item(s) were added to your cart.\nProducts:\n{product_table}\n\nEnjoy your medication!",
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[pr.user.email],
+                    fail_silently=True,
+                )
+            except Exception:
+                pass
 
-        
-# PrescriptionItem model
-@admin.register(PrescriptionItem)
-class PrescriptionItemAdmin(admin.ModelAdmin):
-    list_display = ("id", "prescription_request", "product", "quantity")
-    search_fields = ("product__name",)
+            pr.status = "approved"
+            pr.reviewed_at = timezone.now()
+            pr.save()
+            pr.delete()
+
+    approve_selected.short_description = "Approve selected (add to cart, email user, delete request)"
+
+    @transaction.atomic
+    def reject_selected(self, request, queryset):
+        for pr in queryset.select_for_update().filter(status="pending"):
+            try:
+                send_mail(
+                    subject="Prescription Rejected - ShasthoMeds",
+                    message=f"Hi {pr.user.full_name},\n\nYour prescription for {pr.product.name} was rejected.\n"
+                            f"Reason: {pr.admin_comment or 'Not specified'}\nTry again later with a valid prescription.",
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[pr.user.email],
+                    fail_silently=True,
+                )
+            except Exception:
+                pass
+
+            pr.status = "rejected"
+            pr.reviewed_at = timezone.now()
+            pr.save()
+            pr.delete()
+
+    reject_selected.short_description = "Reject selected (email user, delete request)"

@@ -16,9 +16,9 @@ router = DefaultRouter()
 router.register(r'brands', BrandViewSet, basename='brand')
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'products', ProductViewSet, basename='product')
-router.register(r'cart', CartViewSet, basename='cart')  # <--- add
-router.register(r'prescriptions/requests', PrescriptionRequestViewSet, basename='prescription-request')  # <--- add
 
+router.register(r'cart', CartViewSet, basename='cart')
+router.register(r'prescriptions', PrescriptionRequestViewSet, basename='prescription')
 
 urlpatterns = [
     path('', APIRootView.as_view(), name='api-root'),

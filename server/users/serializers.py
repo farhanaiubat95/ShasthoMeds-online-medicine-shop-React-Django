@@ -3,7 +3,7 @@ from shasthomeds.settings import EMAIL_HOST_USER
 from django.contrib.auth.password_validation import validate_password
 import random
 from django.core.mail import send_mail
-from .models import Brand, Cart, CartItem, Category, PrescriptionItem, PrescriptionRequest, Product
+from .models import Brand, Cart, CartItem,Category, PrescriptionRequest,Product
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer  # pyright: ignore[reportMissingImports]
 
 # Models
@@ -181,135 +181,89 @@ class ProductSerializer(serializers.ModelSerializer):
     # Removed validate_imageX methods as they are handled by model-level validator
 
 
-# =========================
-# PRESCRIPTION & CART SERIALIZERS
-# =========================
-
+# Serializer for CartItem
 class CartItemSerializer(serializers.ModelSerializer):
-    # Include a minimal product representation; reuse your ProductSerializer if you prefer
-    product = ProductSerializer(read_only=True)
+    product = ProductSerializer(read_only=True)   # show product details
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), write_only=True, source="product"
+    )
 
     class Meta:
         model = CartItem
-        fields = ["id", "product", "quantity", "unit_price", "prescription_request", "added_at"]
-        read_only_fields = ["id", "unit_price", "prescription_request", "added_at"]
+        fields = ["id", "product", "product_id", "quantity", "added_at"]
 
 
+# Serializer for Cart
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = Cart
-        fields = ["id", "is_active", "created_at", "updated_at", "expires_at", "items"]
-        read_only_fields = ["id", "is_active", "created_at", "updated_at"]
+        fields = ["id", "user", "items", "created_at", "updated_at"]
+        read_only_fields = ["id", "user", "created_at", "updated_at"]
 
 
-class PrescriptionItemWriteSerializer(serializers.ModelSerializer):
-    """
-    Used when user creates a prescription request (product + quantity).
-    We accept product ID only in write serializer to keep payload small.
-    """
-    class Meta:
-        model = PrescriptionItem
-        fields = ["product", "quantity", "note"]
+# Serializer for PrescriptionRequest
+from django.core.mail import send_mail
+from shasthomeds.settings import EMAIL_HOST_USER
 
-
-class PrescriptionItemReadSerializer(serializers.ModelSerializer):
-    """
-    Read serializer showing nested product info.
-    """
-    product = ProductSerializer(read_only=True)
-
-    class Meta:
-        model = PrescriptionItem
-        fields = ["id", "product", "quantity", "note"]
-
-# Serializer for prescription requests
 class PrescriptionRequestSerializer(serializers.ModelSerializer):
-    """
-    Read serializer for prescription requests including nested items and URLs.
-    """
-    items = PrescriptionItemReadSerializer(many=True, read_only=True)
-    uploaded_image = serializers.SerializerMethodField()
-    uploaded_file = serializers.FileField(read_only=True)
+    product = ProductSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), write_only=True, source="product"
+    )
+    uploaded_image = serializers.ImageField(write_only=True)  # for upload only
 
     class Meta:
         model = PrescriptionRequest
         fields = [
-            "id", "user", "status",
-            "uploaded_image", "uploaded_file",
-            "notes", "admin_notes", "reviewed_by",
-            "auto_add_to_cart",
-            "created_at", "updated_at", "approved_at",
-            "items",
+            "id", "user", "product", "product_id",
+            "uploaded_image", "notes",
+            "status", "admin_comment",
+            "created_at", "reviewed_at",
         ]
-        read_only_fields = [
-            "id", "user", "status", "admin_notes", "reviewed_by",
-            "created_at", "updated_at", "approved_at",
-        ]
+        read_only_fields = ["id", "user", "status", "admin_comment", "created_at", "reviewed_at"]
 
-    def get_uploaded_image(self, obj):
-        return obj.uploaded_image.url if obj.uploaded_image else None
+    def to_representation(self, instance):
+        """Override representation to return Cloudinary URL for uploaded_image"""
+        ret = super().to_representation(instance)
+        if instance.uploaded_image:
+            ret['uploaded_image'] = instance.uploaded_image.url  # Cloudinary URL
+        else:
+            ret['uploaded_image'] = None
+        return ret
 
-# Serializer for creating a new prescription
-class PrescriptionRequestCreateSerializer(serializers.ModelSerializer):
-    items = PrescriptionItemWriteSerializer(many=True)
-
-    class Meta:
-        model = PrescriptionRequest
-        fields = [
-            "uploaded_image", "uploaded_file",
-            "notes", "auto_add_to_cart",
-            "items",
-        ]
-
-    def validate(self, attrs):
-        if not attrs.get("uploaded_image") and not attrs.get("uploaded_file"):
-            raise serializers.ValidationError("Please upload a prescription image or file.")
-        return attrs
 
     def create(self, validated_data):
         user = self.context["request"].user
-        items_data = validated_data.pop("items", [])
+        validated_data["user"] = user
+        prescription = super().create(validated_data)
 
-        # Create prescription request
-        presc = PrescriptionRequest.objects.create(user=user, **validated_data)
-
-        # Attach items
-        for item in items_data:
-            product = item["product"]
-            quantity = item.get("quantity", 1)
-
-            if not product.prescription_required:
-                raise serializers.ValidationError(
-                    f"Product '{product.name}' does not require a prescription; add it directly to cart."
-                )
-
-            PrescriptionItem.objects.create(
-                prescription_request=presc,
-                product=product,
-                quantity=quantity,
-                note=item.get("note", ""),
-            )
-
-        # Send email to admin
+        # --- Send email to admin when new request submitted ---
         admin_email = EMAIL_HOST_USER
+        
         # Format product list as table
-        product_lines = ["Product Name | SKU | Quantity", "-----------------------------"]
-        for item in items_data:
-            product_lines.append(f"{item['product'].name} | {item['product'].sku} | {item.get('quantity', 1)}")
+        product_lines = [
+        "Product Name | SKU | Quantity",
+        "-----------------------------"
+        ]
+        product = prescription.product
+        product_lines.append(f"{product.name} | {product.sku} | 1")  # default qty = 1
 
         product_table = "\n".join(product_lines)
-
         try:
             send_mail(
-                subject=f"New Prescription Request #{presc.id}",
-                message=f"User {user.username} has uploaded a new prescription.\n\nProducts:\n{product_table}\n\nPlease review it.",
+                subject=f"New Prescription Request #{prescription.id}",
+                message=(
+                    f"User {user.username} has uploaded a new prescription.\n\n"
+                    f"Products:\n{product_table}\n\n"
+                    f"Please review it."
+                ),
                 from_email=EMAIL_HOST_USER,
                 recipient_list=[admin_email],
                 fail_silently=False
-            )
+                )
         except Exception as e:
-            print("Failed to send admin email:", e)
+            print("Failed to send admin email:", str(e))
 
-        return presc
+        return prescription
