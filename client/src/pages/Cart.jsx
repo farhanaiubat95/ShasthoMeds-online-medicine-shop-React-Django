@@ -164,32 +164,20 @@ const Cart = () => {
     if (token) dispatch(fetchCart(token));
   }, [dispatch, token]);
 
+  
   const handleRemove = (cartItemId) => {
     if (!token) return;
     dispatch(removeFromCart({ cartItemId, token }));
   };
 
-  const handleQuantityChange = (item, change) => {
-    if (!token) return;
-
-    const newQuantity = item.quantity + change;
-
-    // Prevent quantity less than 1
-    if (newQuantity < 1) return;
-
-    // Prevent quantity more than available stock
-    if (item.product.stock && newQuantity > item.product.stock) return;
-
-    dispatch(
-      addToCart({
-        product_id: item.product.id,
-        quantity: 1, // send 1 for increment/decrement, backend should handle update
-        token,
-        update: true, // optional flag if your backend differentiates between add & update
-        cartItemId: item.id, // send cartItemId if backend requires it for update
-        change, // send +1 or -1 if backend uses it
-      }),
-    );
+  const handleQuantityChange = (itemId, change, stock) => {
+    setQuantities((prev) => {
+      const current = prev[itemId] || 1;
+      let newQty = current + change;
+      if (newQty < 1) newQty = 1; // min 1
+      if (stock && newQty > stock) newQty = stock; // max stock
+      return { ...prev, [itemId]: newQty };
+    });
   };
 
   const totalItems = cartState.items.length;
@@ -205,9 +193,7 @@ const Cart = () => {
 
   const totalDiscount = cartState.items.reduce((acc, item) => {
     if (item.product.discount_price) {
-      return (
-        acc + (item.product.discount_price * item.quantity)
-      );
+      return acc + item.product.discount_price * item.quantity;
     }
     return acc;
   }, 0);
@@ -249,7 +235,7 @@ const Cart = () => {
                       component="span"
                       style={{ fontSize: 17, fontWeight: 600 }}
                     >
-                      Tk {item.product.new_price} X {item.quantity}
+                      Tk {item.product.new_price}
                     </Box>
                     {item.product.offer_price && (
                       <>
@@ -260,8 +246,7 @@ const Cart = () => {
                           <strike>Tk {item.product.price}</strike>
                         </Box>
                         <Box component="span" style={{ color: "#388E3C" }}>
-                          {item.product.offer_price}
-                          % off
+                          {item.product.offer_price}% off
                         </Box>
                       </>
                     )}
@@ -269,13 +254,19 @@ const Cart = () => {
 
                   <QuantityBox>
                     <QuantityButton
-                      onClick={() => handleQuantityChange(item, -1)}
+                      onClick={() =>
+                        handleQuantityChange(item.id, -1, item.product.stock)
+                      }
                     >
                       -
                     </QuantityButton>
-                    <Typography>{item.quantity}</Typography>
+                    <Typography>
+                      {quantities[item.id] || item.quantity}
+                    </Typography>
                     <QuantityButton
-                      onClick={() => handleQuantityChange(item, +1)}
+                      onClick={() =>
+                        handleQuantityChange(item.id, +1, item.product.stock)
+                      }
                     >
                       +
                     </QuantityButton>
