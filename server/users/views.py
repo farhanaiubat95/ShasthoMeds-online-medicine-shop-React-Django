@@ -226,24 +226,21 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
     queryset = PrescriptionRequest.objects.all().order_by("-created_at")
     serializer_class = PrescriptionRequestSerializer
 
-    def get_permissions(self):
-        # Admins can list all requests, users can only create / list their own
-        if self.action in ["list", "retrieve", "update", "partial_update", "destroy"]:
-            permission_classes = [IsAdminUser]
-        else:
-            permission_classes = [IsAuthenticated]
-        return [p() for p in permission_classes]
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_staff or getattr(user, "role", None) == "admin":
-            return PrescriptionRequest.objects.all()
-        return PrescriptionRequest.objects.filter(user=user)
-
-    def perform_update(self, serializer):
+        # Save updates
         instance = serializer.save()
 
+        # Call approve/reject
         if instance.status == "approved":
             instance.approve()
+            return Response({"message": "Prescription approved and deleted"})
         elif instance.status == "rejected":
             instance.reject()
+            return Response({"message": "Prescription rejected and deleted"})
+
+        return Response(serializer.data)
