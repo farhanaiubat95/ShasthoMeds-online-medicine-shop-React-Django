@@ -25,14 +25,6 @@ export default function Header() {
   const toggleDrawer = (open) => () => setDrawerOpen(open);
   const user = useSelector((state) => state.auth.user);
 
-  const dispatch = useDispatch();
-  const token = useSelector((state) => state.auth.access_token);
-
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchCart(token));   //fetch user’s cart here
-    }
-  }, [dispatch, token]);
 
   return (
     <>

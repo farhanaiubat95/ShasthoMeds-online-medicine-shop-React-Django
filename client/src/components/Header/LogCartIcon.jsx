@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // ✅ added useEffect
+import React, { useState, useEffect } from "react";
 import {
   IconButton,
   Typography,
@@ -12,7 +12,6 @@ import { styled } from "@mui/material/styles";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { Link, useNavigate } from "react-router-dom";
 
-// Icons
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
@@ -22,7 +21,7 @@ import SearchBar from "./SearchBar.jsx";
 
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../../redux/userSlice";
-import { fetchCart } from "../../redux/cartSlice"; // ✅ import fetchCart thunk
+import { fetchCart } from "../../redux/cartSlice";
 
 // Styled rotating arrow
 const RotatingArrowIcon = styled(ArrowDropDownIcon)(({ theme }) => ({
@@ -30,9 +29,7 @@ const RotatingArrowIcon = styled(ArrowDropDownIcon)(({ theme }) => ({
   fontSize: "35px",
   marginLeft: theme.spacing(1),
   transition: "transform 0.5s ease-in-out",
-  ".group:hover &": {
-    transform: "rotate(180deg)",
-  },
+  ".group:hover &": { transform: "rotate(180deg)" },
 }));
 
 const LogCartIcon = () => {
@@ -41,25 +38,22 @@ const LogCartIcon = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Get user from Redux store
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.access_token);
   const cartItems = useSelector((state) => state.carts.items);
 
-  // fetch cart whenever token changes (i.e. when user logs in)
+  // Fetch cart after login or page reload if token exists
   useEffect(() => {
-    if (token) {
-      dispatch(fetchCart(token));
+    const savedToken = token || localStorage.getItem("access_token");
+    if (savedToken) {
+      dispatch(fetchCart(savedToken));
     }
-  }, [dispatch, token]);
+  }, [token, dispatch]);
 
   const cartCount = cartItems.length;
-  console.log("Cart Items:", cartItems);
-  console.log("Cart Count:", cartCount);
 
   const handleMenu = (event) => setMenuAnchor(event.currentTarget);
   const handleClose = () => setMenuAnchor(null);
-
   const handleLogout = () => {
     dispatch(logoutUser());
     handleClose();
@@ -69,38 +63,25 @@ const LogCartIcon = () => {
   return (
     <Box className="flex items-center justify-end space-x-2 w-[67%] lg:w-[60%]">
       <div className="flex items-center justify-between space-x-2 w-full">
-        {/* Search */}
         <div className="w-[60%] sm:w-[66%] lg:w-[76%] ml-5">
           <SearchBar />
         </div>
 
-        {/* Login + Cart */}
         <div className="w-[40%] sm:w-[34%] ml-7 sm:ml-5 lg:ml-8 flex items-center justify-end">
           {/* Login Dropdown */}
           <div className="group cursor-pointer border-2 border-[#30C2C0] rounded h-[35px] sm:h-[40px] lg:h-[45px] flex items-center transition-all duration-300">
             <IconButton onClick={handleMenu}>
               <AccountCircle
-                sx={{
-                  color: user ? "#007bff" : "#0F918F",
-                  fontSize: { xs: "25px", lg: "30px" },
-                }}
+                sx={{ color: user ? "#007bff" : "#0F918F", fontSize: { xs: "25px", lg: "30px" } }}
               />
               {user && (
-                <Typography
-                  sx={{
-                    marginLeft: "5px",
-                    color: "#007bff",
-                    fontSize: "16px",
-                    fontWeight: 500,
-                  }}
-                >
+                <Typography sx={{ marginLeft: "5px", color: "#007bff", fontSize: "16px", fontWeight: 500 }}>
                   {user.username}
                 </Typography>
               )}
               <RotatingArrowIcon />
             </IconButton>
 
-            {/* Menu Dropdown */}
             <Menu
               anchorEl={menuAnchor}
               open={open}
@@ -153,21 +134,12 @@ const LogCartIcon = () => {
             <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-6 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
               <IconButton>
                 <Badge badgeContent={cartCount} color="error">
-                  <ShoppingCart
-                    sx={{
-                      color: "#0F918F",
-                      fontSize: { xs: "25px", lg: "30px" },
-                    }}
-                  />
+                  <ShoppingCart sx={{ color: "#0F918F", fontSize: { xs: "25px", lg: "30px" } }} />
                 </Badge>
               </IconButton>
               <Typography
                 variant="body1"
-                sx={{
-                  color: "#0F918F",
-                  marginLeft: "10px",
-                  fontSize: "18px",
-                }}
+                sx={{ color: "#0F918F", marginLeft: "10px", fontSize: "18px" }}
                 className="hidden lg:flex"
               >
                 Cart
