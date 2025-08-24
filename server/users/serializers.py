@@ -1,4 +1,4 @@
-from datetime import timezone
+from django.utils import timezone
 from rest_framework import serializers
 from shasthomeds.settings import EMAIL_HOST_USER
 from django.contrib.auth.password_validation import validate_password
@@ -279,9 +279,19 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """
         When admin updates a prescription (approve/reject),
-        automatically set reviewed_at timestamp.
+        automatically set reviewed_at timestamp
+        and trigger model logic.
         """
-        if "status" in validated_data:
+        new_status = validated_data.get("status", instance.status)
+
+        if new_status != instance.status:
             instance.reviewed_at = timezone.now()
+
+            if new_status == "approved":
+                instance.approve()   # calls your model method
+                return instance  # approve() already deletes request
+            elif new_status == "rejected":
+                instance.reject()    # calls your model method
+                return instance
 
         return super().update(instance, validated_data)
