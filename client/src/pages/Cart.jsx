@@ -193,6 +193,11 @@ const Cart = () => {
   };
 
   const totalItems = cartState.items.length;
+  const totalNewPrice = cartState.items.reduce(
+    (acc, item) => acc + item.product.new_price * item.quantity,
+    0,
+  );
+
   const totalPrice = cartState.items.reduce(
     (acc, item) => acc + item.product.price * item.quantity,
     0,
@@ -201,13 +206,13 @@ const Cart = () => {
   const totalDiscount = cartState.items.reduce((acc, item) => {
     if (item.product.discount_price) {
       return (
-        acc + (item.product.price - item.product.discount_price) * item.quantity
+        acc + (item.product.discount_price * item.quantity)
       );
     }
     return acc;
   }, 0);
 
-  const totalAmount = totalPrice - totalDiscount + 40; // + delivery
+  const totalAmount = totalNewPrice + 40; // + delivery
 
   return (
     <div>
@@ -244,9 +249,9 @@ const Cart = () => {
                       component="span"
                       style={{ fontSize: 17, fontWeight: 600 }}
                     >
-                      Tk {item.product.price * item.quantity}
+                      Tk {item.product.new_price} X {item.quantity}
                     </Box>
-                    {item.product.discount_price && (
+                    {item.product.offer_price && (
                       <>
                         <Box
                           component="span"
@@ -255,12 +260,7 @@ const Cart = () => {
                           <strike>Tk {item.product.price}</strike>
                         </Box>
                         <Box component="span" style={{ color: "#388E3C" }}>
-                          {Math.round(
-                            ((item.product.price -
-                              item.product.discount_price) /
-                              item.product.price) *
-                              100,
-                          )}
+                          {item.product.offer_price}
                           % off
                         </Box>
                       </>
@@ -303,15 +303,15 @@ const Cart = () => {
             </Heading>
             <Container>
               <Typography>
-                Price ({totalItems} items)
+                Regular Price ({totalItems} items)
                 <Box component="span" sx={{ float: "right" }}>
                   Tk {totalPrice.toFixed(2)}
                 </Box>
               </Typography>
               <Typography>
-                Discount
+                Offer Price
                 <Box component="span" sx={{ float: "right" }}>
-                  Tk {totalDiscount.toFixed(2)}
+                  Tk {totalNewPrice.toFixed(2)}
                 </Box>
               </Typography>
               <Typography>
