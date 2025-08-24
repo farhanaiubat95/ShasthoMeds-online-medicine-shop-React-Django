@@ -32,17 +32,9 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
 
     const formData = new FormData();
     formData.append("uploaded_image", selectedImage);
-    formData.append("notes", notes); // append notes
-    formData.append("auto_add_to_cart", "true");
-
-    const items = [
-      {
-        product: product.id,
-        quantity: 1,
-        note: notes || "Optional note",
-      },
-    ];
-    formData.append("items", JSON.stringify(items));
+    formData.append("product_id", product.id); // <-- backend expects this
+    formData.append("notes", notes); // optional notes
+    formData.append("auto_add_to_cart", "true"); // auto add
 
     try {
       const response = await axiosInstance.post("/prescriptions/", formData, {
@@ -52,7 +44,7 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
       });
       console.log("Prescription uploaded:", response.data);
       alert("Prescription uploaded successfully!");
-      onClose(); // Close dialog after successful upload
+      onClose();
     } catch (error) {
       console.error(
         "Upload failed:",
@@ -120,7 +112,7 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
     w-full
     h-24
     p-3
-    mb-4
+    my-4
     rounded-2xl
     border-2
     border-[#0F918F]
