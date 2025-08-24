@@ -45,22 +45,18 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
     formData.append("items", JSON.stringify(items));
 
     try {
-      const response = await axiosInstance.post(
-        "/prescriptions/requests/",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axiosInstance.post("/prescriptions/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       console.log("Prescription uploaded:", response.data);
       alert("Prescription uploaded successfully!");
       onClose(); // Close dialog after successful upload
     } catch (error) {
       console.error(
         "Upload failed:",
-        error.response?.data || error.message || error
+        error.response?.data || error.message || error,
       );
       alert("Failed to upload prescription.");
     }
@@ -84,7 +80,7 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
       </Typography>
 
       <DialogContent className="flex flex-col items-center justify-center mb-4">
-        <div className="w-[500px] h-[600px] border-2 border-dashed border-[#0F918F] rounded-2xl flex flex-col items-center justify-center bg-gray-50 shadow-inner">
+        <div className="w-[500px] h-[500px] border-2 border-dashed border-[#0F918F] rounded-2xl flex flex-col items-center justify-center bg-gray-50 shadow-inner">
           {selectedImage ? (
             <img
               src={URL.createObjectURL(selectedImage)}
@@ -118,9 +114,26 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
             {/* Notes field */}
             <textarea
               placeholder="Optional notes..."
-              className="w-full border p-2 rounded-lg mb-2"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              className="
+    w-full
+    h-24
+    p-3
+    mb-4
+    rounded-2xl
+    border-2
+    border-[#0F918F]
+    focus:outline-none
+    focus:ring-2
+    focus:ring-[#30C2C0]
+    focus:border-[#30C2C0]
+    bg-gray-50
+    text-gray-700
+    placeholder:text-gray-400
+    resize-none
+    shadow-inner
+  "
             />
 
             <Button
