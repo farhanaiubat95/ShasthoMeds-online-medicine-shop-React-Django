@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -16,13 +16,23 @@ import { Menu as MenuIcon } from "@mui/icons-material";
 import LogCartIcon from "./LogCartIcon.jsx";
 // import Navbar from "./Navbar.jsx";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { fetchCart } from "../../redux/cartSlice.js";
 
 export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const toggleDrawer = (open) => () => setDrawerOpen(open);
   const user = useSelector((state) => state.auth.user);
+
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.access_token);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchCart(token));   //fetch user’s cart here
+    }
+  }, [dispatch, token]);
 
   return (
     <>

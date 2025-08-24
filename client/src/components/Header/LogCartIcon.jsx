@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";   // ✅ added useEffect
 import {
   IconButton,
   Typography,
@@ -22,6 +22,7 @@ import SearchBar from "./SearchBar.jsx";
 
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../../redux/userSlice";
+import { fetchCart } from "../../redux/cartSlice";   // ✅ import fetchCart thunk
 
 // Styled rotating arrow
 const RotatingArrowIcon = styled(ArrowDropDownIcon)(({ theme }) => ({
@@ -42,10 +43,18 @@ const LogCartIcon = () => {
 
   // Get user from Redux store
   const user = useSelector((state) => state.auth.user);
+  const token = useSelector((state) => state.auth.access_token);
 
-  // Get cart items from Redux store
+  // ✅ fetch cart whenever token changes (i.e. when user logs in)
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchCart(token));
+    }
+  }, [dispatch, token]);
+
+  // Get cart items
   const cartItems = useSelector((state) => state.carts.items);
-  const cartCount = cartItems.length; // Total number of items in cart
+  const cartCount = cartItems.length;
 
   const handleMenu = (event) => setMenuAnchor(event.currentTarget);
   const handleClose = () => setMenuAnchor(null);
@@ -111,7 +120,6 @@ const LogCartIcon = () => {
               }}
             >
               {!user ? (
-                // Not Logged In
                 <>
                   <MenuItem onClick={handleClose} sx={{ fontSize: "18px" }}>
                     <Link to="/login" className="w-full block">
@@ -125,7 +133,6 @@ const LogCartIcon = () => {
                   </MenuItem>
                 </>
               ) : (
-                // Logged In
                 <>
                   <MenuItem onClick={handleClose} sx={{ fontSize: "18px" }}>
                     <Link to="/myaccount/profile" className="w-full block">
