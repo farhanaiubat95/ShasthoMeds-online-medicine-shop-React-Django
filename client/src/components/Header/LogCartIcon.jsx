@@ -40,8 +40,8 @@ const LogCartIcon = () => {
 
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.access_token);
-  const cartdata = useSelector((state) => state.carts.cart);
-  console.log("Cart data:", cartdata);
+  const cartitems = useSelector((state) => state.carts.items);
+  console.log("Cart items:", cartitems);
   // Fetch cart after login or page reload if token exists
   useEffect(() => {
     const savedToken = token || localStorage.getItem("access_token");
@@ -50,7 +50,7 @@ const LogCartIcon = () => {
     }
   }, [token, dispatch]);
 
-  const cartCount = cartdata.total_items;
+  const cartCount = cartitems.length ;
   console.log("Cart Count:", cartCount);
 
   const handleMenu = (event) => setMenuAnchor(event.currentTarget);

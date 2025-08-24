@@ -13,6 +13,7 @@ import axiosInstance from "../../axiosInstance";
 
 const PrescriptionUpload = ({ open, onClose, product }) => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [notes, setNotes] = useState(""); // Added notes state
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -31,14 +32,14 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
 
     const formData = new FormData();
     formData.append("uploaded_image", selectedImage);
-    formData.append("notes", "Take care of prescription");
+    formData.append("notes", notes); // append notes
     formData.append("auto_add_to_cart", "true");
 
     const items = [
       {
         product: product.id,
         quantity: 1,
-        note: "Optional note",
+        note: notes || "Optional note",
       },
     ];
     formData.append("items", JSON.stringify(items));
@@ -51,14 +52,15 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        },
+        }
       );
       console.log("Prescription uploaded:", response.data);
       alert("Prescription uploaded successfully!");
+      onClose(); // Close dialog after successful upload
     } catch (error) {
       console.error(
         "Upload failed:",
-        error.response?.data || error.message || error,
+        error.response?.data || error.message || error
       );
       alert("Failed to upload prescription.");
     }
@@ -112,18 +114,28 @@ const PrescriptionUpload = ({ open, onClose, product }) => {
         </div>
 
         {selectedImage && (
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            sx={{
-              backgroundColor: "#0F918F",
-              color: "white",
-              marginTop: "1rem",
-            }}
-            className="mt-4 px-6 rounded-lg shadow-md hover:bg-[#30C2C0]"
-          >
-            Submit Prescription
-          </Button>
+          <>
+            {/* Notes field */}
+            <textarea
+              placeholder="Optional notes..."
+              className="w-full border p-2 rounded-lg mb-2"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              sx={{
+                backgroundColor: "#0F918F",
+                color: "white",
+                marginTop: "1rem",
+              }}
+              className="mt-4 px-6 rounded-lg shadow-md hover:bg-[#30C2C0]"
+            >
+              Submit Prescription
+            </Button>
+          </>
         )}
       </DialogContent>
     </Dialog>
