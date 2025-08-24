@@ -71,11 +71,33 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 # Cart model
+# Cart model
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "created_at", "updated_at")
+    list_display = (
+        "id", "user",
+        "total_items", "total_quantity", "total_price",
+        "created_at", "updated_at"
+    )
     search_fields = ("user__email",)
     list_filter = ("created_at",)
+
+    def total_items(self, obj):
+        return obj.items.count()
+    total_items.short_description = "Items"
+
+    def total_quantity(self, obj):
+        return sum(item.quantity for item in obj.items.all())
+    total_quantity.short_description = "Quantity"
+
+    def total_price(self, obj):
+        total = 0
+        for item in obj.items.all():
+            if item.product and item.product.price:
+                total += float(item.product.price) * item.quantity
+        return round(total, 2)
+    total_price.short_description = "Total Price (৳)"
+
 
 # CartItem model
 @admin.register(CartItem)
