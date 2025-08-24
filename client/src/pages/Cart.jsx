@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, Button, Typography, styled } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/Header/Navbar";
-// ================= Styled Components =================
+import { fetchCart, removeFromCart } from "../redux/cartSlice";
 
+// ================= Styled Components =================
 const Component = styled(Box)(({ theme }) => ({
   width: "70%",
   margin: "0px auto",
@@ -50,44 +52,23 @@ const StyledButton = styled(Button)(({ theme }) => ({
   background: "#0F918F",
   width: "250px",
   height: "50px",
-  "&:hover": {
-    background: "#30C2C0",
-  },
-  [theme.breakpoints.down("md")]: {
-    width: "230px",
-    height: "40px",
-  },
-  [theme.breakpoints.down("sm")]: {
-    width: "130px",
-  },
+  "&:hover": { background: "#30C2C0" },
+  [theme.breakpoints.down("md")]: { width: "230px", height: "40px" },
+  [theme.breakpoints.down("sm")]: { width: "130px" },
 }));
 
 const Heading = styled(Box)(({ theme }) => ({
   padding: "15px 24px",
   background: "#fff",
   borderBottom: "1px solid #f2f2f2",
-  "& > p": {
-    color: "#878787",
-    fontSize: "16px",
-    fontWeight: 600,
-    textTransform: "uppercase",
-  },
+  "& > p": { color: "#878787", fontSize: "16px", fontWeight: 600, textTransform: "uppercase" },
 }));
 
 const Container = styled(Box)(({ theme }) => ({
   padding: "15px 24px",
   background: "#fff",
-  "& > p": {
-    color: "#878787",
-    fontSize: "15px",
-    fontWeight: 600,
-    marginBottom: "20px",
-  },
-  "& > h6": {
-    paddingTop: "20px",
-    marginBottom: "20px",
-    borderTop: "1px solid #f2f2f2",
-  },
+  "& > p": { color: "#878787", fontSize: "15px", fontWeight: 600, marginBottom: "20px" },
+  "& > h6": { paddingTop: "20px", marginBottom: "20px", borderTop: "1px solid #f2f2f2" },
 }));
 
 const DiscountBoxs = styled(Box)(({ theme }) => ({
@@ -112,22 +93,14 @@ const LeftBox = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   alignItems: "center",
   gap: "10px",
-  [theme.breakpoints.down("md")]: {
-    width: "20%",
-  },
+  [theme.breakpoints.down("md")]: { width: "20%" },
 }));
 
 const Image = styled("img")(({ theme }) => ({
   width: "80px",
   height: "90px",
-  [theme.breakpoints.down("md")]: {
-    width: "70px",
-    height: "80px",
-  },
-  [theme.breakpoints.down("sm")]: {
-    width: "60px",
-    height: "70px",
-  },
+  [theme.breakpoints.down("md")]: { width: "70px", height: "80px" },
+  [theme.breakpoints.down("sm")]: { width: "60px", height: "70px" },
 }));
 
 const RightBox = styled(Box)(({ theme }) => ({
@@ -135,13 +108,8 @@ const RightBox = styled(Box)(({ theme }) => ({
   margin: "20px 0px",
   textAlign: "left",
   paddingLeft: "40px",
-  [theme.breakpoints.down("md")]: {
-    width: "80%",
-    paddingLeft: "20px",
-  },
-  [theme.breakpoints.down("sm")]: {
-    paddingLeft: "15px",
-  },
+  [theme.breakpoints.down("md")]: { width: "80%", paddingLeft: "20px" },
+  [theme.breakpoints.down("sm")]: { paddingLeft: "15px" },
 }));
 
 const RightText = styled(Typography)(({ theme }) => ({
@@ -152,12 +120,8 @@ const RightText = styled(Typography)(({ theme }) => ({
   whiteSpace: "nowrap",
   overflow: "hidden",
   textOverflow: "ellipsis",
-  [theme.breakpoints.down("lg")]: {
-    width: "300px",
-  },
-  [theme.breakpoints.down("md")]: {
-    width: "200px",
-  },
+  [theme.breakpoints.down("lg")]: { width: "300px" },
+  [theme.breakpoints.down("md")]: { width: "200px" },
 }));
 
 const RemoveButton = styled(Button)(() => ({
@@ -166,102 +130,73 @@ const RemoveButton = styled(Button)(() => ({
   color: "#000",
   fontWeight: "700",
   padding: 0,
-  "&:hover": {
-    backgroundColor: "transparent",
-  },
-}));
-
-const QtyComponent = styled(Box)(() => ({
-  width: "100%",
-  display: "flex",
-  justifyContent: "center",
-  margin: "10px 0",
-}));
-
-const StyledButtonGroup = styled(Box)(() => ({
-  display: "flex",
-  gap: "5px",
-}));
-
-const CircleButton = styled(Button)(({ theme }) => ({
-  width: "22px",
-  height: "22px",
-  borderRadius: "50%",
-  minWidth: "22px",
-  padding: 0,
-  color: "#000",
-  borderColor: "#000",
-  fontWeight: "bold",
-}));
-
-const MiddleButton = styled(Button)(({ theme }) => ({
-  height: "22px",
-  minWidth: "30px",
-  padding: "0 10px",
-  borderRadius: "5px",
-  color: "#000",
-  borderColor: "#000",
-  fontWeight: "bold",
+  "&:hover": { backgroundColor: "transparent" },
 }));
 
 // ================== Main Component ==================
 
 const Cart = () => {
+  const dispatch = useDispatch();
+  const products=useSelector((state) => state.products);
+  const cartState = useSelector((state) => state.carts);
+  const token = localStorage.getItem("access_token");
+
+  useEffect(() => {
+    if (token) dispatch(fetchCart(token));
+  }, [dispatch, token]);
+
+  const handleRemove = (productId) => {
+    if (!token) return;
+    dispatch(removeFromCart({ productId, token }));
+  };
+
+  const totalItems = cartState.items.length;
+  const totalPrice = cartState.items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+
   return (
     <div>
-      <Navbar Title="My Cart" />
+      <Navbar Title={`My Cart`} />
       <Component>
         <ContainerLeft>
           <Header>
             <Typography variant="h6" style={{ color: "#0F918F" }}>
-              My Cart (2)
+              My Cart ({totalItems})
             </Typography>
           </Header>
 
           <Box className="p-3">
-            {[1, 2].map((_, index) => (
-              <CartItemBox key={index}>
+            {cartState.items.map((item) => (
+              <CartItemBox key={item.id}>
                 <LeftBox>
-                  <Image
-                    src="https://via.placeholder.com/80x90"
-                    alt="Product"
-                  />
-                  <QtyComponent>
-                    <StyledButtonGroup>
-                      <CircleButton variant="outlined">-</CircleButton>
-                      <MiddleButton variant="outlined">1</MiddleButton>
-                      <CircleButton variant="outlined">+</CircleButton>
-                    </StyledButtonGroup>
-                  </QtyComponent>
+                  <Image src={item.product.image1 || "/placeholder-image.jpg"} alt={item.product.name} />
+                  <Typography>Qty: {item.quantity}</Typography>
                 </LeftBox>
 
                 <RightBox>
-                  <RightText>Sample Product Title</RightText>
+                  <RightText>{item.product.name}</RightText>
                   <Typography>
                     <Box component="span" style={{ color: "#878787" }}>
-                      Seller: Demo Shop
+                      Seller: {item.product.brand?.name || "Unknown"}
                     </Box>
                   </Typography>
 
                   <Typography style={{ marginTop: 10 }}>
-                    <Box
-                      component="span"
-                      style={{ fontSize: 17, fontWeight: 600 }}
-                    >
-                      Tk 999
+                    <Box component="span" style={{ fontSize: 17, fontWeight: 600 }}>
+                      Tk {item.product.price * item.quantity}
                     </Box>
-                    <Box
-                      component="span"
-                      style={{ margin: "0 15px", color: "#878787" }}
-                    >
-                      <strike>Tk 1299</strike>
-                    </Box>
-                    <Box component="span" style={{ color: "#388E3C" }}>
-                      23% off
-                    </Box>
+                    {item.product.discount_price && (
+                      <>
+                        <Box component="span" style={{ margin: "0 15px", color: "#878787" }}>
+                          <strike>Tk {item.product.price}</strike>
+                        </Box>
+                        <Box component="span" style={{ color: "#388E3C" }}>
+                          {Math.round(((item.product.price - item.product.discount_price) / item.product.price) * 100)}% off
+                        </Box>
+                      </>
+                    )}
                   </Typography>
 
-                  <RemoveButton>Remove</RemoveButton>
+                  <RemoveButton onClick={() => handleRemove(item.product.id)}>Remove</RemoveButton>
                 </RightBox>
               </CartItemBox>
             ))}
@@ -281,35 +216,32 @@ const Cart = () => {
             </Heading>
             <Container>
               <Typography>
-                Price (2 items)
+                Price ({totalItems} items)
                 <Box component="span" sx={{ float: "right" }}>
-                  Tk 1998
+                  Tk {totalPrice}
                 </Box>
               </Typography>
-
               <Typography>
                 Discount
                 <Box component="span" sx={{ float: "right" }}>
-                  -Tk 300
+                  Tk 0
                 </Box>
               </Typography>
-
               <Typography>
                 Delivery Charges
                 <Box component="span" sx={{ float: "right" }}>
                   Tk 40
                 </Box>
               </Typography>
-
               <Typography variant="h6" color="#0F918F">
                 Total Amount
                 <Box component="span" sx={{ float: "right" }}>
-                  Tk 1738
+                  Tk {totalPrice + 40}
                 </Box>
               </Typography>
 
               <DiscountBoxs>
-                <Typography>You will save Tk 260 on this order</Typography>
+                <Typography>You will save Tk 0 on this order</Typography>
               </DiscountBoxs>
             </Container>
           </Box>

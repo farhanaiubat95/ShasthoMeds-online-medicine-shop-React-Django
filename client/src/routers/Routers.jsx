@@ -58,7 +58,7 @@ const Routers = () => {
 
         {/* Protected Admin Routes */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin-dashboard" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="category" element={<Categories />} />
             <Route path="product" element={<Products />} />
