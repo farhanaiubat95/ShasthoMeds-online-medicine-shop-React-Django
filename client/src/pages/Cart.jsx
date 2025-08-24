@@ -2,20 +2,17 @@ import React, { useEffect } from "react";
 import { Box, Button, Typography, styled } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/Header/Navbar";
-import { fetchCart, removeFromCart } from "../redux/cartSlice";
+import { fetchCart, removeFromCart, addToCart } from "../redux/cartSlice";
 
 // ================= Styled Components =================
 const Component = styled(Box)(({ theme }) => ({
-  width: "70%",
+  width: "80%",
   margin: "0px auto",
   padding: "90px 0",
   display: "flex",
   justifyContent: "center",
   gap: "20px",
-  [theme.breakpoints.down("md")]: {
-    width: "90%",
-    flexDirection: "column",
-  },
+  [theme.breakpoints.down("md")]: { width: "90%", flexDirection: "column" },
 }));
 
 const ContainerLeft = styled(Box)(({ theme }) => ({
@@ -23,10 +20,7 @@ const ContainerLeft = styled(Box)(({ theme }) => ({
   background: "#fff",
   border: "1px solid #f0f0f0",
   boxShadow: "rgba(15, 145, 143, 100) 0px 1px 5px 0px",
-  [theme.breakpoints.down("md")]: {
-    flex: "1 1 auto",
-    marginBottom: "15px",
-  },
+  [theme.breakpoints.down("md")]: { flex: "1 1 auto", marginBottom: "15px" },
 }));
 
 const ContainerRight = styled(Box)(({ theme }) => ({
@@ -36,10 +30,7 @@ const ContainerRight = styled(Box)(({ theme }) => ({
   boxShadow: "rgba(15, 145, 143, 100) 0px 1px 5px 0px",
 }));
 
-const Header = styled(Box)(() => ({
-  padding: "15px 24px",
-}));
-
+const Header = styled(Box)(() => ({ padding: "15px 24px" }));
 const ButtonWrapper = styled(Box)(() => ({
   padding: "15px 24px",
   boxShadow: "0 -2px 10px 0 rgb(0 0 0 / 10%)",
@@ -71,11 +62,7 @@ const Container = styled(Box)(({ theme }) => ({
   "& > h6": { paddingTop: "20px", marginBottom: "20px", borderTop: "1px solid #f2f2f2" },
 }));
 
-const DiscountBoxs = styled(Box)(({ theme }) => ({
-  color: "green",
-  fontWeight: 500,
-  fontSize: "14px",
-}));
+const DiscountBoxs = styled(Box)(({ theme }) => ({ color: "green", fontWeight: 500, fontSize: "14px" }));
 
 const CartItemBox = styled(Box)(({ theme }) => ({
   borderTop: "1px solid #f0f0f0",
@@ -97,8 +84,8 @@ const LeftBox = styled(Box)(({ theme }) => ({
 }));
 
 const Image = styled("img")(({ theme }) => ({
-  width: "80px",
-  height: "90px",
+  width: "120px",
+  height: "50px",
   [theme.breakpoints.down("md")]: { width: "70px", height: "80px" },
   [theme.breakpoints.down("sm")]: { width: "60px", height: "70px" },
 }));
@@ -133,11 +120,25 @@ const RemoveButton = styled(Button)(() => ({
   "&:hover": { backgroundColor: "transparent" },
 }));
 
-// ================== Main Component ==================
+const QuantityBox = styled(Box)(() => ({
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  marginTop: "10px",
+}));
 
+const QuantityButton = styled(Button)(() => ({
+  minWidth: "25px",
+  padding: "5px",
+  fontWeight: 700,
+  border: "1px solid #0F918F",
+  color: "#0F918F",
+  "&:hover": { background: "#0F918F", color: "#fff" },
+}));
+
+// ================== Main Component ==================
 const Cart = () => {
   const dispatch = useDispatch();
-  const products=useSelector((state) => state.products);
   const cartState = useSelector((state) => state.carts);
   const token = localStorage.getItem("access_token");
 
@@ -145,13 +146,32 @@ const Cart = () => {
     if (token) dispatch(fetchCart(token));
   }, [dispatch, token]);
 
-  const handleRemove = (productId) => {
+  const handleRemove = (cartItemId) => {
     if (!token) return;
-    dispatch(removeFromCart({ productId, token }));
+    dispatch(removeFromCart({ cartItemId, token }));
+  };
+
+  const handleQuantityChange = (item, change) => {
+    if (!token) return;
+    const newQuantity = item.quantity + change;
+    if (newQuantity < 1) return; // prevent zero or negative quantity
+    dispatch(addToCart({ product_id: item.product.id, quantity: newQuantity, token }));
   };
 
   const totalItems = cartState.items.length;
-  const totalPrice = cartState.items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const totalPrice = cartState.items.reduce(
+    (acc, item) => acc + item.product.price * item.quantity,
+    0,
+  );
+
+  const totalDiscount = cartState.items.reduce((acc, item) => {
+    if (item.product.discount_price) {
+      return acc + (item.product.price - item.product.discount_price) * item.quantity;
+    }
+    return acc;
+  }, 0);
+
+  const totalAmount = totalPrice - totalDiscount + 40; // + delivery
 
   return (
     <div>
@@ -190,13 +210,22 @@ const Cart = () => {
                           <strike>Tk {item.product.price}</strike>
                         </Box>
                         <Box component="span" style={{ color: "#388E3C" }}>
-                          {Math.round(((item.product.price - item.product.discount_price) / item.product.price) * 100)}% off
+                          {Math.round(
+                            ((item.product.price - item.product.discount_price) / item.product.price) * 100,
+                          )}
+                          % off
                         </Box>
                       </>
                     )}
                   </Typography>
 
-                  <RemoveButton onClick={() => handleRemove(item.product.id)}>Remove</RemoveButton>
+                  <QuantityBox>
+                    <QuantityButton onClick={() => handleQuantityChange(item, -1)}>-</QuantityButton>
+                    <Typography>{item.quantity}</Typography>
+                    <QuantityButton onClick={() => handleQuantityChange(item, +1)}>+</QuantityButton>
+                  </QuantityBox>
+
+                  <RemoveButton onClick={() => handleRemove(item.id)}>Remove</RemoveButton>
                 </RightBox>
               </CartItemBox>
             ))}
@@ -224,7 +253,7 @@ const Cart = () => {
               <Typography>
                 Discount
                 <Box component="span" sx={{ float: "right" }}>
-                  Tk 0
+                  Tk {totalDiscount}
                 </Box>
               </Typography>
               <Typography>
@@ -236,12 +265,12 @@ const Cart = () => {
               <Typography variant="h6" color="#0F918F">
                 Total Amount
                 <Box component="span" sx={{ float: "right" }}>
-                  Tk {totalPrice + 40}
+                  Tk {totalAmount}
                 </Box>
               </Typography>
 
               <DiscountBoxs>
-                <Typography>You will save Tk 0 on this order</Typography>
+                <Typography>You will save Tk {totalDiscount} on this order</Typography>
               </DiscountBoxs>
             </Container>
           </Box>

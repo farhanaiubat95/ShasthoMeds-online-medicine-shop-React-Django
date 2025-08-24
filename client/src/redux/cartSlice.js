@@ -13,13 +13,13 @@ export const fetchCart = createAsyncThunk(
         "https://shasthomeds-backend.onrender.com/cart/",
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       return res.data; // backend returns full cart object
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 // Add item to cart
@@ -30,37 +30,37 @@ export const addToCart = createAsyncThunk(
       const response = await axios.post(
         "https://shasthomeds-backend.onrender.com/cart/add/",
         { product_id, quantity },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       return response.data; // backend returns updated cart object
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 // Remove item from cart
 export const removeFromCart = createAsyncThunk(
   "carts/removeFromCart",
-  async ({ productId, token }, { rejectWithValue }) => {
+  async ({ cartItemId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `https://shasthomeds-backend.onrender.com/cart/remove/${productId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `https://shasthomeds-backend.onrender.com/cart/${cartItemId}/`,
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      return response.data; // backend returns updated cart object
+      return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 // ================== Slice ================== //
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
-    cart: null,      // full cart object
-    items: [],       // array of cart items
+    cart: null, // full cart object
+    items: [], // array of cart items
     loading: false,
     error: null,
   },
