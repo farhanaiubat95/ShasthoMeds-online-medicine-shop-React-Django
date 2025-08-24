@@ -64,17 +64,28 @@ export default function ProductDetail() {
       return;
     }
     const access_token = localStorage.getItem("access_token");
-    console.log("Token:", access_token, "Product ID:", product.id);
     try {
-      let response;
       if (product.prescription_required) {
         setSelectedProduct(product);
         setOpenPrescription(true);
         return;
       }
-      await dispatch(addToCart({ productId: product.id, token: access_token }));
-      console.log("Product ID added to cart: ", product.id);
-      alert("Product added to cart!");
+
+      const resultAction = await dispatch(
+        addToCart({
+          product_id: product.id,
+          quantity: 1,
+          token: access_token,
+        }),
+      );
+
+      if (addToCart.fulfilled.match(resultAction)) {
+        console.log("Added to cart:", resultAction.payload);
+        alert("Product added to cart!");
+      } else {
+        console.error("Failed to add:", resultAction.payload);
+        alert("Failed to add product to cart!");
+      }
     } catch (error) {
       console.error("Error:", error);
       alert(error.message || "Failed to add to cart.");
