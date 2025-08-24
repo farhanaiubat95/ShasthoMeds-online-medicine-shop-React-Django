@@ -27,6 +27,7 @@ export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({ product_id, quantity, token }, { rejectWithValue }) => {
     try {
+      console.log("Product ID:", product_id, "Quantity:", quantity);
       const response = await axios.post(
         "https://shasthomeds-backend.onrender.com/cart/add/",
         { product_id, quantity }, // backend expects snake_case

@@ -50,7 +50,7 @@ const LogCartIcon = () => {
     }
   }, [token, dispatch]);
 
-  const cartCount = cartItems.length;
+  const cartCount = cartItems.total_items;
   console.log("Cart Count:", cartCount);
 
   const handleMenu = (event) => setMenuAnchor(event.currentTarget);
@@ -73,10 +73,20 @@ const LogCartIcon = () => {
           <div className="group cursor-pointer border-2 border-[#30C2C0] rounded h-[35px] sm:h-[40px] lg:h-[45px] flex items-center transition-all duration-300">
             <IconButton onClick={handleMenu}>
               <AccountCircle
-                sx={{ color: user ? "#007bff" : "#0F918F", fontSize: { xs: "25px", lg: "30px" } }}
+                sx={{
+                  color: user ? "#007bff" : "#0F918F",
+                  fontSize: { xs: "25px", lg: "30px" },
+                }}
               />
               {user && (
-                <Typography sx={{ marginLeft: "5px", color: "#007bff", fontSize: "16px", fontWeight: 500 }}>
+                <Typography
+                  sx={{
+                    marginLeft: "5px",
+                    color: "#007bff",
+                    fontSize: "16px",
+                    fontWeight: 500,
+                  }}
+                >
                   {user.username}
                 </Typography>
               )}
@@ -135,7 +145,12 @@ const LogCartIcon = () => {
             <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-6 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
               <IconButton>
                 <Badge badgeContent={cartCount} color="error">
-                  <ShoppingCart sx={{ color: "#0F918F", fontSize: { xs: "25px", lg: "30px" } }} />
+                  <ShoppingCart
+                    sx={{
+                      color: "#0F918F",
+                      fontSize: { xs: "25px", lg: "30px" },
+                    }}
+                  />
                 </Badge>
               </IconButton>
               <Typography
