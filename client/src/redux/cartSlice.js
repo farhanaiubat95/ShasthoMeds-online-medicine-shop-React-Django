@@ -9,31 +9,34 @@ export const fetchCart = createAsyncThunk(
   "carts/fetchCart",
   async (token, { rejectWithValue }) => {
     try {
-      const res = await axios.get("https://shasthomeds-backend.onrender.com/cart/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "https://shasthomeds-backend.onrender.com/cart/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       return res.data; // backend cart items
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 // Add item to cart
 export const addToCart = createAsyncThunk(
-  "carts/addToCart",
-  async ({ productId, quantity, token }, { rejectWithValue }) => {
+  "cart/addToCart",
+  async ({ product_id, quantity, token }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
-        "https://shasthomeds-backend.onrender.com/cart/add",
-        { productId, quantity },
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await axios.post(
+        "https://shasthomeds-backend.onrender.com/cart/add/",
+        { product_id, quantity }, // backend expects snake_case
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      return res.data; // new/updated cart item
+      return response.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 // Remove item from cart
@@ -43,13 +46,13 @@ export const removeFromCart = createAsyncThunk(
     try {
       await axios.delete(
         `https://shasthomeds-backend.onrender.com/cart/remove/${productId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       return productId;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 // ================== Slice ================== //
@@ -84,7 +87,9 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.items.findIndex(item => item.productId === action.payload.productId);
+        const index = state.items.findIndex(
+          (item) => item.productId === action.payload.productId,
+        );
         if (index !== -1) {
           state.items[index] = action.payload;
         } else {
@@ -103,7 +108,9 @@ const cartSlice = createSlice({
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = state.items.filter(item => item.productId !== action.payload);
+        state.items = state.items.filter(
+          (item) => item.productId !== action.payload,
+        );
       })
       .addCase(removeFromCart.rejected, (state, action) => {
         state.loading = false;

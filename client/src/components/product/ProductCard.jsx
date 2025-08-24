@@ -86,7 +86,13 @@ const ProductCard = () => {
         setOpenPrescription(true);
         return;
       }
-      await dispatch(addToCart({ productId: product.id, token: access_token }));
+      await dispatch(
+        addToCart({
+          product_id: product.id,
+          quantity: 1,
+          token: access_token,
+        }),
+      );
       console.log("Product ID added to cart: ", product.id);
       alert("Product added to cart!");
     } catch (error) {

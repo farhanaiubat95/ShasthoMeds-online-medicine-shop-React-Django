@@ -195,13 +195,36 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 # Serializer for Cart
+# Serializer for Cart
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
+    total_items = serializers.SerializerMethodField()
+    total_quantity = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
-        fields = ["id", "user", "items", "created_at", "updated_at"]
+        fields = [
+            "id", "user","total_items", "total_quantity", "total_price",
+            "created_at", "updated_at","items"
+        ]
         read_only_fields = ["id", "user", "created_at", "updated_at"]
+
+    def get_total_items(self, obj):
+        """Number of distinct cart items"""
+        return obj.items.count()
+
+    def get_total_quantity(self, obj):
+        """Sum of quantities across all items"""
+        return sum(item.quantity for item in obj.items.all())
+
+    def get_total_price(self, obj):
+        """Sum of product price × quantity"""
+        total = 0
+        for item in obj.items.all():
+            if item.product and item.product.price:
+                total += float(item.product.price) * item.quantity
+        return round(total, 2)
 
 
 # Serializer for PrescriptionRequest
