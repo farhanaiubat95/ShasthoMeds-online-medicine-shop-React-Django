@@ -195,7 +195,6 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 # Serializer for Cart
-# Serializer for Cart
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
     total_items = serializers.SerializerMethodField()
@@ -228,9 +227,6 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 # Serializer for PrescriptionRequest
-from django.core.mail import send_mail
-from shasthomeds.settings import EMAIL_HOST_USER
-
 class PrescriptionRequestSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)  # show full product details
     product_id = serializers.PrimaryKeyRelatedField(
