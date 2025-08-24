@@ -54,7 +54,7 @@ export const removeFromCart = createAsyncThunk(
 
 // ================== Slice ================== //
 const cartSlice = createSlice({
-  name: "carts",
+  name: "cart",
   initialState: {
     items: [],
     loading: false,
