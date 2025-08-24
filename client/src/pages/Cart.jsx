@@ -52,17 +52,35 @@ const Heading = styled(Box)(({ theme }) => ({
   padding: "15px 24px",
   background: "#fff",
   borderBottom: "1px solid #f2f2f2",
-  "& > p": { color: "#878787", fontSize: "16px", fontWeight: 600, textTransform: "uppercase" },
+  "& > p": {
+    color: "#878787",
+    fontSize: "16px",
+    fontWeight: 600,
+    textTransform: "uppercase",
+  },
 }));
 
 const Container = styled(Box)(({ theme }) => ({
   padding: "15px 24px",
   background: "#fff",
-  "& > p": { color: "#878787", fontSize: "15px", fontWeight: 600, marginBottom: "20px" },
-  "& > h6": { paddingTop: "20px", marginBottom: "20px", borderTop: "1px solid #f2f2f2" },
+  "& > p": {
+    color: "#878787",
+    fontSize: "15px",
+    fontWeight: 600,
+    marginBottom: "20px",
+  },
+  "& > h6": {
+    paddingTop: "20px",
+    marginBottom: "20px",
+    borderTop: "1px solid #f2f2f2",
+  },
 }));
 
-const DiscountBoxs = styled(Box)(({ theme }) => ({ color: "green", fontWeight: 500, fontSize: "14px" }));
+const DiscountBoxs = styled(Box)(({ theme }) => ({
+  color: "green",
+  fontWeight: 500,
+  fontSize: "14px",
+}));
 
 const CartItemBox = styled(Box)(({ theme }) => ({
   borderTop: "1px solid #f0f0f0",
@@ -153,9 +171,25 @@ const Cart = () => {
 
   const handleQuantityChange = (item, change) => {
     if (!token) return;
+
     const newQuantity = item.quantity + change;
-    if (newQuantity < 1) return; // prevent zero or negative quantity
-    dispatch(addToCart({ product_id: item.product.id, quantity: newQuantity, token }));
+
+    // Prevent quantity less than 1
+    if (newQuantity < 1) return;
+
+    // Prevent quantity more than available stock
+    if (item.product.stock && newQuantity > item.product.stock) return;
+
+    dispatch(
+      addToCart({
+        product_id: item.product.id,
+        quantity: 1, // send 1 for increment/decrement, backend should handle update
+        token,
+        update: true, // optional flag if your backend differentiates between add & update
+        cartItemId: item.id, // send cartItemId if backend requires it for update
+        change, // send +1 or -1 if backend uses it
+      }),
+    );
   };
 
   const totalItems = cartState.items.length;
@@ -166,7 +200,9 @@ const Cart = () => {
 
   const totalDiscount = cartState.items.reduce((acc, item) => {
     if (item.product.discount_price) {
-      return acc + (item.product.price - item.product.discount_price) * item.quantity;
+      return (
+        acc + (item.product.price - item.product.discount_price) * item.quantity
+      );
     }
     return acc;
   }, 0);
@@ -188,7 +224,10 @@ const Cart = () => {
             {cartState.items.map((item) => (
               <CartItemBox key={item.id}>
                 <LeftBox>
-                  <Image src={item.product.image1 || "/placeholder-image.jpg"} alt={item.product.name} />
+                  <Image
+                    src={item.product.image1 || "/placeholder-image.jpg"}
+                    alt={item.product.name}
+                  />
                   <Typography>Qty: {item.quantity}</Typography>
                 </LeftBox>
 
@@ -201,17 +240,26 @@ const Cart = () => {
                   </Typography>
 
                   <Typography style={{ marginTop: 10 }}>
-                    <Box component="span" style={{ fontSize: 17, fontWeight: 600 }}>
+                    <Box
+                      component="span"
+                      style={{ fontSize: 17, fontWeight: 600 }}
+                    >
                       Tk {item.product.price * item.quantity}
                     </Box>
                     {item.product.discount_price && (
                       <>
-                        <Box component="span" style={{ margin: "0 15px", color: "#878787" }}>
+                        <Box
+                          component="span"
+                          style={{ margin: "0 15px", color: "#878787" }}
+                        >
                           <strike>Tk {item.product.price}</strike>
                         </Box>
                         <Box component="span" style={{ color: "#388E3C" }}>
                           {Math.round(
-                            ((item.product.price - item.product.discount_price) / item.product.price) * 100,
+                            ((item.product.price -
+                              item.product.discount_price) /
+                              item.product.price) *
+                              100,
                           )}
                           % off
                         </Box>
@@ -220,12 +268,22 @@ const Cart = () => {
                   </Typography>
 
                   <QuantityBox>
-                    <QuantityButton onClick={() => handleQuantityChange(item, -1)}>-</QuantityButton>
+                    <QuantityButton
+                      onClick={() => handleQuantityChange(item, -1)}
+                    >
+                      -
+                    </QuantityButton>
                     <Typography>{item.quantity}</Typography>
-                    <QuantityButton onClick={() => handleQuantityChange(item, +1)}>+</QuantityButton>
+                    <QuantityButton
+                      onClick={() => handleQuantityChange(item, +1)}
+                    >
+                      +
+                    </QuantityButton>
                   </QuantityBox>
 
-                  <RemoveButton onClick={() => handleRemove(item.id)}>Remove</RemoveButton>
+                  <RemoveButton onClick={() => handleRemove(item.id)}>
+                    Remove
+                  </RemoveButton>
                 </RightBox>
               </CartItemBox>
             ))}
@@ -247,13 +305,13 @@ const Cart = () => {
               <Typography>
                 Price ({totalItems} items)
                 <Box component="span" sx={{ float: "right" }}>
-                  Tk {totalPrice}
+                  Tk {totalPrice.toFixed(2)}
                 </Box>
               </Typography>
               <Typography>
                 Discount
                 <Box component="span" sx={{ float: "right" }}>
-                  Tk {totalDiscount}
+                  Tk {totalDiscount.toFixed(2)}
                 </Box>
               </Typography>
               <Typography>
@@ -265,12 +323,12 @@ const Cart = () => {
               <Typography variant="h6" color="#0F918F">
                 Total Amount
                 <Box component="span" sx={{ float: "right" }}>
-                  Tk {totalAmount}
+                  Tk {totalAmount.toFixed(2)}
                 </Box>
               </Typography>
 
               <DiscountBoxs>
-                <Typography>You will save Tk {totalDiscount} on this order</Typography>
+                You will save Tk {totalDiscount.toFixed(2)} on this order
               </DiscountBoxs>
             </Container>
           </Box>
