@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";   // ✅ added useEffect
+import React, { useState, useEffect } from "react"; // ✅ added useEffect
 import {
   IconButton,
   Typography,
@@ -22,7 +22,7 @@ import SearchBar from "./SearchBar.jsx";
 
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../../redux/userSlice";
-import { fetchCart } from "../../redux/cartSlice";   // ✅ import fetchCart thunk
+import { fetchCart } from "../../redux/cartSlice"; // ✅ import fetchCart thunk
 
 // Styled rotating arrow
 const RotatingArrowIcon = styled(ArrowDropDownIcon)(({ theme }) => ({
@@ -44,17 +44,18 @@ const LogCartIcon = () => {
   // Get user from Redux store
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.access_token);
+  const cartItems = useSelector((state) => state.carts.items);
 
-  // ✅ fetch cart whenever token changes (i.e. when user logs in)
+  // fetch cart whenever token changes (i.e. when user logs in)
   useEffect(() => {
     if (token) {
       dispatch(fetchCart(token));
     }
   }, [dispatch, token]);
 
-  // Get cart items
-  const cartItems = useSelector((state) => state.carts.items);
   const cartCount = cartItems.length;
+  console.log("Cart Items:", cartItems);
+  console.log("Cart Count:", cartCount);
 
   const handleMenu = (event) => setMenuAnchor(event.currentTarget);
   const handleClose = () => setMenuAnchor(null);
