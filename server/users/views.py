@@ -232,15 +232,16 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
-        # Save updates
-        instance = serializer.save()
-
-        # Call approve/reject
-        if instance.status == "approved":
-            instance.approve()
-            return Response({"message": "Prescription approved and deleted"})
-        elif instance.status == "rejected":
-            instance.reject()
-            return Response({"message": "Prescription rejected and deleted"})
+        try:
+            instance = serializer.save()
+            if instance.status == "approved":
+                instance.approve()
+                return Response({"message": "Prescription approved and deleted"}, status=status.HTTP_200_OK)
+            elif instance.status == "rejected":
+                instance.reject()
+                return Response({"message": "Prescription rejected and deleted"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error("Update error: %s", str(e))
+            return Response({"error": "An error occurred during processing"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(serializer.data)
