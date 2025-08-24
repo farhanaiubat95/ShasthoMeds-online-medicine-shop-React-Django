@@ -260,30 +260,6 @@ class Product(models.Model):
         return f"{self.name} ({self.sku})"
 
 
-# Prescription Request model
-class PrescriptionRequest(models.Model):
-    STATUS_CHOICES = [
-        ("pending", "Pending"),
-        ("approved", "Approved"),
-        ("rejected", "Rejected"),
-    ]
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="prescription_requests")
-    product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="prescription_requests")
-    uploaded_image = CloudinaryField('prescription', folder='prescriptions', validators=[validate_image_size])
-    notes = models.TextField(blank=True, null=True)
-
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
-    admin_comment = models.TextField(blank=True, null=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    reviewed_at = models.DateTimeField(blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.product.name} - {self.user.email} - {self.status}"
-
-
-
 # Cart model
 class Cart(models.Model):
     user = models.OneToOneField(
@@ -317,3 +293,76 @@ class CartItem(models.Model):
 
     class Meta:
         unique_together = ("cart", "product")  # Prevent duplicate entries of same product
+
+
+# PrescriptionRequest model
+class PrescriptionRequest(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="prescription_requests")
+    product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="prescription_requests")
+    uploaded_image = CloudinaryField('prescription', folder='prescriptions', validators=[validate_image_size])
+    notes = models.TextField(blank=True, null=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    admin_comment = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.user.email} - {self.status}"
+
+    def approve(self):
+        """Approve and delete prescription request."""
+        # Add product to cart
+        cart, _ = Cart.objects.get_or_create(user=self.user)
+        item, created = CartItem.objects.get_or_create(cart=cart, product=self.product)
+        item.quantity = item.quantity + 1 if not created else 1
+        item.save()
+
+        # Email
+        product_table = (
+            "Product Name | SKU | Quantity\n"
+            "-----------------------------\n"
+            f"{self.product.name} | {self.product.sku} | 1"
+        )
+        try:
+            send_mail(
+                subject="Prescription Approved - ShasthoMeds",
+                message=f"Hi {self.user.full_name},\n\n"
+                        f"Your prescription request has been approved.\n\n"
+                        f"The item(s) were added to your cart.\n\n{product_table}\n\n"
+                        f"Enjoy your medication!",
+                from_email=EMAIL_HOST_USER,
+                recipient_list=[self.user.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            print("Email send error (approve):", str(e))
+
+        # Delete request after action
+        self.delete()
+
+    def reject(self, reason=None):
+        """Reject and delete prescription request."""
+        try:
+            send_mail(
+                subject="Prescription Rejected - ShasthoMeds",
+                message=f"Hi {self.user.full_name},\n\n"
+                        f"Your prescription for {self.product.name} was rejected.\n"
+                        f"Reason: {reason or self.admin_comment or 'Not specified'}\n\n"
+                        f"Try again later with a valid prescription.",
+                from_email=EMAIL_HOST_USER,
+                recipient_list=[self.user.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            print("Email send error (reject):", str(e))
+
+        # Delete request after action
+        self.delete()

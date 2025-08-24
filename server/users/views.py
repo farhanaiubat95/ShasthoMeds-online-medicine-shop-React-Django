@@ -241,57 +241,9 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
         return PrescriptionRequest.objects.filter(user=user)
 
     def perform_update(self, serializer):
-        # Prevent normal users from changing status
-        if not self.request.user.is_staff and getattr(self.request.user, "role", None) != "admin":
-            serializer.validated_data.pop("status", None)
+        instance = serializer.save()
 
-        instance = serializer.save()   # save only once
-
-        # ---------------- Handle status changes ----------------
         if instance.status == "approved":
-            # Add product to cart
-            cart, _ = Cart.objects.get_or_create(user=instance.user)
-            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=instance.product)
-            if not created:
-                cart_item.quantity += 1
-            else:
-                cart_item.quantity = 1
-            cart_item.save()
-
-            # Send approval email
-            product_lines = [
-                "Product Name | SKU | Quantity",
-                "-----------------------------",
-                f"{instance.product.name} | {instance.product.sku} | 1"
-            ]
-            product_table = "\n".join(product_lines)
-
-            try:
-                send_mail(
-                    subject="Prescription Approved - ShasthoMeds",
-                    message=f"Hi {instance.user.full_name},\n\n"
-                            f"Your prescription request #{instance.id} has been approved.\n\n"
-                            f"The item(s) were added to your cart.\n\n{product_table}\n\n"
-                            f"Enjoy your medication!",
-                    from_email=EMAIL_HOST_USER,
-                    recipient_list=[instance.user.email],
-                    fail_silently=True,
-                )
-            except Exception as e:
-                print("Failed sending approval email:", str(e))
-
+            instance.approve()
         elif instance.status == "rejected":
-            # Send rejection email
-            try:
-                send_mail(
-                    subject="Prescription Rejected - ShasthoMeds",
-                    message=f"Hi {instance.user.full_name},\n\n"
-                            f"Your prescription for {instance.product.name} was rejected.\n"
-                            f"Reason: {instance.admin_comment or 'Not specified'}\n"
-                            f"Try again later with a valid prescription.",
-                    from_email=EMAIL_HOST_USER,
-                    recipient_list=[instance.user.email],
-                    fail_silently=True,
-                )
-            except Exception as e:
-                print("Failed sending rejection email:", str(e))
+            instance.reject()

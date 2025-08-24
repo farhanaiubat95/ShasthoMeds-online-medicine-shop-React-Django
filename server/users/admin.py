@@ -102,56 +102,13 @@ class PrescriptionRequestAdmin(admin.ModelAdmin):
     @transaction.atomic
     def approve_selected(self, request, queryset):
         for pr in queryset.select_for_update().filter(status="pending"):
-            cart, _ = Cart.objects.get_or_create(user=pr.user)
-            item, created = CartItem.objects.get_or_create(cart=cart, product=pr.product)
-            if not created:
-                item.quantity += 1
-            item.save()
-
-            # Send email to user
-            product_lines = [
-                "Product Name | SKU | Quantity",
-                "-----------------------------",
-                f"{pr.product.name} | {pr.product.sku} | 1"
-            ]
-            product_table = "\n".join(product_lines)
-            try:
-                send_mail(
-                    subject="Prescription Approved - ShasthoMeds",
-                    message=f"Hi {pr.user.full_name},\n\nYour prescription request #{pr.product.id} has been approved."
-                            f" The item(s) were added to your cart.\nProducts:\n{product_table}\n\nEnjoy your medication!",
-                    from_email=EMAIL_HOST_USER,
-                    recipient_list=[pr.user.email],
-                    fail_silently=True,
-                )
-            except Exception:
-                pass
-
-            pr.status = "approved"
-            pr.reviewed_at = timezone.now()
-            pr.save()
-            pr.delete()
-
-    approve_selected.short_description = "Approve selected (add to cart, email user, delete request)"
+            pr.approve()
+    approve_selected.short_description = "Approve selected (add to cart + email + delete request)"
 
     @transaction.atomic
     def reject_selected(self, request, queryset):
         for pr in queryset.select_for_update().filter(status="pending"):
-            try:
-                send_mail(
-                    subject="Prescription Rejected - ShasthoMeds",
-                    message=f"Hi {pr.user.full_name},\n\nYour prescription for {pr.product.name} was rejected.\n"
-                            f"Reason: {pr.admin_comment or 'Not specified'}\nTry again later with a valid prescription.",
-                    from_email=EMAIL_HOST_USER,
-                    recipient_list=[pr.user.email],
-                    fail_silently=True,
-                )
-            except Exception:
-                pass
+            pr.reject()
+    reject_selected.short_description = "Reject selected (email + delete request)"
 
-            pr.status = "rejected"
-            pr.reviewed_at = timezone.now()
-            pr.save()
-            pr.delete()
 
-    reject_selected.short_description = "Reject selected (email user, delete request)"
