@@ -16,6 +16,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import Person2Icon from "@mui/icons-material/Person2";
+import { Dashboard } from "@mui/icons-material";
 
 import SearchBar from "./SearchBar.jsx";
 
@@ -50,7 +51,7 @@ const LogCartIcon = () => {
     }
   }, [token, dispatch]);
 
-  const cartCount = cartitems.length ;
+  const cartCount = cartitems.length;
   console.log("Cart Count:", cartCount);
 
   const handleMenu = (event) => setMenuAnchor(event.currentTarget);
@@ -140,28 +141,62 @@ const LogCartIcon = () => {
             </Menu>
           </div>
 
-          {/* Cart Button */}
-          <Link to="/myaccount/cart" className="cursor-pointer">
-            <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-6 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
-              <IconButton>
-                <Badge badgeContent={cartCount} color="error">
-                  <ShoppingCart
-                    sx={{
-                      color: "#0F918F",
-                      fontSize: { xs: "25px", lg: "30px" },
-                    }}
-                  />
-                </Badge>
-              </IconButton>
-              <Typography
-                variant="body1"
-                sx={{ color: "#0F918F", marginLeft: "10px", fontSize: "18px" }}
-                className="hidden lg:flex"
-              >
-                Cart
-              </Typography>
-            </div>
-          </Link>
+          {/* Cart / Dashboard Button */}
+          {user?.role === "user" ? (
+            <Link to="/myaccount/cart" className="cursor-pointer">
+              <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-6 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
+                <IconButton>
+                  <Badge badgeContent={cartCount} color="error">
+                    <ShoppingCart
+                      sx={{
+                        color: "#0F918F",
+                        fontSize: { xs: "25px", lg: "30px" },
+                      }}
+                    />
+                  </Badge>
+                </IconButton>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "#0F918F",
+                    marginLeft: "10px",
+                    fontSize: "18px",
+                  }}
+                  className="hidden lg:flex"
+                >
+                  Cart
+                </Typography>
+              </div>
+            </Link>
+          ) : user?.role === "admin" ? (
+            <Link to="/admin/dashboard" className="cursor-pointer">
+              <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-6 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
+                <IconButton>
+                  <Badge badgeContent={0} color="error">
+                    {" "}
+                    {/* replace 0 with actual count if needed */}
+                    <Dashboard
+                      sx={{
+                        color: "#0F918F",
+                        fontSize: { xs: "25px", lg: "30px" },
+                      }}
+                    />
+                  </Badge>
+                </IconButton>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "#0F918F",
+                    marginLeft: "10px",
+                    fontSize: "18px",
+                  }}
+                  className="hidden lg:flex"
+                >
+                  Dashboard
+                </Typography>
+              </div>
+            </Link>
+          ) : null}
         </div>
       </div>
     </Box>
