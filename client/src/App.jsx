@@ -22,7 +22,7 @@ function App() {
     }
   }, [dispatch]);
 
-  const isAdminRoute = location.pathname.startsWith("/admin/dashboard");
+  const isAdminRoute = location.pathname.startsWith("/admin-dashboard");
 
   return (
     <>

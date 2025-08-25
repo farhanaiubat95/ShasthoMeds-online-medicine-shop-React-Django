@@ -45,11 +45,11 @@ import { Link, Outlet } from "react-router-dom";
 const drawerWidth = 240;
 
 const sidebarItems = [
-  { text: "All User", icon: <PeopleOutlineIcon />, path: "/admin/dashboard/all-user" },
-  { text: "Add Categories", icon: <Category />, path: "/admin/dashboard/category" },
-  { text: "Add Product", icon: <AddShoppingCartIcon />, path: "/admin/dashboard/product" },
-  { text: "Payment", icon: <Payment />, path: "/admin/dashboard/payment" },
-  { text: "Order Notification", icon: <Notifications />, path: "/admin/dashboard/notification" },
+  { text: "All User", icon: <PeopleOutlineIcon />, path: "/admin-dashboard/all-user" },
+  { text: "Add Categories", icon: <Category />, path: "/admin-dashboard/category" },
+  { text: "Add Product", icon: <AddShoppingCartIcon />, path: "/admin-dashboard/product" },
+  { text: "Payment", icon: <Payment />, path: "/admin-dashboard/payment" },
+  { text: "Order Notification", icon: <Notifications />, path: "/admin-dashboard/notification" },
 ];
 
 const costData = [
@@ -174,7 +174,7 @@ const drawerContent = (
         }}
       >
         <div className="bg-[#0F918F] h-[40px] p-2">
-         <Link to="/admin/dashboard" className="text-white hover:underline text-md lg:text-xl">Home</Link>
+         <Link to="/" className="text-white hover:underline text-md lg:text-xl">Home</Link>
         </div>
         <div className="w-full bg-[#bad8db] h-[83vh] overflow-hidden">
           <div className="w-full h-full overflow-y-scroll ">

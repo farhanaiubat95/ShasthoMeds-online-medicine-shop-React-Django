@@ -62,7 +62,7 @@ function LoginPage() {
 
       // Navigate based on user role
       if (user.role === "admin") {
-        navigate("/admin-dashboard");
+        navigate("/");
       } else if (user.role === "user") {
         navigate("/");
       } else {
