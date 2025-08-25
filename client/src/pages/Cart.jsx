@@ -176,7 +176,7 @@ export default function Cart() {
           <ItemBox key={item.id}>
             <Box display="flex" alignItems="center">
               <Image
-                src={item.product.image || "/placeholder.jpg"}
+                src={item.product.image1 || "/placeholder.jpg"}
                 alt={item.product.name}
               />
               <Box>
