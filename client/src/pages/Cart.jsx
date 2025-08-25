@@ -82,7 +82,7 @@ export default function Cart() {
 
   useEffect(() => {
     if (token) {
-      dispatch(fetchCart(token)); // ✅ correct function
+      dispatch(fetchCart(token)); // correct function
     }
   }, [dispatch, token]);
 
@@ -107,8 +107,8 @@ export default function Cart() {
     });
   };
 
-  const handleRemoveItem = (itemId) => {
-    dispatch(removeFromCart({ token, itemId })); // ✅ correct function
+  const handleRemoveItem = (cartItemId) => {
+    dispatch(removeFromCart({ cartItemId, token }));
   };
 
   if (cartState.loading) {
@@ -135,23 +135,22 @@ export default function Cart() {
     );
   }
 
-  // ✅ Totals using updated quantities
+  // Totals using updated quantities
   const totalItems = cartState.items.reduce(
     (acc, item) => acc + (quantities[item.id] || item.quantity),
-    0
+    0,
   );
 
   const tempTotalNewPrice = cartState.items.reduce(
     (acc, item) =>
-      acc +
-      item.product.new_price * (quantities[item.id] || item.quantity),
-    0
+      acc + item.product.new_price * (quantities[item.id] || item.quantity),
+    0,
   );
 
   const tempTotalPrice = cartState.items.reduce(
     (acc, item) =>
       acc + item.product.price * (quantities[item.id] || item.quantity),
-    0
+    0,
   );
 
   const tempTotalDiscount = cartState.items.reduce((acc, item) => {
