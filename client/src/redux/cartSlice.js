@@ -40,15 +40,16 @@ export const addToCart = createAsyncThunk(
 );
 
 // Remove item from cart
+// Remove item from cart
 export const removeFromCart = createAsyncThunk(
   "carts/removeFromCart",
   async ({ cartItemId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `https://shasthomeds-backend.onrender.com/cart/${cartItemId}/`,
+        `https://shasthomeds-backend.onrender.com/cart/remove/${cartItemId}/`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      return response.data;
+      return response.data; // backend should return updated cart
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
@@ -98,15 +99,22 @@ const cartSlice = createSlice({
       })
 
       // --- Remove From Cart ---
+      // --- Remove From Cart ---
       .addCase(removeFromCart.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.cart = action.payload;
-        state.items = action.payload.items || [];
-      })
+        if (action.payload.items) {
+          state.cart = action.payload;
+          state.items = action.payload.items;
+        } else {
+          state.items = state.items.filter(
+            (item) => item.id !== action.meta.arg.cartItemId,
+          );
+        }
+      }) // close this before next case
       .addCase(removeFromCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;

@@ -221,6 +221,17 @@ class CartViewSet(viewsets.ViewSet):
         return Response({"message": "Prescription required. Please upload image."}, status=200)
 
 
+    @action(detail=True, methods=["delete"], url_path="remove")
+    def remove(self, request, pk=None):
+        """Remove item from cart (by CartItem ID)"""
+        try:
+            cart_item = CartItem.objects.get(pk=pk, cart__user=request.user)
+            cart_item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except CartItem.DoesNotExist:
+            return Response({"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND)
+
+  
 # ---------------- PrescriptionRequest ViewSet ----------------
 class PrescriptionRequestViewSet(viewsets.ModelViewSet):
     queryset = PrescriptionRequest.objects.all().order_by("-created_at")
