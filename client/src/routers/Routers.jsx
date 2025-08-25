@@ -12,11 +12,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AuthProtectedRoute from "./AuthProtectedRoute";
 import CustomerLayout from "../Layout/CustomerLayout";
-import CustomerHome from "../pages/CustomerHome";
 import ProductDetail from "../components/product/ProductDetail";
 import HomeMain from "../components/Home/HomeMain";
 import AdminDashboard from "../pages/AdminDashboard";
-import AdminLayout from "../Layout/AdminLayout";
+// import AdminLayout from "../Layout/AdminLayout";
 import Main from "../components/Admin/Main";
 import Categories from "../components/Admin/Categories";
 import Products from "../components/Admin/Products";
@@ -58,8 +57,8 @@ const Routers = () => {
 
         {/* Protected Admin Routes */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-          <Route path="/admin-dashboard" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />}>
+            <Route index element={<Main />} />
             <Route path="category" element={<Categories />} />
             <Route path="product" element={<Products />} />
             <Route path="profile" element={<Profile />} />
