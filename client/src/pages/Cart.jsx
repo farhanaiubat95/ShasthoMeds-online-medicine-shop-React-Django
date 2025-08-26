@@ -79,6 +79,8 @@ export default function Cart() {
   const token = useSelector((state) => state.auth.token);
   const cartState = useSelector((state) => state.carts);
   const [quantities, setQuantities] = useState({});
+  const access_token = localStorage.getItem("access_token");
+  const cartitems = useSelector((state) => state.carts.items);
 
   useEffect(() => {
     if (token) {
@@ -107,8 +109,14 @@ export default function Cart() {
     });
   };
 
-  const handleRemoveItem = (cartItemId) => {
-    dispatch(removeFromCart({ cartItemId, token }));
+  const handleRemoveItem = (cart_item_id) => {
+    console.log('cart_item_id', cart_item_id);
+    console.log('token', access_token);
+    console.log('cart item id', cartitems.id);
+    dispatch(removeFromCart({
+      cart_item_id:cart_item_id,
+      token: access_token,
+    }));
   };
 
   if (cartState.loading) {
@@ -207,7 +215,7 @@ export default function Cart() {
                 <AddIcon />
               </IconButton>
               <IconButton
-                onClick={() => handleRemoveItem(item.id)}
+                onClick={() => handleRemoveItem(cartitems.id)}
                 color="error"
               >
                 <DeleteIcon />

@@ -42,18 +42,14 @@ export const addToCart = createAsyncThunk(
 // Remove item from cart
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
-  async ({ cartItemId, token }, { rejectWithValue }) => {
+  async ({ cart_item_id, token }, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
         "https://shasthomeds-backend.onrender.com/cart/remove/",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          data: { cart_item_id: cartItemId }, // must be in body
-        }
+        { cart_item_id },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      return cartItemId;
+      return response.data; // backend returns updated cart object
     } catch (error) {
       return rejectWithValue(error.response?.data || "Something went wrong");
     }
