@@ -18,7 +18,8 @@ const ContainerLeft = styled(Box)({
   backgroundColor: "#fff",
   padding: "20px",
   borderRadius: "12px",
-  boxShadow: "rgb(15, 145, 143) 0px 2px 5px -1px, rgb(154 168 168 / 39%) 0px 1px 3px -1px",
+  boxShadow:
+    "rgb(15, 145, 143) 0px 2px 5px -1px, rgb(154 168 168 / 39%) 0px 1px 3px -1px",
 });
 
 const ContainerRight = styled(Box)({
@@ -26,7 +27,8 @@ const ContainerRight = styled(Box)({
   backgroundColor: "#fff",
   padding: "20px",
   borderRadius: "12px",
-  boxShadow: "rgb(15, 145, 143) 0px 2px 5px -1px, rgb(154 168 168 / 39%) 0px 1px 3px -1px",
+  boxShadow:
+    "rgb(15, 145, 143) 0px 2px 5px -1px, rgb(154 168 168 / 39%) 0px 1px 3px -1px",
   height: "fit-content",
 });
 
@@ -186,69 +188,72 @@ export default function Cart() {
         <Typography variant="h6" mb={2}>
           My Cart
         </Typography>
+        <Divider />
         {cartState.items.map((item) => (
-          <ItemBox key={item.id}>
-            <Box display="flex" alignItems="center">
-              <Image
-                src={item.product.image1 || "/placeholder.jpg"}
-                alt={item.product.name}
-              />
-              <Box>
-                <Typography variant="subtitle1">{item.product.name}</Typography>
-                <Box display="flex" alignItems="center" mt={1} gap={2}>
-                  {item.product.offer_price ? (
-                    <>
-                      <Typography variant="body2" color="black">
-                        Tk {item.product.new_price}{" "}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        <strike>Tk {item.product.price}</strike>
-                      </Typography>
-                      <Typography variant="body2" color="#ef4444">
-                        {item.product.offer_price}% OFF
-                      </Typography>
-                    </>
-                  ) : (
-                    <>
-                      <Typography variant="body2" color="black">
-                        Tk {item.product.price}{" "}
-                      </Typography>
+          <Box key={item.id} sx={{ borderBottom: "1px solid #ccc", pb: 2 }}>
+            <ItemBox>
+              <Box display="flex" alignItems="center">
+                <Image
+                  src={item.product.image1 || "/placeholder.jpg"}
+                  alt={item.product.name}
+                />
+                <Box>
+                  <Typography variant="subtitle1">
+                    {item.product.name}
+                  </Typography>
+                  <Box display="flex" alignItems="center" mt={1} gap={2}>
+                    {item.product.offer_price ? (
+                      <>
+                        <Typography variant="body2" color="black">
+                          Tk {item.product.new_price}{" "}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          <strike>Tk {item.product.price}</strike>
+                        </Typography>
+                        <Typography variant="body2" color="#ef4444">
+                          {item.product.offer_price}% OFF
+                        </Typography>
+                      </>
+                    ) : (
+                      <>
+                        <Typography variant="body2" color="black">
+                          Tk {item.product.price}{" "}
+                        </Typography>
 
-                      <Typography variant="body2" color="textSecondary">
-                        Regular Price
-                      </Typography>
-                    </>
-                  )}
+                        <Typography variant="body2" color="textSecondary">
+                          Regular Price
+                        </Typography>
+                      </>
+                    )}
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-            <Box display="flex" alignItems="center">
-              <IconButton
-                onClick={() => handleQuantityChange(item.id, -1)}
-                size="small"
-              >
-                <RemoveIcon />
-              </IconButton>
-              <Typography
-                variant="body1"
-                mx={1}
-                style={{ minWidth: "20px", textAlign: "center" }}
-              >
-                {quantities[item.id] || item.quantity}
-              </Typography>
-              <IconButton
-                onClick={() => handleQuantityChange(item.id, 1)}
-                size="small"
-              >
-                <AddIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => handleRemoveItem(item.id)}
-              >
-                <Typography color="black">Remove</Typography>
-              </IconButton>
-            </Box>
-          </ItemBox>
+              <Box display="flex" alignItems="center">
+                <IconButton
+                  onClick={() => handleQuantityChange(item.id, -1)}
+                  size="small"
+                >
+                  <RemoveIcon />
+                </IconButton>
+                <Typography
+                  variant="body1"
+                  mx={1}
+                  style={{ minWidth: "20px", textAlign: "center" }}
+                >
+                  {quantities[item.id] || item.quantity}
+                </Typography>
+                <IconButton
+                  onClick={() => handleQuantityChange(item.id, 1)}
+                  size="small"
+                >
+                  <AddIcon />
+                </IconButton>
+                <IconButton onClick={() => handleRemoveItem(item.id)}>
+                  <Typography color="black">Remove</Typography>
+                </IconButton>
+              </Box>
+            </ItemBox>
+          </Box>
         ))}
       </ContainerLeft>
 
@@ -258,19 +263,19 @@ export default function Cart() {
           Price Details
         </Typography>
         <Divider />
-        <Typography className="my-2">
+        <Typography sx={{ mt: 2 }}>
           Regular Price ({totalItems} items)
           <Box component="span" sx={{ float: "right" }}>
             Tk {tempTotalPrice.toFixed(2)}
           </Box>
         </Typography>
-        <Typography>
+        <Typography sx={{ mt: 1 }}>
           Offer Price
           <Box component="span" sx={{ float: "right" }}>
             Tk {tempTotalNewPrice.toFixed(2)}
           </Box>
         </Typography>
-        <Typography className="mt-2">
+        <Typography sx={{ mt: 1 }}>
           Delivery Charges
           <Box component="span" sx={{ float: "right" }}>
             Tk 40
