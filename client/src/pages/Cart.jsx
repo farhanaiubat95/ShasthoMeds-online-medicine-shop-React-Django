@@ -80,7 +80,6 @@ export default function Cart() {
   const cartState = useSelector((state) => state.carts);
   const [quantities, setQuantities] = useState({});
   const access_token = localStorage.getItem("access_token");
-  const cartitems = useSelector((state) => state.carts.items);
 
   useEffect(() => {
     if (token) {
@@ -109,14 +108,31 @@ export default function Cart() {
     });
   };
 
-  const handleRemoveItem = (cart_item_id) => {
-    console.log('cart_item_id', cart_item_id);
-    console.log('token', access_token);
-    console.log('cart item id', cartitems.id);
-    dispatch(removeFromCart({
-      cart_item_id:cart_item_id,
-      token: access_token,
-    }));
+  const handleRemoveItem = async (item_id) => {
+    console.log("cart_item_id", item_id);
+    console.log("token", access_token);
+
+    const access_token = localStorage.getItem("access_token");
+
+    try{
+     const resultAction = await dispatch(
+        removeFromCart({
+          cart_item_id: item_id,
+          token: access_token,
+        }),
+      );
+
+      if (removeFromCart.fulfilled.match(resultAction)) {
+        console.log("Item Removed from cart:", resultAction.payload);
+        alert("Item Removed from cart!");
+      } else {
+        console.error("Failed to remove:", resultAction.payload);
+        alert("Failed to remove items from cart!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error.message || "Oh no, Exception error ! Failed to remove items from cart.");
+    }
   };
 
   if (cartState.loading) {
@@ -215,10 +231,10 @@ export default function Cart() {
                 <AddIcon />
               </IconButton>
               <IconButton
-                onClick={() => handleRemoveItem(cartitems.id)}
+                onClick={() => handleRemoveItem(item.id)}
                 color="error"
               >
-                <DeleteIcon />
+                <DeleteIcon /> {item.id}
               </IconButton>
             </Box>
           </ItemBox>

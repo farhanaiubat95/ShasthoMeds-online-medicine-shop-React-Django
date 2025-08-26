@@ -222,7 +222,7 @@ class CartViewSet(viewsets.ViewSet):
         return Response({"message": "Prescription required. Please upload image."}, status=200)
 
 
-    @action(detail=False, methods=["delete"], url_path="remove")
+    @action(detail=False, methods=["delete"])
     def remove(self, request):
         cart_item_id = request.data.get("cart_item_id")
         if not cart_item_id:

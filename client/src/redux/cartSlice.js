@@ -100,7 +100,6 @@ const cartSlice = createSlice({
       })
 
       // --- Remove From Cart ---
-      // --- Remove From Cart ---
       .addCase(removeFromCart.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -112,7 +111,7 @@ const cartSlice = createSlice({
           state.items = action.payload.items;
         } else {
           state.items = state.items.filter(
-            (item) => item.id !== action.meta.arg.cartItemId,
+            (item) => item.id !== action.meta.arg.cart_item_id,
           );
         }
       }) // close this before next case
