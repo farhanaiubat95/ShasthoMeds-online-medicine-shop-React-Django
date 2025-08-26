@@ -30,6 +30,7 @@ const PrevArrowButton = styled(IconButton)(({ theme }) => ({
   zIndex: 10,
   width: 43,
   height: 80,
+  borderRadius: "0 8px 8px 0",
   boxShadow: theme.shadows[3],
 }));
 
@@ -42,6 +43,7 @@ const NextArrowButton = styled(IconButton)(({ theme }) => ({
   zIndex: 10,
   width: 43,
   height: 80,
+  borderRadius: "8px 0 0 8px",
   boxShadow: theme.shadows[3],
 }));
 
