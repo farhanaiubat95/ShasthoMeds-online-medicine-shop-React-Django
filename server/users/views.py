@@ -118,6 +118,7 @@ class ResendOTPView(APIView):
                     from_email=EMAIL_HOST_USER,
                     recipient_list=[email],
                 )
+                
             except Exception as e:
                 return Response({"error": f"Failed to send OTP: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -221,15 +222,19 @@ class CartViewSet(viewsets.ViewSet):
         return Response({"message": "Prescription required. Please upload image."}, status=200)
 
 
-    @action(detail=True, methods=["delete"], url_path="remove")
-    def remove(self, request, pk=None):
-        """Remove item from cart (by CartItem ID)"""
+    @action(detail=False, methods=["delete"], url_path="remove")
+    def remove(self, request):
+        cart_item_id = request.data.get("cart_item_id")
+        if not cart_item_id:
+            return Response({"error": "cart_item_id is required"}, status=400)
+
         try:
-            cart_item = CartItem.objects.get(pk=pk, cart__user=request.user)
+            cart_item = CartItem.objects.get(id=cart_item_id, cart__user=request.user)
             cart_item.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except CartItem.DoesNotExist:
             return Response({"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
   
 # ---------------- PrescriptionRequest ViewSet ----------------

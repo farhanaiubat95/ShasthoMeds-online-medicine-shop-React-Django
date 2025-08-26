@@ -53,7 +53,6 @@ class EmailOTP(models.Model):
         return f"{self.user.email} - OTP: {self.otp_code}"
     
 
-
 # Image size validator
 def validate_image_size(image):
     if not image:

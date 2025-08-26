@@ -49,6 +49,7 @@ export const removeFromCart = createAsyncThunk(
         `https://shasthomeds-backend.onrender.com/cart/remove/${cartItemId}/`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
+      console.log(response.data);
       return response.data; // backend should return updated cart
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
