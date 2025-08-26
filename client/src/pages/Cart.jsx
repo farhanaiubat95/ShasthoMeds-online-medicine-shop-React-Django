@@ -10,23 +10,15 @@ import {
 import { styled } from "@mui/system";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCart, removeFromCart, addToCart } from "../redux/cartSlice.js";
-
-const Container = styled(Box)({
-  display: "flex",
-  justifyContent: "space-between",
-  padding: "20px",
-  gap: "20px",
-});
 
 const ContainerLeft = styled(Box)({
   flex: 2,
   backgroundColor: "#fff",
   padding: "20px",
   borderRadius: "12px",
-  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+  boxShadow: "rgb(15, 145, 143) 0px 2px 5px -1px, rgb(154 168 168 / 39%) 0px 1px 3px -1px",
 });
 
 const ContainerRight = styled(Box)({
@@ -34,7 +26,7 @@ const ContainerRight = styled(Box)({
   backgroundColor: "#fff",
   padding: "20px",
   borderRadius: "12px",
-  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+  boxShadow: "rgb(15, 145, 143) 0px 2px 5px -1px, rgb(154 168 168 / 39%) 0px 1px 3px -1px",
   height: "fit-content",
 });
 
@@ -109,8 +101,8 @@ export default function Cart() {
 
   const handleRemoveItem = async (item_id) => {
     const access_token = localStorage.getItem("access_token");
-    try{
-     const resultAction = await dispatch(
+    try {
+      const resultAction = await dispatch(
         removeFromCart({
           cart_item_id: item_id,
           token: access_token,
@@ -126,7 +118,10 @@ export default function Cart() {
       }
     } catch (error) {
       console.error("Error:", error);
-      alert(error.message || "Oh no, Exception error ! Failed to remove items from cart.");
+      alert(
+        error.message ||
+          "Oh no, Exception error ! Failed to remove items from cart.",
+      );
     }
   };
 
@@ -185,11 +180,11 @@ export default function Cart() {
   const tempTotalAmount = tempTotalNewPrice + 40; // with delivery charge
 
   return (
-    <Container>
+    <div className="block md:flex justify-between gap-4 p-4">
       {/* Left side */}
-      <ContainerLeft>
+      <ContainerLeft className="mb-4 md:mb-0">
         <Typography variant="h6" mb={2}>
-          Shopping Cart
+          My Cart
         </Typography>
         {cartState.items.map((item) => (
           <ItemBox key={item.id}>
@@ -200,9 +195,31 @@ export default function Cart() {
               />
               <Box>
                 <Typography variant="subtitle1">{item.product.name}</Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Tk {item.product.new_price}
-                </Typography>
+                <Box display="flex" alignItems="center" mt={1} gap={2}>
+                  {item.product.offer_price ? (
+                    <>
+                      <Typography variant="body2" color="black">
+                        Tk {item.product.new_price}{" "}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        <strike>Tk {item.product.price}</strike>
+                      </Typography>
+                      <Typography variant="body2" color="#ef4444">
+                        {item.product.offer_price}% OFF
+                      </Typography>
+                    </>
+                  ) : (
+                    <>
+                      <Typography variant="body2" color="black">
+                        Tk {item.product.price}{" "}
+                      </Typography>
+
+                      <Typography variant="body2" color="textSecondary">
+                        Regular Price
+                      </Typography>
+                    </>
+                  )}
+                </Box>
               </Box>
             </Box>
             <Box display="flex" alignItems="center">
@@ -227,9 +244,8 @@ export default function Cart() {
               </IconButton>
               <IconButton
                 onClick={() => handleRemoveItem(item.id)}
-                color="error"
               >
-                <DeleteIcon /> {item.id}
+                <Typography color="black">Remove</Typography>
               </IconButton>
             </Box>
           </ItemBox>
@@ -242,7 +258,7 @@ export default function Cart() {
           Price Details
         </Typography>
         <Divider />
-        <Typography>
+        <Typography className="my-2">
           Regular Price ({totalItems} items)
           <Box component="span" sx={{ float: "right" }}>
             Tk {tempTotalPrice.toFixed(2)}
@@ -254,7 +270,7 @@ export default function Cart() {
             Tk {tempTotalNewPrice.toFixed(2)}
           </Box>
         </Typography>
-        <Typography>
+        <Typography className="mt-2">
           Delivery Charges
           <Box component="span" sx={{ float: "right" }}>
             Tk 40
@@ -286,6 +302,6 @@ export default function Cart() {
           Place Order
         </StyledButton>
       </ContainerRight>
-    </Container>
+    </div>
   );
 }
