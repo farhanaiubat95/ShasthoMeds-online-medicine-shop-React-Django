@@ -109,10 +109,6 @@ export default function Cart() {
 
   const handleRemoveItem = async (item_id) => {
     const access_token = localStorage.getItem("access_token");
-
-    console.log("cart_item_id", item_id);
-    console.log("token", access_token);
-
     try{
      const resultAction = await dispatch(
         removeFromCart({
