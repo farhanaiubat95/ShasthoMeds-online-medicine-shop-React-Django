@@ -79,7 +79,6 @@ export default function Cart() {
   const token = useSelector((state) => state.auth.token);
   const cartState = useSelector((state) => state.carts);
   const [quantities, setQuantities] = useState({});
-  const access_token = localStorage.getItem("access_token");
 
   useEffect(() => {
     if (token) {
@@ -109,10 +108,10 @@ export default function Cart() {
   };
 
   const handleRemoveItem = async (item_id) => {
+    const access_token = localStorage.getItem("access_token");
+
     console.log("cart_item_id", item_id);
     console.log("token", access_token);
-
-    const access_token = localStorage.getItem("access_token");
 
     try{
      const resultAction = await dispatch(
