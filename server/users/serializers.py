@@ -4,7 +4,7 @@ from shasthomeds.settings import EMAIL_HOST_USER
 from django.contrib.auth.password_validation import validate_password
 import random
 from django.core.mail import send_mail
-from .models import Brand, Cart, CartItem,Category, PrescriptionRequest,Product
+from .models import Brand, Cart, CartItem,Category, Order, OrderItem, PrescriptionRequest,Product
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer  # pyright: ignore[reportMissingImports]
 
 # Models
@@ -314,3 +314,33 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
                 return instance
 
         return super().update(instance, validated_data)
+    
+    
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = "__all__"
+        read_only_fields = ["id", "order"]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = [
+            "id","order_id", "user", "payment_method", "status",
+            "name", "email", "phone", "city", "postal_code", "address",
+            "total_price", "total_new_price", "total_discount", "total_amount",
+            "items", "created_at", "updated_at"
+        ]
+        read_only_fields = ["id", "created_at", "updated_at", "status"]
+
+    def create(self, validated_data):
+        items_data = validated_data.pop("items", [])
+        order = Order.objects.create(**validated_data)
+
+        for item in items_data:
+            OrderItem.objects.create(order=order, **item)
+
+        return order

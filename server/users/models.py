@@ -367,4 +367,67 @@ class PrescriptionRequest(models.Model):
         self.delete()
 
 
+# Order model
+class Order(models.Model):
+    PAYMENT_CHOICES = [
+        ("cod", "Cash on Delivery"),
+        ("card", "Credit/Debit Card"),
+    ]
+    
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("processing", "Processing"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
+    ]
+    order_id = models.CharField(max_length=20, unique=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default="cod")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+
+    # Shipping info
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    city = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=20)
+    address = models.TextField()
+
+    # Order summary (passed directly from frontend)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_new_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_discount = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.order_id:
+            # Generate a custom order_id
+            last_order = Order.objects.order_by("id").last()
+            if last_order:
+                last_id = int(last_order.order_id.replace("SH", ""))  # remove prefix
+                new_id = last_id + 1
+            else:
+                new_id = 202501  # starting number
+            self.order_id = f"SH{new_id}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Order #{self.id} by {self.user.username}"
+
+# OrderItem model
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
+    product_id = models.IntegerField()  # just store product ID
+    product_title = models.CharField(max_length=255)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # unit price
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)  # quantity * price
+    image = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product_title} x {self.quantity}"
+
 

@@ -5,10 +5,10 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 
-from .models import Brand, Cart, CartItem, Category, PrescriptionRequest,Product
-from .serializers import BrandSerializer, CartSerializer, CategorySerializer, PrescriptionRequestSerializer,ProductSerializer
+from .models import Brand, Cart, CartItem, Category, Order, PrescriptionRequest,Product
+from .serializers import BrandSerializer, CartSerializer, CategorySerializer, OrderSerializer, PrescriptionRequestSerializer,ProductSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from django.conf import settings
@@ -133,7 +133,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 # Protected view
 class MyProtectedView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         user = request.user  # from token
@@ -236,7 +236,6 @@ class CartViewSet(viewsets.ViewSet):
             return Response({"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-  
 # ---------------- PrescriptionRequest ViewSet ----------------
 class PrescriptionRequestViewSet(viewsets.ModelViewSet):
     queryset = PrescriptionRequest.objects.all().order_by("-created_at")
@@ -257,3 +256,55 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
             )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# ---------------- Order ViewSet ----------------
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(user=user)
+
+    def perform_create(self, serializer):
+        # Save the order with the current user
+        order = serializer.save(user=self.request.user)
+
+        # Prepare order summary for email
+        items_summary = ""
+        for item in order.items.all():
+            items_summary += f"- {item.product_title} x {item.quantity} @ Tk {item.price} = Tk {item.subtotal}\n"
+
+        message = f"""
+Hello {order.name},
+
+Thank you for your order #{order.order_id}!
+
+Order Summary:
+{items_summary}
+Total Price: Tk {order.total_price}
+Offer Price: Tk {order.total_new_price}
+Discount: Tk {order.total_discount}
+Amount Payable: Tk {order.total_amount}
+Payment Method: {order.get_payment_method_display()}
+
+Your order will be processed and delivered soon.
+
+Thank you for shopping with us!
+"""
+
+        # Send email to the user
+        try:
+            send_mail(
+                subject=f"Order Confirmation - #{order.id}",
+                message=message,
+                from_email=EMAIL_HOST_USER,
+                recipient_list=[order.email],
+                fail_silently=False
+            )
+        except Exception as e:
+            print(f"Failed to send order confirmation email: {str(e)}")

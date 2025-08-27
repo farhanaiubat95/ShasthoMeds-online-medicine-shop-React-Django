@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import  Cart, CartItem, Category, CustomUser, EmailOTP, Brand, PrescriptionRequest,Product
+from .models import  Cart, CartItem, Category, CustomUser, EmailOTP, Brand, Order, OrderItem, PrescriptionRequest,Product
 from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -132,5 +132,20 @@ class PrescriptionRequestAdmin(admin.ModelAdmin):
         for pr in queryset.select_for_update().filter(status="pending"):
             pr.reject()
     reject_selected.short_description = "Reject selected (email + delete request)"
+
+# Order model
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "status", "payment_method", "total_price", "created_at", "updated_at")
+    search_fields = ("user__email", "id")
+    list_filter = ("status", "payment_method", "created_at")
+
+# OrderItem model
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ("id", "order", "product", "quantity", "price")
+    search_fields = ("product__name", "order__user__email")
+    list_filter = ("order__status",)
+
 
 
