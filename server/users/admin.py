@@ -136,16 +136,24 @@ class PrescriptionRequestAdmin(admin.ModelAdmin):
 # Order model
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "status", "payment_method", "total_price", "created_at", "updated_at")
-    search_fields = ("user__email", "id")
-    list_filter = ("status", "payment_method", "created_at")
+    list_display = (
+        "id", "order_id", "user", "payment_method", "status",
+        "name", "email", "phone", "city", "total_amount",
+        "total_items", "created_at", "updated_at"
+    )
+
+    def total_items(self, obj):
+        return obj.items.count()
+    total_items.short_description = "Total Items"
+
 
 # OrderItem model
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ("id", "order", "product", "quantity", "price")
-    search_fields = ("product__name", "order__user__email")
+    list_display = ("id", "order", "product_title", "quantity", "price")
+    search_fields = ("product_title", "order__user__email")
     list_filter = ("order__status",)
+
 
 
 
