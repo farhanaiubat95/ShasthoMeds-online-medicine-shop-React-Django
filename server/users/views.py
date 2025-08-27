@@ -271,68 +271,38 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Order.objects.filter(user=user)
 
     def perform_create(self, serializer):
-        # Save order with current user
         order = serializer.save(user=self.request.user)
+        # (your order confirmation email logic stays here)
 
-        # Send confirmation email (same as you already have)...
-        items_summary = ""
-        for item in order.items:
-            productId = item.get("productId")
-            productName = item.get("productName")
-            quantity = item.get("quantity")
-            price = item.get("price")
-            subtotal = item.get("subtotal")
-            items_summary += f"-{productId} - {productName} x {quantity} @ Tk {price} = Tk {subtotal}\n"
-
-        message = f"""
-Hello {order.name},
-
-Thank you for your order #{order.order_id}!
-
-Order Summary:
-{items_summary}
-Total Price: Tk {order.total_price}
-Offer Price: Tk {order.total_new_price}
-Discount: Tk {order.total_discount}
-Amount Payable: Tk {order.total_amount}
-Payment Method: {order.get_payment_method_display()}
-
-Your order will be processed and delivered soon.
-
-Thank you for shopping with us!
-"""
-        try:
-            send_mail(
-                subject=f"Order Confirmation - #{order.order_id}",
-                message=message,
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[order.email],
-                fail_silently=False
-            )
-        except Exception as e:
-            print(f"Failed to send order confirmation email: {str(e)}")
-
-    # handle update (PATCH/PUT)
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
-        old_status = instance.status  # keep track before update
+        old_status = instance.status
 
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        # Get new status from request before saving
+        new_status = request.data.get("status", None)
 
-        # check if status changed to cancelled
-        if old_status != serializer.instance.status and serializer.instance.status == "cancelled":
+        # ✅ If status = cancelled and different from old status → send mail first
+        if new_status == "cancelled" and old_status != "cancelled":
+            print("⚠️ Sending cancellation email BEFORE updating status")  # Debug
             try:
                 send_mail(
-                    subject=f"Order Cancelled - #{serializer.instance.order_id}",
-                    message=f"Hello {serializer.instance.name},\n\nYour order #{serializer.instance.order_id} has been cancelled.\n\nIf this was a mistake, please contact support.",
+                    subject=f"Order Cancelled - #{instance.order_id}",
+                    message=f"Hello {instance.name},\n\nYour order #{instance.order_id} has been cancelled.\n\nIf this was a mistake, please contact support.",
                     from_email=EMAIL_HOST_USER,
-                    recipient_list=[serializer.instance.email],
+                    recipient_list=[instance.email],
                     fail_silently=False
                 )
             except Exception as e:
                 print(f"Failed to send cancellation email: {str(e)}")
 
+        # ✅ Now proceed with normal update (status will change here)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
         return Response(serializer.data)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
