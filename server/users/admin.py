@@ -93,7 +93,9 @@ class CartAdmin(admin.ModelAdmin):
     def total_price(self, obj):
         total = 0
         for item in obj.items.all():
-            if item.product and item.product.price:
+            if item.product and item.product.offer_price:
+                total += float(item.product.new_price) * item.quantity
+            else:
                 total += float(item.product.price) * item.quantity
         return round(total, 2)
     total_price.short_description = "Total Price (৳)"
