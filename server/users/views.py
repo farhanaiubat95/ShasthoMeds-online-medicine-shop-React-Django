@@ -274,9 +274,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Save order with current user
         order = serializer.save(user=self.request.user)
 
-        # Prepare order summary from JSONField
+        # Send confirmation email (same as you already have)...
         items_summary = ""
-        for item in order.items:  # order.items is a list of dicts
+        for item in order.items:
             productId = item.get("productId")
             productName = item.get("productName")
             quantity = item.get("quantity")
@@ -284,7 +284,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             subtotal = item.get("subtotal")
             items_summary += f"-{productId} - {productName} x {quantity} @ Tk {price} = Tk {subtotal}\n"
 
-        # Email message
         message = f"""
 Hello {order.name},
 
@@ -302,8 +301,6 @@ Your order will be processed and delivered soon.
 
 Thank you for shopping with us!
 """
-
-        # Send confirmation email
         try:
             send_mail(
                 subject=f"Order Confirmation - #{order.order_id}",
@@ -314,3 +311,28 @@ Thank you for shopping with us!
             )
         except Exception as e:
             print(f"Failed to send order confirmation email: {str(e)}")
+
+    # handle update (PATCH/PUT)
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        old_status = instance.status  # keep track before update
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # check if status changed to cancelled
+        if old_status != serializer.instance.status and serializer.instance.status == "cancelled":
+            try:
+                send_mail(
+                    subject=f"Order Cancelled - #{serializer.instance.order_id}",
+                    message=f"Hello {serializer.instance.name},\n\nYour order #{serializer.instance.order_id} has been cancelled.\n\nIf this was a mistake, please contact support.",
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[serializer.instance.email],
+                    fail_silently=False
+                )
+            except Exception as e:
+                print(f"Failed to send cancellation email: {str(e)}")
+
+        return Response(serializer.data)
