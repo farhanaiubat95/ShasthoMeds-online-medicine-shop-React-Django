@@ -70,7 +70,7 @@ const Checkout = () => {
       items: items.map((item) => ({
         id: item.id,
         productId: item.productId,
-        title: item.productTitle,
+        productName: item.productName,
         quantity: item.quantity,
         price: item.productNewPrice || item.productPrice,
         subtotal: item.quantity * (item.productNewPrice || item.productPrice),
@@ -158,7 +158,7 @@ const Checkout = () => {
               >
                 <Box className="font-bold px-3 w-[10%]">{idx + 1}</Box>
                 <Box className="w-[90%]">
-                  <Typography fontWeight="bold">{item.productTitle}</Typography>
+                  <Typography fontWeight="bold">{item.productName}</Typography>
                   <Typography>Quantity: {item.quantity}</Typography>
                   <Typography>
                     Price: Tk {item.productNewPrice || item.productPrice} each

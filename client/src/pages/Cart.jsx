@@ -301,7 +301,6 @@ export default function Cart() {
               productName: item.product.name,
               productPrice: item.product.price,
               productNewPrice: item.product.new_price,
-              productImage: item.product.image1,
               quantity: quantities[item.id] || item.quantity,
               discountPrice: item.product.discount_price || 0,
             }));
