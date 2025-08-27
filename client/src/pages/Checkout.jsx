@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -11,53 +11,52 @@ import {
   Modal,
   useMediaQuery,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const Findpagecheck = () => {
+const Checkout = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  const orderData = location.state; // Passed from Cart page
+  const { items = [], totalPrice = 0, totalNewPrice = 0, totalDiscount = 0, totalAmount = 0 , quantities} = orderData || {};
+
+  const authUser = useSelector((state) => state.auth.user); // Get real user data
+
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [openModal, setOpenModal] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const navigate = useNavigate();
 
-  // Dummy order data
-  const order = {
-    items: [
-      { productTitle: "Product 1", quantity: 2, price: 500 },
-      { productTitle: "Product 2", quantity: 1, price: 1200 },
-    ],
-    price: 2200,
-    discount: 200,
-    deliveryCharges: 100,
-    totalAmount: 2100,
-    totalSavings: 300,
-  };
-  const { items, price, discount, deliveryCharges, totalAmount, totalSavings } =
-    order;
-
-  // User info (editable)
+  // Initialize user info from auth.user
   const [userInfo, setUserInfo] = useState({
-    name: "John Doe",
-    email: "jR0eM@example.com",
-    phone: "1234567890",
-    city: "Dhaka",
-    postalCode: "",
-    address: "123 Main St, City, Country",
+    name: authUser?.name || "",
+    email: authUser?.email || "",
+    phone: authUser?.phone || "",
+    city: authUser?.city || "",
+    postalCode: authUser?.postalCode || "",
+    address: authUser?.address || "",
   });
+
+  useEffect(() => {
+    // Update user info if authUser changes
+    if (authUser) {
+      setUserInfo({
+        name: authUser.name || "",
+        email: authUser.email || "",
+        phone: authUser.phone || "",
+        city: authUser.city || "",
+        postalCode: authUser.postalCode || "",
+        address: authUser.address || "",
+      });
+    }
+  }, [authUser]);
 
   const handleChange = (e) => {
     let { name, value } = e.target;
 
-    // Only for phone field
     if (name === "phone") {
-      // Remove any non-digit characters
       value = value.replace(/\D/g, "");
-
-      // Ensure first digit is 0
-      if (value.length > 0 && value[0] !== "0") {
-        value = "0" + value;
-      }
-
-      // Limit to 11 digits
+      if (value.length > 0 && value[0] !== "0") value = "0" + value;
       value = value.slice(0, 11);
     }
 
@@ -65,33 +64,24 @@ const Findpagecheck = () => {
   };
 
   const handleConfirm = () => {
-    // Validate phone number
-    let phone = userInfo.phone;
-    if (phone.length !== 11) {
-      console.warn("Phone number must be 11 digits");
-    }
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(userInfo.email)) {
-      console.warn("Email format is invalid");
-    }
-
     const confirmData = {
       user: userInfo,
       paymentMethod,
       items: items.map((item) => ({
+        id: item.id,
+        productId: item.productId,
         productTitle: item.productTitle,
         quantity: item.quantity,
-        price: item.price,
-        subtotal: item.quantity * item.price,
+        price: item.productNewPrice || item.productPrice,
+        subtotal: item.quantity * (item.productNewPrice || item.productPrice),
+        image: item.productImage,
       })),
       orderSummary: {
-        price,
-        discount,
-        deliveryCharges,
+        totalPrice,
+        totalNewPrice,
+        totalDiscount,
         totalAmount,
-        totalSavings,
+        quantities
       },
     };
 
@@ -101,7 +91,7 @@ const Findpagecheck = () => {
     if (paymentMethod === "cod") {
       setOpenModal(true);
     } else {
-      navigate("/payment");
+      navigate("/payment", { state: confirmData });
     }
   };
 
@@ -157,14 +147,7 @@ const Findpagecheck = () => {
             Your Items ({items.length})
           </Typography>
 
-          {/* Scrollable Items */}
-          <Box
-            sx={{
-              flexGrow: 1,
-              maxHeight: "600px",
-              overflowY: "auto",
-            }}
-          >
+          <Box sx={{ flexGrow: 1, maxHeight: "600px", overflowY: "auto" }}>
             {items.map((item, idx) => (
               <Box
                 key={idx}
@@ -178,7 +161,9 @@ const Findpagecheck = () => {
                 <Box className="w-[90%]">
                   <Typography fontWeight="bold">{item.productTitle}</Typography>
                   <Typography>Quantity: {item.quantity}</Typography>
-                  <Typography>Price: Tk {item.price} each</Typography>
+                  <Typography>
+                    Price: Tk {item.productNewPrice || item.productPrice} each
+                  </Typography>
                 </Box>
               </Box>
             ))}
@@ -280,16 +265,14 @@ const Findpagecheck = () => {
           <Typography variant="h6" mb={1} sx={{ color: "#0F918F" }}>
             Order Summary
           </Typography>
-          <Typography>Price: Tk {price.toFixed(2)}</Typography>
-          <Typography>Discount: -Tk {discount.toFixed(2)}</Typography>
-          <Typography>
-            Delivery Charges: Tk {deliveryCharges.toFixed(2)}
-          </Typography>
+          <Typography>Regular Price: Tk {totalPrice.toFixed(2)}</Typography>
+          <Typography>Offer price: Tk {totalNewPrice.toFixed(2)}</Typography>
+          <Typography>Delivery Charges: Tk 40</Typography>
           <Typography variant="h6" mt={1}>
             Total: Tk {totalAmount.toFixed(2)}
           </Typography>
           <Typography color="green">
-            You save Tk {totalSavings.toFixed(2)}
+            You save Tk {totalDiscount.toFixed(2)}
           </Typography>
 
           <Button
@@ -335,4 +318,4 @@ const Findpagecheck = () => {
   );
 };
 
-export default Findpagecheck;
+export default Checkout;

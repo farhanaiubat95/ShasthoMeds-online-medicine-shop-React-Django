@@ -365,3 +365,6 @@ class PrescriptionRequest(models.Model):
 
         # Delete request after action
         self.delete()
+
+
+

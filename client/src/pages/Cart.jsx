@@ -293,15 +293,30 @@ export default function Cart() {
         </DiscountBoxs>
         <StyledButton
           onClick={() => {
+            const itemsData = cartState.items.map((item) => ({
+              id: item.id,
+              productId: item.product.id,
+              productName: item.product.name,
+              productPrice: item.product.price,
+              productNewPrice: item.product.new_price,
+              productImage: item.product.image1,
+              quantity: quantities[item.id] || item.quantity,
+              discountPrice: item.product.discount_price || 0,
+            }));
+
             const orderData = {
+              items: itemsData, // <-- full cart item data
               totalPrice: tempTotalPrice,
               totalNewPrice: tempTotalNewPrice,
               totalDiscount: tempTotalDiscount,
               totalAmount: tempTotalAmount,
               quantities,
             };
+
             console.log("Order data sending:", orderData);
-            // dispatch(orderActionHere({ token, orderData }));
+
+            // Pass this data to Checkout page or dispatch to backend
+            navigate("/myaccount/checkout", { state: orderData });
           }}
         >
           Place Order
