@@ -1,5 +1,5 @@
-// src/redux/slices/orderSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axiosInstance from "../axiosInstance";
 
 // ===================
 // Async Thunk: Create Order
@@ -8,23 +8,17 @@ export const createOrder = createAsyncThunk(
   "order/createOrder",
   async ({ orderData, token }, { rejectWithValue }) => {
     try {
-      const res = await fetch("https://shasthomeds-backend.onrender.com/orders/", {
-        method: "POST",
+      const res = await axiosInstance.post("/orders/", orderData, {
         headers: {
-          "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` }), // include token if available
+          Authorization: `Bearer ${token}`, // add token if protected
         },
-        body: JSON.stringify(orderData),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        return rejectWithValue(errorData);
-      }
-
-      return await res.json();
+      return res.data; // axios parses JSON automatically
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.response?.data || error.message || "Failed to place order"
+      );
     }
   }
 );

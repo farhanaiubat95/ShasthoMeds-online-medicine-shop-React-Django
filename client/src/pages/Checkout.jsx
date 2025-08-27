@@ -13,8 +13,12 @@ import {
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { createOrder } from "../redux/orderSlice.js";
+
 
 const Checkout = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -30,6 +34,7 @@ const Checkout = () => {
   } = orderData || {};
 
   const authUser = useSelector((state) => state.auth.user); // Get real user data
+  token = localStorage.getItem("access_token");
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [openModal, setOpenModal] = useState(false);
@@ -96,35 +101,23 @@ const Checkout = () => {
 
     console.log("=== Sending Order to API ===", confirmData);
 
-    try {
-      const res = await fetch(
-        "https://shasthomeds-backend.onrender.com/orders/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authUser.access_token}`, // add token if protected
-          },
-          body: JSON.stringify(confirmData),
-        },
-      );
-
-      if (!res.ok) {
-        throw new Error("Order failed");
-      }
-
-      const data = await res.json();
-      console.log("Order Success:", data);
-
-      if (paymentMethod === "cod") {
-        setOpenModal(true);
-      } else {
-        navigate("/payment", { state: confirmData });
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong!");
-    }
+    dispatch(
+      createOrder({ orderData: confirmData, token: authUser?.access_token }),
+    )
+      .unwrap()
+      .then((res) => {
+        console.log("Order Success:", res);
+        alert("Order placed successfully!");
+        if (paymentMethod === "cod") {
+          setOpenModal(true);
+        } else {
+          navigate("/myaccount/payment", { state: confirmData });
+        }
+      })
+      .catch((err) => {
+        console.error("Order Error:", err);
+        alert("Something went wrong!");
+      });
   };
 
   return (
