@@ -34,7 +34,6 @@ const Checkout = () => {
   } = orderData || {};
 
   const authUser = useSelector((state) => state.auth.user); // Get real user data
-  token = localStorage.getItem("access_token");
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [openModal, setOpenModal] = useState(false);
