@@ -15,7 +15,7 @@ EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
     list_display = (
-        'full_name', 'username', 'email', 'phone', 'gender', 'city', 'address',
+        'id','full_name', 'username', 'email', 'phone', 'gender', 'city', 'address',
         'date_of_birth', 'is_verified', 'is_active', 'role'
     )
     fieldsets = UserAdmin.fieldsets + (

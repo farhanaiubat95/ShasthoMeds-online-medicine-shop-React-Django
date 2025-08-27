@@ -73,7 +73,7 @@ const Checkout = () => {
         productId: item.productId,
         productName: item.productName,
         quantity: item.quantity,
-        price: item.productPricee,
+        price: item.productPrice,
         subtotal: item.quantity * (item.productPrice),
       })),
       orderSummary: {
