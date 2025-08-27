@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import  Cart, CartItem, Category, CustomUser, EmailOTP, Brand, Order, OrderItem, PrescriptionRequest,Product
+from .models import  Cart, CartItem, Category, CustomUser, EmailOTP, Brand, Order, PrescriptionRequest,Product
 from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -136,46 +136,31 @@ class PrescriptionRequestAdmin(admin.ModelAdmin):
 # Order model
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("id","order_id", "user", "payment_method", "status",
-            "name", "email", "phone", "city","total_amount",
-            "total_items", "created_at", "updated_at"
-            )
+    list_display = (
+        "id", "order_id", "user", "payment_method", "status",
+        "name", "email", "phone", "city", "total_amount",
+        "total_items", "items_preview", "created_at", "updated_at"
+    )
     list_filter = ("status", "payment_method", "created_at")
     search_fields = ("user__email", "order_id")
 
     def total_items(self, obj):
-        return obj.items.count()
+        return len(obj.items) if obj.items else 0
     total_items.short_description = "Total Items"
 
+    def items_preview(self, obj):
+        if not obj.items:
+            return "-"
+        html = "<ul>"
+        for item in obj.items:
+            html += f"<li>{item.get('title', 'Unknown')} x {item.get('quantity', 0)} = Tk {item.get('subtotal', 0)}</li>"
+        html += "</ul>"
+        return format_html(html)
+    items_preview.short_description = "Items"
+
+    # No need for custom save_model for cancellation
     def save_model(self, request, obj, form, change):
-        # Check if the order existed before and status changed
-        if change:
-            previous = Order.objects.get(pk=obj.pk)
-            if previous.status != "cancelled" and obj.status == "cancelled":
-                # Send cancellation email
-                try:
-                    send_mail(
-                        subject="Your Order Has Been Cancelled - ShasthoMeds",
-                        message=f"Hi {obj.user.full_name},\n\n"
-                                f"Your order #{obj.order_id} has been cancelled.\n"
-                                f"Total Amount: ৳{obj.total_amount}\n\n"
-                                f"If you have any questions, please contact support.",
-                        from_email=settings.EMAIL_HOST_USER,
-                        recipient_list=[obj.user.email],
-                        fail_silently=False,
-                    )
-                except Exception as e:
-                    print("Error sending cancellation email:", e)
         super().save_model(request, obj, form, change)
-
-
-
-# OrderItem model
-@admin.register(OrderItem)
-class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ("id", "order", "product_title", "quantity", "price")
-    search_fields = ("product_title", "order__user__email")
-    list_filter = ("order__status",)
 
 
 

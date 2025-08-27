@@ -70,11 +70,10 @@ const Checkout = () => {
       items: items.map((item) => ({
         id: item.id,
         productId: item.productId,
-        productTitle: item.productTitle,
+        title: item.productTitle,
         quantity: item.quantity,
         price: item.productNewPrice || item.productPrice,
         subtotal: item.quantity * (item.productNewPrice || item.productPrice),
-        image: item.productImage,
       })),
       orderSummary: {
         totalPrice,

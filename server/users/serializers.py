@@ -4,7 +4,7 @@ from shasthomeds.settings import EMAIL_HOST_USER
 from django.contrib.auth.password_validation import validate_password
 import random
 from django.core.mail import send_mail
-from .models import Brand, Cart, CartItem,Category, Order, OrderItem, PrescriptionRequest,Product
+from .models import Brand, Cart, CartItem,Category, Order, PrescriptionRequest,Product
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer  # pyright: ignore[reportMissingImports]
 
 # Models
@@ -316,15 +316,14 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
     
     
-class OrderItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = "__all__"
-        read_only_fields = ["id", "order"]
-
-
+# Serializer for Order
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True)
+    # items is stored as JSON, so just validate as a list of dicts
+    items = serializers.ListField(
+        child=serializers.DictField(
+            child=serializers.CharField()
+        )
+    )
 
     class Meta:
         model = Order
@@ -334,13 +333,18 @@ class OrderSerializer(serializers.ModelSerializer):
             "total_price", "total_new_price", "total_discount", "total_amount",
             "items", "created_at", "updated_at"
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "status"]
+        read_only_fields = ["id", "created_at", "updated_at", "status", "order_id"]
 
     def create(self, validated_data):
-        items_data = validated_data.pop("items", [])
-        order = Order.objects.create(**validated_data)
+        # items JSON 
+        return Order.objects.create(**validated_data)
 
-        for item in items_data:
-            OrderItem.objects.create(order=order, **item)
-
-        return order
+    def update(self, instance, validated_data):
+        # Allow admin to update status, e.g., cancelled
+        items = validated_data.pop("items", None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if items is not None:
+            instance.items = items
+        instance.save()
+        return instance

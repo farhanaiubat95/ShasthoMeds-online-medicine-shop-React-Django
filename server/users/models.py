@@ -377,9 +377,10 @@ class Order(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("processing", "Processing"),
-        ("deliverd", "Delivered"),
+        ("delivered", "Delivered"),
         ("cancelled", "Cancelled"),
     ]
+
     order_id = models.CharField(max_length=20, unique=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default="cod")
@@ -393,41 +394,52 @@ class Order(models.Model):
     postal_code = models.CharField(max_length=20)
     address = models.TextField()
 
+    # Items stored as JSON
+    # Example: [{"product_id": 1, "title": "Paracetamol", "quantity": 2, "price": 50, "subtotal": 100}]
+    items = models.JSONField()
+
     # Order summary (passed directly from frontend)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_new_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_discount = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        # Auto-generate order_id
         if not self.order_id:
-            # Generate a custom order_id
             last_order = Order.objects.order_by("id").last()
-            if last_order:
-                last_id = int(last_order.order_id.replace("SH", ""))  # remove prefix
+            if last_order and last_order.order_id.startswith("SH"):
+                last_id = int(last_order.order_id.replace("SH", ""))
                 new_id = last_id + 1
             else:
-                new_id = 202501  # starting number
+                new_id = 202501
             self.order_id = f"SH{new_id}"
+
         super().save(*args, **kwargs)
 
+        # Send cancellation email if status changed to cancelled
+        if hasattr(self, '_original_status') and self.status == "cancelled" and self._original_status != "cancelled":
+            try:
+                send_mail(
+                    subject="Order Cancelled - ShasthoMeds",
+                    message=f"Hi {self.user.full_name},\n\n"
+                            f"Your order {self.order_id} has been cancelled.\n\n"
+                            f"Items: {', '.join([item['title'] for item in self.items])}\n\n"
+                            f"Please contact us if you have any questions.",
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[self.email],
+                    fail_silently=True
+                )
+            except Exception as e:
+                print("Email send error (cancelled):", str(e))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # store original status to detect change
+        self._original_status = self.status
+
     def __str__(self):
-        return f"Order #{self.id} by {self.user.username}"
-
-# OrderItem model
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
-    product_id = models.IntegerField()  # just store product ID
-    product_title = models.CharField(max_length=255)
-    quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # unit price
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2)  # quantity * price
-    image = models.URLField(blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.product_title} x {self.quantity}"
-
-
+        return f"Order #{self.order_id} by {self.user.username}"

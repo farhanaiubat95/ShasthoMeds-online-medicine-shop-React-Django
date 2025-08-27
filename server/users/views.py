@@ -271,14 +271,19 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Order.objects.filter(user=user)
 
     def perform_create(self, serializer):
-        # Save the order with the current user
+        # Save order with current user
         order = serializer.save(user=self.request.user)
 
-        # Prepare order summary for email
+        # Prepare order summary from JSONField
         items_summary = ""
-        for item in order.items.all():
-            items_summary += f"- {item.product_title} x {item.quantity} @ Tk {item.price} = Tk {item.subtotal}\n"
+        for item in order.items:  # order.items is a list of dicts
+            title = item.get("title")
+            quantity = item.get("quantity")
+            price = item.get("price")
+            subtotal = item.get("subtotal")
+            items_summary += f"- {title} x {quantity} @ Tk {price} = Tk {subtotal}\n"
 
+        # Email message
         message = f"""
 Hello {order.name},
 
@@ -297,10 +302,10 @@ Your order will be processed and delivered soon.
 Thank you for shopping with us!
 """
 
-        # Send email to the user
+        # Send confirmation email
         try:
             send_mail(
-                subject=f"Order Confirmation - #{order.id}",
+                subject=f"Order Confirmation - #{order.order_id}",
                 message=message,
                 from_email=EMAIL_HOST_USER,
                 recipient_list=[order.email],
