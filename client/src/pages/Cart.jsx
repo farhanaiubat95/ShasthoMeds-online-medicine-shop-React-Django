@@ -12,6 +12,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCart, removeFromCart, addToCart } from "../redux/cartSlice.js";
+import { useNavigate } from "react-router-dom";
 
 const ContainerLeft = styled(Box)({
   flex: 2,
@@ -70,6 +71,7 @@ const DiscountBoxs = styled(Box)({
 
 export default function Cart() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const token = useSelector((state) => state.auth.token);
   const cartState = useSelector((state) => state.carts);
   const [quantities, setQuantities] = useState({});
