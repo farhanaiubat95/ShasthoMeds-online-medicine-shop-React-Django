@@ -95,7 +95,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 "gender": self.user.gender,
                 "date_of_birth": self.user.date_of_birth,
                 "city": self.user.city,
-                # Exclude 'address' unless needed
+                "address": self.user.address,
                 "is_verified": self.user.is_verified,
                 "role": self.user.role,
             }

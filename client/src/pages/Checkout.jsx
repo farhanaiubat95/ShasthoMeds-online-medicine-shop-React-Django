@@ -41,7 +41,7 @@ const Checkout = () => {
     // Update user info if authUser changes
     if (authUser) {
       setUserInfo({
-        name: authUser.name || "",
+        name: authUser.full_name || "",
         email: authUser.email || "",
         phone: authUser.phone || "",
         city: authUser.city || "",
