@@ -299,8 +299,7 @@ export default function Cart() {
               id: item.id,
               productId: item.product.id,
               productName: item.product.name,
-              productPrice: item.product.price,
-              productNewPrice: item.product.new_price,
+              productPrice: item.product.discount_price ? item.product.new_price : item.product.price,
               quantity: quantities[item.id] || item.quantity,
               discountPrice: item.product.discount_price || 0,
             }));

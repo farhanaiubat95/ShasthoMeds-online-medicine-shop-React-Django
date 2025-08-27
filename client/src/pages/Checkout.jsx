@@ -64,6 +64,7 @@ const Checkout = () => {
   };
 
   const handleConfirm = () => {
+    
     const confirmData = {
       user: userInfo,
       paymentMethod,
@@ -72,8 +73,8 @@ const Checkout = () => {
         productId: item.productId,
         productName: item.productName,
         quantity: item.quantity,
-        price: item.productNewPrice || item.productPrice,
-        subtotal: item.quantity * (item.productNewPrice || item.productPrice),
+        price: item.productPricee,
+        subtotal: item.quantity * (item.productPrice),
       })),
       orderSummary: {
         totalPrice,
@@ -161,7 +162,7 @@ const Checkout = () => {
                   <Typography fontWeight="bold">{item.productName}</Typography>
                   <Typography>Quantity: {item.quantity}</Typography>
                   <Typography>
-                    Price: Tk {item.productNewPrice || item.productPrice} each
+                    Price: Tk {item.productPrice} each
                   </Typography>
                 </Box>
               </Box>

@@ -277,11 +277,12 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Prepare order summary from JSONField
         items_summary = ""
         for item in order.items:  # order.items is a list of dicts
+            productId = item.get("productId")
             productName = item.get("productName")
             quantity = item.get("quantity")
             price = item.get("price")
             subtotal = item.get("subtotal")
-            items_summary += f"- {productName} x {quantity} @ Tk {price} = Tk {subtotal}\n"
+            items_summary += f"-{productId} - {productName} x {quantity} @ Tk {price} = Tk {subtotal}\n"
 
         # Email message
         message = f"""
