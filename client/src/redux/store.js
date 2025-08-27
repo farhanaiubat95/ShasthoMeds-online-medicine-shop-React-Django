@@ -4,6 +4,7 @@ import productReducer from './productSlice';
 import brandReducer from './brandSlice';
 import categoryReducer from './categorySlice';
 import cartReducer from './cartSlice';
+import orderReducer from './orderSlice';
 
 // Configure Redux store with both reducers
 export const store = configureStore({
@@ -13,6 +14,7 @@ export const store = configureStore({
     brands: brandReducer,
     categories: categoryReducer,
     carts: cartReducer,
+    orders: orderReducer
 
   },
 });

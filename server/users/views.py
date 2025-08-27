@@ -282,9 +282,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Get new status from request before saving
         new_status = request.data.get("status", None)
 
-        # ✅ If status = cancelled and different from old status → send mail first
+        # If status = cancelled and different from old status → send mail first
         if new_status == "cancelled" and old_status != "cancelled":
-            print("⚠️ Sending cancellation email BEFORE updating status")  # Debug
+            print("Sending cancellation email BEFORE updating status")  # Debug
             try:
                 send_mail(
                     subject=f"Order Cancelled - #{instance.order_id}",
@@ -296,7 +296,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 print(f"Failed to send cancellation email: {str(e)}")
 
-        # ✅ Now proceed with normal update (status will change here)
+        # Now proceed with normal update (status will change here)
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)

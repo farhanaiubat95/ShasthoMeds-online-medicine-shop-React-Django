@@ -20,7 +20,14 @@ const Checkout = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const orderData = location.state; // Passed from Cart page
-  const { items = [], totalPrice = 0, totalNewPrice = 0, totalDiscount = 0, totalAmount = 0 , quantities} = orderData || {};
+  const {
+    items = [],
+    totalPrice = 0,
+    totalNewPrice = 0,
+    totalDiscount = 0,
+    totalAmount = 0,
+    quantities,
+  } = orderData || {};
 
   const authUser = useSelector((state) => state.auth.user); // Get real user data
 
@@ -63,35 +70,60 @@ const Checkout = () => {
     setUserInfo({ ...userInfo, [name]: value });
   };
 
-  const handleConfirm = () => {
-    
+  const handleConfirm = async () => {
     const confirmData = {
-      user: userInfo,
-      paymentMethod,
+      user: authUser?.id, // send only user id
+      payment_method: paymentMethod, // match backend key
+      status: "pending",
+      name: userInfo.name,
+      email: userInfo.email,
+      phone: userInfo.phone,
+      city: userInfo.city,
+      postal_code: userInfo.postalCode,
+      address: userInfo.address,
       items: items.map((item) => ({
-        id: item.id,
         productId: item.productId,
         productName: item.productName,
         quantity: item.quantity,
         price: item.productPrice,
-        subtotal: item.quantity * (item.productPrice),
+        subtotal: item.quantity * item.productPrice,
       })),
-      orderSummary: {
-        totalPrice,
-        totalNewPrice,
-        totalDiscount,
-        totalAmount,
-        quantities
-      },
+      total_price: totalPrice,
+      total_new_price: totalNewPrice,
+      total_discount: totalDiscount,
+      total_amount: totalAmount,
     };
 
-    console.log("=== Confirmed Checkout Data ===");
-    console.log(confirmData);
+    console.log("=== Sending Order to API ===", confirmData);
 
-    if (paymentMethod === "cod") {
-      setOpenModal(true);
-    } else {
-      navigate("/payment", { state: confirmData });
+    try {
+      const res = await fetch(
+        "https://shasthomeds-backend.onrender.com/orders/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authUser.access_token}`, // add token if protected
+          },
+          body: JSON.stringify(confirmData),
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("Order failed");
+      }
+
+      const data = await res.json();
+      console.log("Order Success:", data);
+
+      if (paymentMethod === "cod") {
+        setOpenModal(true);
+      } else {
+        navigate("/payment", { state: confirmData });
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong!");
     }
   };
 
@@ -161,9 +193,7 @@ const Checkout = () => {
                 <Box className="w-[90%]">
                   <Typography fontWeight="bold">{item.productName}</Typography>
                   <Typography>Quantity: {item.quantity}</Typography>
-                  <Typography>
-                    Price: Tk {item.productPrice} each
-                  </Typography>
+                  <Typography>Price: Tk {item.productPrice} each</Typography>
                 </Box>
               </Box>
             ))}
@@ -309,7 +339,7 @@ const Checkout = () => {
           <Typography mb={3}>
             Thank you! Your items will be delivered soon.
           </Typography>
-          <Button variant="contained" onClick={() => setOpenModal(false)}>
+          <Button variant="contained" onClick={() => navigate("/")}>
             Back to Home
           </Button>
         </Box>
