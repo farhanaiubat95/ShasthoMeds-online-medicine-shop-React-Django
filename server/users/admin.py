@@ -136,17 +136,38 @@ class PrescriptionRequestAdmin(admin.ModelAdmin):
 # Order model
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = (
-        "id", "order_id", "user", "payment_method", "status",
-        "name", "email", "phone", "city", "total_amount",
-        "total_items", "created_at", "updated_at"
-    )
-    search_fields = ("order_id","id", "user__email")
-    list_filter = ("status", "created_at")
+    list_display = ("id","order_id", "user", "payment_method", "status",
+            "name", "email", "phone", "city","total_amount",
+            "total_items", "created_at", "updated_at"
+            )
+    list_filter = ("status", "payment_method", "created_at")
+    search_fields = ("user__email", "order_id")
 
     def total_items(self, obj):
         return obj.items.count()
     total_items.short_description = "Total Items"
+
+    def save_model(self, request, obj, form, change):
+        # Check if the order existed before and status changed
+        if change:
+            previous = Order.objects.get(pk=obj.pk)
+            if previous.status != "cancelled" and obj.status == "cancelled":
+                # Send cancellation email
+                try:
+                    send_mail(
+                        subject="Your Order Has Been Cancelled - ShasthoMeds",
+                        message=f"Hi {obj.user.full_name},\n\n"
+                                f"Your order #{obj.order_id} has been cancelled.\n"
+                                f"Total Amount: ৳{obj.total_amount}\n\n"
+                                f"If you have any questions, please contact support.",
+                        from_email=settings.EMAIL_HOST_USER,
+                        recipient_list=[obj.user.email],
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    print("Error sending cancellation email:", e)
+        super().save_model(request, obj, form, change)
+
 
 
 # OrderItem model

@@ -377,7 +377,7 @@ class Order(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("processing", "Processing"),
-        ("completed", "Completed"),
+        ("deliverd", "Delivered"),
         ("cancelled", "Cancelled"),
     ]
     order_id = models.CharField(max_length=20, unique=True, blank=True)
