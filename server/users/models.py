@@ -420,26 +420,7 @@ class Order(models.Model):
 
         super().save(*args, **kwargs)
 
-        # Send cancellation email if status changed to cancelled
-        if hasattr(self, '_original_status') and self.status == "cancelled" and self._original_status != "cancelled":
-            try:
-                send_mail(
-                    subject="Order Cancelled - ShasthoMeds",
-                    message=f"Hi {self.user.full_name},\n\n"
-                            f"Your order {self.order_id} has been cancelled.\n\n"
-                            f"Items: {', '.join([item['title'] for item in self.items])}\n\n"
-                            f"Please contact us if you have any questions.",
-                    from_email=EMAIL_HOST_USER,
-                    recipient_list=[self.email],
-                    fail_silently=True
-                )
-            except Exception as e:
-                print("Email send error (cancelled):", str(e))
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # store original status to detect change
-        self._original_status = self.status
-
+    def __str__(self):
+        return f"Order {self.id} - {self.status}"
     def __str__(self):
         return f"Order #{self.order_id} by {self.user.username}"

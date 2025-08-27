@@ -153,14 +153,28 @@ class OrderAdmin(admin.ModelAdmin):
             return "-"
         html = "<ul>"
         for item in obj.items:
-            html += f"<li>{item.get('title', 'Unknown')} x {item.get('quantity', 0)} = Tk {item.get('subtotal', 0)}</li>"
+            html += f"<li>{item.get('productName', 'Unknown')} x {item.get('quantity', 0)} = Tk {item.get('subtotal', 0)}</li>"
         html += "</ul>"
         return format_html(html)
     items_preview.short_description = "Items"
 
     # No need for custom save_model for cancellation
     def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
+        previous_status = None
+        if obj.pk:
+            previous_status = Order.objects.get(pk=obj.pk).status
+        
+        super().save_model(request, obj, form, change)  # Update order in DB
+        
+        # Send email if status changed to cancelled
+        if obj.status == 'cancelled' and previous_status != 'cancelled':
+            send_mail(
+                subject="Order Cancelled",
+                message=f"Hello {obj.user.username},\n\nYour order #{obj.id} has been cancelled.",
+                from_email=EMAIL_HOST_USER,
+                recipient_list=[obj.user.email],
+                fail_silently=False,
+            )
 
 
 
