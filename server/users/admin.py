@@ -141,6 +141,8 @@ class OrderAdmin(admin.ModelAdmin):
         "name", "email", "phone", "city", "total_amount",
         "total_items", "created_at", "updated_at"
     )
+    search_fields = ("order_id","id", "user__email")
+    list_filter = ("status", "created_at")
 
     def total_items(self, obj):
         return obj.items.count()
