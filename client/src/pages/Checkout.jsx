@@ -117,7 +117,7 @@ const Checkout = () => {
       } else {
         // 2. Initiate SSLCommerz payment
         const response = await fetch(
-          `https://your-backend.com/payments/initiate/${res.id}/`,
+          `https://shasthomeds-backend.onrender.com/payments/initiate/${res.id}/`,
           {
             method: "POST",
             headers: {
