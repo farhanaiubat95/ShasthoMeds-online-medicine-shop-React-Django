@@ -324,7 +324,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             "id","order_id", "user", "payment_method", "status","payment_status","tran_id",
-            "name", "email", "phone", "city", "postal_code", "address",
+            "name", "email", "phone", "city", "postal_code", "address","gateway_url"
             "total_price", "total_new_price", "total_discount", "total_amount",
             "items", "created_at", "updated_at"
         ]

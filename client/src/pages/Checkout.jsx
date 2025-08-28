@@ -108,6 +108,7 @@ const Checkout = () => {
       const res = await dispatch(
         createOrder({ orderData: confirmData, token: authUser?.access_token }),
       ).unwrap();
+      console.log("Response from backend:", res);
 
       dispatch(clearCart());
 
@@ -115,6 +116,7 @@ const Checkout = () => {
       if (paymentMethod === "cod") {
         setOpenModal(true);
       } else if (paymentMethod === "card") {
+        console.log("Redirecting to payment gateway...");
         // Card → redirect to payment gateway
         if (res.gateway_url) {
           window.location.href = res.gateway_url; // Redirect user

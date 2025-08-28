@@ -301,6 +301,8 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         # ---------------- SSLCOMMERZ Integration ----------------
         if order.payment_method.lower() == "card":
+            print("Payment Method:", order.payment_method)
+
             # tran_id is already generated in model.save()
             sslcommerz = SSLCOMMERZ(
                 store_id=settings.SSL_STORE_ID,
@@ -325,6 +327,8 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             try:
                 response = sslcommerz.create_session(payment_data)
+                print("SSLCOMMERZ Response:", response)
+
                 # Store Gateway URL in Payment (optional)
                 order.gateway_url = response.get("GatewayPageURL", "")
                 order.save()

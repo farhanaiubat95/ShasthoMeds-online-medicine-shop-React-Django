@@ -140,7 +140,7 @@ class PrescriptionRequestAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
         "id", "order_id", "user", "payment_method", "status","payment_status","tran_id",
-        "name", "email", "phone", "city", "total_amount",
+        "name", "email", "phone", "city", "total_amount","gateway_url",
         "total_items", "items_preview", "created_at", "updated_at"
     )
     list_filter = ("status", "payment_method", "created_at")
