@@ -17,11 +17,14 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
 ]
+STORE_ID="flipk67f7ec9513427"
+STORE_PASSWD="flipk67f7ec9513427@ssl"
+ISSANDBOX=True
 
 SSLCOMMERZ = {
-    'store_id': config("STORE_ID"),
-    'store_pass': config("STORE_PASSWD"),
-    'issandbox': config("ISSANDBOX", cast=bool)  # False in production
+    'store_id': STORE_ID,
+    'store_pass': STORE_PASSWD,
+    'issandbox': ISSANDBOX  # False in production
 }
 
 
