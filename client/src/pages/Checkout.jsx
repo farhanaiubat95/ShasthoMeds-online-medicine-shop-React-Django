@@ -15,6 +15,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { createOrder } from "../redux/orderSlice.js";
+import { clearCart } from "../redux/cartSlice.js";
 
 
 const Checkout = () => {
@@ -107,6 +108,7 @@ const Checkout = () => {
       .then((res) => {
         console.log("Order Success:", res);
         alert("Order placed successfully!");
+        dispatch(clearCart());
         if (paymentMethod === "cod") {
           setOpenModal(true);
         } else {
@@ -331,7 +333,11 @@ const Checkout = () => {
           <Typography mb={3}>
             Thank you! Your items will be delivered soon.
           </Typography>
-          <Button variant="contained" onClick={() => navigate("/")}>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: "#0F918F" }}
+            onClick={() => navigate("/")}
+          >
             Back to Home
           </Button>
         </Box>

@@ -51,7 +51,7 @@ export const removeFromCart = createAsyncThunk(
         "https://shasthomeds-backend.onrender.com/cart/remove/",
         {
           headers: { Authorization: `Bearer ${token}` },
-          data: { cart_item_id }, 
+          data: { cart_item_id },
         },
       );
       return response.data;
@@ -70,7 +70,13 @@ const cartSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    // Add this reducer
+    clearCart: (state) => {
+      state.cart = null;
+      state.items = [];
+    },
+  },
   extraReducers: (builder) => {
     builder
       // --- Fetch Cart ---
@@ -125,5 +131,8 @@ const cartSlice = createSlice({
       });
   },
 });
+
+// Export the action
+export const { clearCart } = cartSlice.actions;
 
 export default cartSlice.reducer;
