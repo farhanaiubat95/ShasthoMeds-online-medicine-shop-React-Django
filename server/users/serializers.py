@@ -328,7 +328,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "total_price", "total_new_price", "total_discount", "total_amount",
             "items", "created_at", "updated_at"
         ]
-        read_only_fields = ["id","tran_id","order_id", "created_at", "updated_at", "order_id"]
+        read_only_fields = ["id","created_at", "updated_at", "order_id"]
 
     def create(self, validated_data):
         request = self.context.get("request")
