@@ -305,7 +305,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             sslcommerz = SSLCOMMERZ(
                 store_id=settings.SSL_STORE_ID,
                 store_pass=settings.SSL_STORE_PASS,
-                is_sandbox=True
+                is_sandbox=settings.ISSANDBOX
             )
 
             payment_data = {

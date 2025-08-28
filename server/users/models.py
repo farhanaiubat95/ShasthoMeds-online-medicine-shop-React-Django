@@ -412,6 +412,7 @@ class Order(models.Model):
     total_new_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_discount = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    gateway_url = models.URLField(blank=True, null=True)  # Payment gateway URL
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
