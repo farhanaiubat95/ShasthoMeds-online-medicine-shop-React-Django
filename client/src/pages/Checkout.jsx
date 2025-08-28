@@ -122,7 +122,7 @@ const Checkout = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${authUser.access_token}`,
+              Authorization: `Bearer ${authUser?.access_token}`,
             },
           },
         );
