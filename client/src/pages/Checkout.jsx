@@ -17,7 +17,6 @@ import { useDispatch } from "react-redux";
 import { createOrder } from "../redux/orderSlice.js";
 import { clearCart } from "../redux/cartSlice.js";
 
-
 const Checkout = () => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -76,9 +75,15 @@ const Checkout = () => {
   };
 
   const handleConfirm = async () => {
+    // Validate postal code
+    if (!userInfo.postalCode || userInfo.postalCode.trim() === "") {
+      alert("Please fill in your postal code.");
+      return;
+    }
+
     const confirmData = {
-      user: authUser?.id, // send only user id
-      payment_method: paymentMethod, // match backend key
+      user: authUser?.id,
+      payment_method: paymentMethod,
       status: "pending",
       name: userInfo.name,
       email: userInfo.email,
@@ -99,26 +104,42 @@ const Checkout = () => {
       total_amount: totalAmount,
     };
 
-    console.log("=== Sending Order to API ===", confirmData);
+    try {
+      // 1. Create order
+      const res = await dispatch(
+        createOrder({ orderData: confirmData, token: authUser?.access_token }),
+      ).unwrap();
 
-    dispatch(
-      createOrder({ orderData: confirmData, token: authUser?.access_token }),
-    )
-      .unwrap()
-      .then((res) => {
-        console.log("Order Success:", res);
-        alert("Order placed successfully!");
-        dispatch(clearCart());
-        if (paymentMethod === "cod") {
-          setOpenModal(true);
+      dispatch(clearCart());
+
+      if (paymentMethod === "cod") {
+        setOpenModal(true);
+      } else {
+        // 2. Initiate SSLCommerz payment
+        const response = await fetch(
+          `https://your-backend.com/payments/initiate/${res.id}/`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authUser.access_token}`,
+            },
+          },
+        );
+        const data = await response.json();
+
+        if (data.GatewayPageURL) {
+          // 3. Redirect to SSLCommerz payment page
+          window.location.href = data.GatewayPageURL;
         } else {
-          navigate("/myaccount/payment", { state: confirmData });
+          alert("Failed to initiate payment.");
+          console.error(data);
         }
-      })
-      .catch((err) => {
-        console.error("Order Error:", err);
-        alert("Something went wrong!");
-      });
+      }
+    } catch (err) {
+      console.error("Order Error:", err);
+      alert("Something went wrong!");
+    }
   };
 
   return (

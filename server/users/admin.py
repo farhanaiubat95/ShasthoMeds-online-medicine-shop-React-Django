@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import  Cart, CartItem, Category, CustomUser, EmailOTP, Brand, Order, PrescriptionRequest,Product
+from .models import  Cart, CartItem, Category, CustomUser, EmailOTP, Brand, Order, Payment, PrescriptionRequest,Product
 from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -179,5 +179,49 @@ class OrderAdmin(admin.ModelAdmin):
             )
 
 
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "order_link",
+        "user",
+        "method",
+        "amount",
+        "status",
+        "transaction_id",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = ("status", "method", "created_at")
+    search_fields = ("transaction_id", "user__email", "order__order_id")
+    readonly_fields = ("transaction_id", "created_at", "updated_at")
+
+    # Link to Order
+    def order_link(self, obj):
+        if obj.order:
+            return format_html('<a href="/admin/store/order/{}/change/">{}</a>', obj.order.id, obj.order.order_id)
+        return "-"
+    order_link.short_description = "Order"
+
+    # Optional: allow admin to mark payment as SUCCESS manually (careful)
+    actions = ["mark_success", "mark_failed"]
+
+    def mark_success(self, request, queryset):
+        for payment in queryset:
+            payment.status = "SUCCESS"
+            payment.save()
+            if payment.order:
+                payment.order.status = "processing"
+                payment.order.save()
+    mark_success.short_description = "Mark selected payments as SUCCESS"
+
+    def mark_failed(self, request, queryset):
+        for payment in queryset:
+            payment.status = "FAILED"
+            payment.save()
+            if payment.order:
+                payment.order.status = "cancelled"
+                payment.order.save()
+    mark_failed.short_description = "Mark selected payments as FAILED"
 
 

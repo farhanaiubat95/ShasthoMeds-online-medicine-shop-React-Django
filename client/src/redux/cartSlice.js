@@ -44,9 +44,6 @@ export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
   async ({ cart_item_id, token }, { rejectWithValue }) => {
     try {
-      console.log("cart_item_id", cart_item_id);
-      console.log("token", token);
-
       const response = await axios.delete(
         "https://shasthomeds-backend.onrender.com/cart/remove/",
         {

@@ -2,14 +2,17 @@ from django.utils import timezone
 import random
 from django.core.mail import send_mail
 from rest_framework import generics
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status, permissions
+from django.shortcuts import get_object_or_404
+from django.conf import settings
+from sslcommerz_lib import SSLCOMMERZ  # using sslcommerz-lib wrapper
 
-from .models import Brand, Cart, CartItem, Category, Order, PrescriptionRequest,Product
+
+from .models import Brand, Cart, CartItem, Category, Order, Payment, PrescriptionRequest,Product
 from .serializers import BrandSerializer, CartSerializer, CategorySerializer, OrderSerializer, PrescriptionRequestSerializer,ProductSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from django.conf import settings
 
@@ -259,8 +262,6 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
 
 
 # ---------------- Order ViewSet ----------------
-# views.py
-
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -275,6 +276,15 @@ class OrderViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Save order
         order = serializer.save(user=self.request.user)
+
+        # Create Payment entry
+        Payment.objects.create(
+            order=order,
+            user=self.request.user,
+            method=order.payment_method,  # assuming you add this field in OrderSerializer
+            amount=order.total_amount,    # adjust according to your model
+            status="PENDING", 
+        )
 
         # Clear user's cart after successful order
         from .models import Cart 
@@ -293,3 +303,164 @@ class OrderViewSet(viewsets.ModelViewSet):
             print(f"Failed to send confirmation email: {str(e)}")
 
         return order
+
+
+# ---------------- Initiate Payment ----------------
+def generate_tran_id():
+    year = timezone.now().year
+    last_payment = Payment.objects.filter(tran_id__startswith=f"TRANS{year}_").order_by("id").last()
+
+    if not last_payment or not last_payment.tran_id:
+        new_id = 1
+    else:
+        last_number = int(last_payment.tran_id.split("_")[-1])
+        new_id = last_number + 1
+
+    return f"TRANS{year}_{new_id:03d}"  # TRANS2025_001
+
+class InitiateSSLCommerzPayment(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, order_id):
+        order = get_object_or_404(Order, order_id=order_id, user=request.user)
+        payment = get_object_or_404(Payment, order=order)
+
+        if payment.method != "ONLINE":
+            return Response({"error": "Payment method is not ONLINE."}, status=400)
+        
+        # Generate tran_id automatically
+        payment.transaction_id = generate_tran_id()
+        payment.save()
+
+        sslcz = SSLCOMMERZ(settings.SSLCOMMERZ)
+
+        post_body = {
+            "total_amount": float(payment.amount),
+            "currency": "BDT",
+            'tran_id': payment.transaction_id,
+            "success_url": f"https://your-domain.com/payment/success/{payment.id}/",
+            "fail_url": f"https://your-domain.com/payment/fail/{payment.id}/",
+            "cancel_url": f"https://your-domain.com/payment/cancel/{payment.id}/",
+            "emi_option": 0,
+            "cus_name": order.name,
+            "cus_email": order.email,
+            "cus_phone": order.phone,
+            "cus_add1": order.address,
+            "cus_city": order.city,
+            "cus_country": "Bangladesh",
+            "shipping_method": "NO",
+            "num_of_item": len(order.items),
+            "product_name": f"Order #{order.order_id}",
+            "product_category": "Medical",
+            "product_profile": "general",
+        }
+
+        response = sslcz.createSession(post_body)
+
+        if response.get("status") == "SUCCESS":
+            return Response({"GatewayPageURL": response.get("GatewayPageURL")})
+        return Response({"error": "Failed to initiate payment"}, status=500)
+
+
+# ---------------- Payment Status Callbacks ----------------
+class SSLCommerzSuccessView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, payment_id):
+        payment = get_object_or_404(Payment, id=payment_id)
+        data = request.data
+
+        payment.transaction_id = data.get("tran_id")
+        payment.status = "SUCCESS" if data.get("status") == "VALID" else "FAILED"
+        payment.gateway_response = data
+        payment.save()
+
+        if payment.status == "SUCCESS":
+            payment.order.status = "processing"
+            payment.order.save()
+
+            # Send payment success email
+            try:
+                send_mail(
+                    subject=f"Payment Successful - Order #{payment.order.order_id}",
+                    message=f"Hello {payment.order.name},\n\n"
+                            f"Your payment for order #{payment.order.order_id} has been successfully received.\n"
+                            f"Order Amount: Tk {payment.amount}\n"
+                            f"Transaction ID: {payment.transaction_id}\n\n"
+                            f"Thank you for shopping with us!",
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[payment.order.email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"Failed to send payment success email: {str(e)}")
+
+        return Response({"message": "Payment status updated."})
+
+
+class SSLCommerzFailView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, payment_id):
+        payment = get_object_or_404(Payment, id=payment_id)
+        data = request.data
+
+        payment.transaction_id = data.get("tran_id")
+        payment.status = "FAILED"
+        payment.gateway_response = data
+        payment.save()
+
+        payment.order.status = "cancelled"
+        payment.order.save()
+
+        # Send email about failed payment
+        try:
+            send_mail(
+                subject=f"Payment Failed - Order #{payment.order.order_id}",
+                message=f"Hello {payment.order.name},\n\n"
+                        f"Unfortunately, your payment for order #{payment.order.order_id} has failed.\n"
+                        f"Please try again or contact support.\n\n"
+                        f"Transaction ID: {payment.transaction_id}\n\n"
+                        f"Thank you.",
+                from_email=EMAIL_HOST_USER,
+                recipient_list=[payment.order.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Failed to send payment failed email: {str(e)}")
+
+        return Response({"message": "Payment failed and user notified via email."})
+
+
+class SSLCommerzCancelView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, payment_id):
+        payment = get_object_or_404(Payment, id=payment_id)
+        data = request.data
+
+        payment.transaction_id = data.get("tran_id")
+        payment.status = "CANCELLED"
+        payment.gateway_response = data
+        payment.save()
+
+        payment.order.status = "cancelled"
+        payment.order.save()
+
+        # Send email about cancelled payment
+        try:
+            send_mail(
+                subject=f"Payment Cancelled - Order #{payment.order.order_id}",
+                message=f"Hello {payment.order.name},\n\n"
+                        f"Your payment for order #{payment.order.order_id} has been cancelled by you.\n"
+                        f"If this was a mistake, you can retry payment from your account.\n\n"
+                        f"Transaction ID: {payment.transaction_id}\n\n"
+                        f"Thank you.",
+                from_email=EMAIL_HOST_USER,
+                recipient_list=[payment.order.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Failed to send payment cancelled email: {str(e)}")
+
+        return Response({"message": "Payment cancelled and user notified via email."})

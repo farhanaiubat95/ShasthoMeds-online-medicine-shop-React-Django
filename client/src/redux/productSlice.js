@@ -10,9 +10,6 @@ export const fetchProducts = createAsyncThunk(
       const response = await axios.get(
         "https://shasthomeds-backend.onrender.com/products/"
       );
-
-      console.log("Fetched products:", response.data); // debug
-
       // Handle paginated or plain array response
       if (Array.isArray(response.data)) {
         return response.data;

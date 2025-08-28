@@ -18,6 +18,13 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
 ]
 
+SSLCOMMERZ = {
+    'store_id': config("STORE_ID"),
+    'store_pass': config("STORE_PASSWD"),
+    'issandbox': config("ISSANDBOX", cast=bool)  # False in production
+}
+
+
 # -------------------------
 # Applications
 # -------------------------

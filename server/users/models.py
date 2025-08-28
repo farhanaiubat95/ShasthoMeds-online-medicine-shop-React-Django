@@ -424,3 +424,31 @@ class Order(models.Model):
         return f"Order {self.id} - {self.status}"
     def __str__(self):
         return f"Order #{self.order_id} by {self.user.username}"
+
+
+# Payment model
+class Payment(models.Model):
+    PAYMENT_METHODS = (
+        ("COD", "Cash on Delivery"),
+        ("ONLINE", "Online Payment"),
+    )
+
+    STATUS_CHOICES = (
+        ("PENDING", "Pending"),
+        ("SUCCESS", "Success"),
+        ("FAILED", "Failed"),
+        ("CANCELLED", "Cancelled"),
+    )
+
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name="payment")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    method = models.CharField(max_length=10, choices=PAYMENT_METHODS, default="COD")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
+
+    transaction_id = models.CharField(max_length=255, blank=True, null=True)  # from SSLCommerz
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.order.order_id} - {self.method} ({self.status})"
