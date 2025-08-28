@@ -8,6 +8,7 @@ export const createOrder = createAsyncThunk(
   "order/createOrder",
   async ({ orderData, token }, { rejectWithValue }) => {
     try {
+      console.log("orderData:", orderData);
       const res = await axiosInstance.post("/orders/", orderData, {
         headers: {
           Authorization: `Bearer ${token}`, // add token if protected
@@ -16,11 +17,12 @@ export const createOrder = createAsyncThunk(
 
       return res.data; // axios parses JSON automatically
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data || error.message || "Failed to place order"
-      );
+      return rejectWithValue({
+        message: error.response?.data?.detail || error.message,
+        status: error.response?.status || 500,
+      });
     }
-  }
+  },
 );
 
 // ===================

@@ -318,12 +318,7 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
     
 # Serializer for Order
 class OrderSerializer(serializers.ModelSerializer):
-    # items is stored as JSON, so just validate as a list of dicts
-    items = serializers.ListField(
-        child=serializers.DictField(
-            child=serializers.CharField()
-        )
-    )
+    items = serializers.JSONField() 
 
     class Meta:
         model = Order

@@ -313,8 +313,8 @@ class OrderViewSet(viewsets.ModelViewSet):
                 "cus_name": order.name,
                 "cus_email": order.email,
                 "cus_phone": order.phone,
-                "product_name": "Order Payment",
-                "product_category": "Ecommerce",
+                "product_name": "Medicine",
+                "product_category": "Medicine",
                 "product_profile": "general",
             }
 

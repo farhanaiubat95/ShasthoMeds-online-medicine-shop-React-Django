@@ -85,6 +85,7 @@ const Checkout = () => {
       user: authUser?.id,
       payment_method: paymentMethod,
       status: "pending",
+      payment_status: "pending",
       name: userInfo.name,
       email: userInfo.email,
       phone: userInfo.phone,
@@ -93,7 +94,7 @@ const Checkout = () => {
       address: userInfo.address,
       items: items.map((item) => ({
         product_id: item.productId, // match backend field names
-        title: item.productName,
+        productName: item.productName,
         quantity: item.quantity,
         price: item.productPrice,
         subtotal: item.quantity * item.productPrice,
