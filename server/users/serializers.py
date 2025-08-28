@@ -331,7 +331,8 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = ["id","tran_id","order_id", "created_at", "updated_at", "order_id"]
 
     def create(self, validated_data):
-        # items JSON 
+        request = self.context.get("request")
+        validated_data["user"] = request.user 
         return Order.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
