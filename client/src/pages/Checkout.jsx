@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { createOrder } from "../redux/orderSlice.js";
 import { clearCart } from "../redux/cartSlice.js";
+import { initiatePayment } from "../redux/paymentSlice.js";
 
 const Checkout = () => {
   const dispatch = useDispatch();
@@ -116,20 +117,15 @@ const Checkout = () => {
         setOpenModal(true);
       } else {
         // 2. Initiate SSLCommerz payment
-        const response = await fetch(
-          `https://shasthomeds-backend.onrender.com/payment/initiate/${res.order_id}/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authUser?.access_token}`,
-            },
-          },
-        );
-        const data = await response.json();
+        const paymentResponse = await dispatch(
+          initiatePayment({
+            order_id: res.order_id,
+            token: authUser?.access_token,
+          }),
+        ).unwrap();
 
+        const data = paymentResponse; 
         if (data.GatewayPageURL) {
-          // 3. Redirect to SSLCommerz payment page
           window.location.href = data.GatewayPageURL;
         } else {
           alert("Failed to initiate payment.");
