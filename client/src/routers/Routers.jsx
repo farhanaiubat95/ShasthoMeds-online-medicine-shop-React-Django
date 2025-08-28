@@ -24,6 +24,7 @@ import Notification from "../components/Admin/Notification";
 import Payment from "../components/Admin/Payment";
 import Findpagecheck from "../components/product/Findpagecheck";
 import Checkout from "../pages/CheckOut";
+import Paymen_succesfull from "../pages/PaymenSuccesfull";
 
 const Routers = () => {
   return (
@@ -73,6 +74,7 @@ const Routers = () => {
         {/* Catch-All */}
         <Route path="*" element={<ErrorPage />} />
         <Route path="/check" element={<Findpagecheck />} />
+        <Route path="/payment-success" element={<Paymen_succesfull />} />
       </Routes>
     </>
   );

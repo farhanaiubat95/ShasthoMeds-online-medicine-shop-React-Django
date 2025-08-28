@@ -16,7 +16,6 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { createOrder } from "../redux/orderSlice.js";
 import { clearCart } from "../redux/cartSlice.js";
-import { initiatePayment } from "../redux/paymentSlice.js";
 
 const Checkout = () => {
   const dispatch = useDispatch();
@@ -93,8 +92,8 @@ const Checkout = () => {
       postal_code: userInfo.postalCode,
       address: userInfo.address,
       items: items.map((item) => ({
-        productId: item.productId,
-        productName: item.productName,
+        product_id: item.productId, // match backend field names
+        title: item.productName,
         quantity: item.quantity,
         price: item.productPrice,
         subtotal: item.quantity * item.productPrice,
@@ -106,30 +105,21 @@ const Checkout = () => {
     };
 
     try {
-      // 1. Create order
       const res = await dispatch(
         createOrder({ orderData: confirmData, token: authUser?.access_token }),
       ).unwrap();
 
       dispatch(clearCart());
 
+      // COD → show modal
       if (paymentMethod === "cod") {
         setOpenModal(true);
-      } else {
-        // 2. Initiate SSLCommerz payment
-        const paymentResponse = await dispatch(
-          initiatePayment({
-            order_id: res.order_id,
-            token: authUser?.access_token,
-          }),
-        ).unwrap();
-
-        const data = paymentResponse; 
-        if (data.GatewayPageURL) {
-          window.location.href = data.GatewayPageURL;
+      } else if (paymentMethod === "card") {
+        // Card → redirect to payment gateway
+        if (res.gateway_url) {
+          window.location.href = res.gateway_url; // Redirect user
         } else {
-          alert("Failed to initiate payment.");
-          console.error(data);
+          alert("Failed to initiate payment. Please try again.");
         }
       }
     } catch (err) {

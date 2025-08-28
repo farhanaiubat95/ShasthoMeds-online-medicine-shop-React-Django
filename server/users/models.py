@@ -381,10 +381,19 @@ class Order(models.Model):
         ("cancelled", "Cancelled"),
     ]
 
+    PAYMENT_STATUS = (
+        ("PENDING", "Pending"),
+        ("SUCCESS", "Success"),
+        ("FAILED", "Failed"),
+        ("CANCELLED", "Cancelled"),
+    )
+
     order_id = models.CharField(max_length=20, unique=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default="cod")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default="Pending")
+    tran_id = models.CharField(max_length=20, unique=True, blank=True, null=True)  # Transaction ID
 
     # Shipping info
     name = models.CharField(max_length=255)
@@ -418,6 +427,17 @@ class Order(models.Model):
                 new_id = 202501
             self.order_id = f"SH{new_id}"
 
+    # Auto-generate tran_id for card payments only
+        if self.payment_method == "card" and not self.tran_id:
+            year = timezone.now().year
+            last_order = Order.objects.filter(tran_id__startswith=f"TRANS{year}").order_by("id").last()
+            if last_order and last_order.tran_id:
+                last_seq = int(last_order.tran_id[-3:])
+                new_seq = last_seq + 1
+            else:
+                new_seq = 1
+            self.tran_id = f"TRANS{year}{new_seq:03d}"
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -426,29 +446,3 @@ class Order(models.Model):
         return f"Order #{self.order_id} by {self.user.username}"
 
 
-# Payment model
-class Payment(models.Model):
-    PAYMENT_METHODS = (
-        ("COD", "Cash on Delivery"),
-        ("ONLINE", "Online Payment"),
-    )
-
-    STATUS_CHOICES = (
-        ("PENDING", "Pending"),
-        ("SUCCESS", "Success"),
-        ("FAILED", "Failed"),
-        ("CANCELLED", "Cancelled"),
-    )
-
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name="payment")
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    method = models.CharField(max_length=10, choices=PAYMENT_METHODS, default="COD")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
-
-    transaction_id = models.CharField(max_length=255, blank=True, null=True)  # from SSLCommerz
-    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.order.order_id} - {self.method} ({self.status})"

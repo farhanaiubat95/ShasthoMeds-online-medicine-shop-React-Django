@@ -17,15 +17,15 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
 ]
-STORE_ID="flipk67f7ec9513427"
-STORE_PASSWD="flipk67f7ec9513427@ssl"
-ISSANDBOX=True
 
-SSLCOMMERZ = {
-    'store_id': STORE_ID,
-    'store_pass': STORE_PASSWD,
-    'issandbox': ISSANDBOX  # False in production
-}
+
+# SSL Credentials
+SSL_STORE_ID = "flipk67f7ec9513427"
+SSL_STORE_PASS = "flipk67f7ec9513427@ssl"
+ISSANDBOX=True
+SSL_SUCCESS_URL = "https://shasthomeds-online.onrender.com/payment-success"
+SSL_FAIL_URL = "https://shasthomeds-online.onrender.com/payment-fail"
+SSL_CANCEL_URL = "https://shasthomeds-online.onrender.com/payment-cancel"
 
 
 # -------------------------

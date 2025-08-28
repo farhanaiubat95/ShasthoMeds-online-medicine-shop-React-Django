@@ -328,12 +328,12 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            "id","order_id", "user", "payment_method", "status",
+            "id","order_id", "user", "payment_method", "status","payment_status","tran_id",
             "name", "email", "phone", "city", "postal_code", "address",
             "total_price", "total_new_price", "total_discount", "total_amount",
             "items", "created_at", "updated_at"
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "order_id"]
+        read_only_fields = ["id","tran_id","order_id", "created_at", "updated_at", "order_id"]
 
     def create(self, validated_data):
         # items JSON 

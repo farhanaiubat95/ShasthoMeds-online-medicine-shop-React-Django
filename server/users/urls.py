@@ -2,7 +2,7 @@
 
 from django.urls import include, path
 from .views import (
-    APIRootView, BrandViewSet, CartViewSet, CategoryViewSet, InitiateSSLCommerzPayment, LogoutView, OrderViewSet, PrescriptionRequestViewSet, ProductViewSet, RegisterAPIView, ResendOTPView, SSLCommerzCancelView, SSLCommerzFailView, SSLCommerzSuccessView,
+    APIRootView, BrandViewSet, CartViewSet, CategoryViewSet,LogoutView, OrderViewSet, PrescriptionRequestViewSet, ProductViewSet, RegisterAPIView, ResendOTPView,
     UpdateProfileView, VerifyOTPView, CustomTokenObtainPairView,
 )
 
@@ -29,13 +29,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
     path('api/logout/', LogoutView.as_view(), name='logout'),
-
-    path('payment/', include([
-    path("initiate/<str:order_id>/", InitiateSSLCommerzPayment.as_view(), name="ssl_initiate"),
-    path("success/<int:payment_id>/", SSLCommerzSuccessView.as_view(), name="ssl_success"),
-    path("failure/<int:payment_id>/", SSLCommerzFailView.as_view(), name="ssl_failure"),
-    path("cancel/<int:payment_id>/", SSLCommerzCancelView.as_view(), name="ssl_cancel"),
-    ])),
 
     # Include router URLs
     path('', include(router.urls)),  # Corrected path and added namespace
