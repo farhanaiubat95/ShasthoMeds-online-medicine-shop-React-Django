@@ -82,6 +82,7 @@ const Checkout = () => {
     }
 
     const confirmData = {
+      user: authUser?.id,
       payment_method: paymentMethod,
       status: "pending",
       payment_status: "pending",
