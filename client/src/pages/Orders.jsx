@@ -14,13 +14,19 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import CancelIcon from "@mui/icons-material/Cancel";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchOrders } from "../redux/orderSlice";
 
 const Orders = () => {
+  const dispatch = useDispatch();
   const { orders, loading } = useSelector((state) => state.orders);
 
   // unwrap results array from API
   const orderList = orders?.results || [];
+
+  useEffect(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);

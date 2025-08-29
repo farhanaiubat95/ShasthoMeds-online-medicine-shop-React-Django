@@ -13,7 +13,6 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCart, removeFromCart, addToCart } from "../redux/cartSlice.js";
 import { useNavigate } from "react-router-dom";
-import { fetchOrders } from "../redux/orderSlice.js";
 
 const ContainerLeft = styled(Box)({
   flex: 2,
@@ -73,7 +72,6 @@ const DiscountBoxs = styled(Box)({
 export default function Cart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { orders, loading } = useSelector((state) => state.orders);
   const token = useSelector((state) => state.auth.token);
   const cartState = useSelector((state) => state.carts);
   const [quantities, setQuantities] = useState({});
@@ -83,13 +81,7 @@ export default function Cart() {
       dispatch(fetchCart(token)); // correct function
     }
   }, [dispatch, token]);
-
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchOrders(token));
-    }
-
-    }, [dispatch]);
+  
 
   useEffect(() => {
     if (cartState.items.length > 0) {
