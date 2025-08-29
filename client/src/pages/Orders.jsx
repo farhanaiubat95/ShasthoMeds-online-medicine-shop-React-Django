@@ -23,7 +23,6 @@ const Orders = () => {
   // unwrap results array from API
   const orderList = orders?.results || [];
 
-
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
   };
