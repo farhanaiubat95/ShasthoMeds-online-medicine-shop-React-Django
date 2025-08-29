@@ -8,6 +8,7 @@ import { Outlet } from "react-router-dom"; // import Outlet for nested routing
 import { fetchBrands } from "../redux/brandSlice";
 import { useDispatch } from "react-redux";
 import { fetchCategories } from "../redux/categorySlice";
+import { fetchOrders } from "../redux/orderSlice";
 
 export default function Home() {
   const dispatch = useDispatch();
