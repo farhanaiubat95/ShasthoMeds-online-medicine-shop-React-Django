@@ -264,11 +264,6 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
 
 # ---------------- Order ViewSet ----------------
 
-
-SSL_SUCCESS_URL = "https://shasthomeds-online.onrender.com/payment-success"
-SSL_FAIL_URL = "https://shasthomeds-online.onrender.com/payment-fail"
-SSL_CANCEL_URL = "https://shasthomeds-online.onrender.com/payment-cancel"
-
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -299,9 +294,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             ssl_response = create_payment_session(
                 amount=order.total_amount,
                 tran_id=order.tran_id,
-                success_url=SSL_SUCCESS_URL,
-                fail_url=SSL_FAIL_URL,
-                cancel_url=SSL_CANCEL_URL,
+                success_url="https://shasthomeds-online.onrender.com/payment-success",
+                fail_url="https://shasthomeds-online.onrender.com/payment-fail",
+                cancel_url="https://shasthomeds-online.onrender.com/payment-cancel",
                 customer_name=order.name,
                 customer_email=order.email,
                 customer_phone=order.phone,

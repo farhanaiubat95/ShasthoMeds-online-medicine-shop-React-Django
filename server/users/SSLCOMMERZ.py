@@ -4,15 +4,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 # === SSLCommerz Config ===
 # SSL Credentials
-SSL_STORE_ID = "flipk67f7ec9513427"
-SSL_STORE_PASS = "flipk67f7ec9513427@ssl"
-ISSANDBOX=True
-
 
 sslcz_settings = {
-    'store_id': SSL_STORE_ID,         # sandbox store_id
-    'store_passwd': SSL_STORE_PASS, # sandbox password
-    'issandbox': ISSANDBOX,       # False in production
+    'store_id': "flipk67f7ec9513427",         # sandbox store_id
+    'store_pass': "flipk67f7ec9513427@ssl", # sandbox password
+    'issandbox': True,       # False in production
 }
 
 
