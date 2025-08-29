@@ -334,11 +334,14 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
+        print("Validated order data:", validated_data)
         order = Order.objects.create(**validated_data)
+        print("Order created:", order.id)
 
-        # create OrderItem objects after order is saved
         for item_data in items_data:
+            print("Item data:", item_data)
             product = Product.objects.get(id=item_data['product_id'])
+            print("Product found:", product.name)
             OrderItem.objects.create(
                 order=order,
                 product=product,
@@ -346,5 +349,6 @@ class OrderSerializer(serializers.ModelSerializer):
                 quantity=item_data['quantity'],
                 price=item_data['price'],
                 subtotal=item_data['subtotal']
-            )
+        )
         return order
+
