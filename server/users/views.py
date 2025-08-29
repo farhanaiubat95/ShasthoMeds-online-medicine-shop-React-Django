@@ -319,7 +319,15 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Card Payment: Generate tran_id + call SSLCOMMERZ
         elif payment_method == "card":
             # Generate tran_id
-            tran_id = get_random_string(16)
+            last_order = Order.objects.order_by("-id").first()
+            if last_order and last_order.tran_id and last_order.tran_id.startswith("TRANS"):
+                last_number = int(last_order.tran_id.replace("TRANS", ""))
+                new_number = last_number + 1
+            else:
+                new_number = 25001  # starting point
+                
+            
+            tran_id = f"TRANS{new_number}"
             data["tran_id"] = tran_id
 
             # Save order in DB
