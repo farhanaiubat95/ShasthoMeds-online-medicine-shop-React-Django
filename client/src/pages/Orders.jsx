@@ -13,19 +13,25 @@ import HomeIcon from "@mui/icons-material/Home";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import CancelIcon from "@mui/icons-material/Cancel";
+import LoopIcon from "@mui/icons-material/Loop";
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchOrders } from "../redux/orderSlice";
 
 const Orders = () => {
+  const token = localStorage.getItem("access_token");
   const dispatch = useDispatch();
   const { orders, loading } = useSelector((state) => state.orders);
 
   // unwrap results array from API
   const orderList = orders?.results || [];
+  console.log("orderList", orderList);
+  console.log("orderitems", orderList.items);
 
-  useEffect(() => {
-    dispatch(fetchOrders());
+    useEffect(() => {
+      if (token) {
+        dispatch(fetchOrders(token));
+      }
   }, [dispatch]);
 
   const copyToClipboard = (text) => {
@@ -75,6 +81,7 @@ const Orders = () => {
                 icon={<LocalShippingIcon />}
                 label="Regular Delivery"
                 size="small"
+                color="primary"
                 sx={{
                   backgroundColor: "#064232",
                   color: "#fff",
@@ -136,6 +143,8 @@ const Orders = () => {
                       <HourglassBottomIcon />
                     ) : order.status === "cancelled" ? (
                       <CancelIcon />
+                    ) : order.status === "processing" ? (
+                      <LoopIcon />
                     ) : (
                       <LocalShippingIcon />
                     )
@@ -146,10 +155,12 @@ const Orders = () => {
                     order.status === "delivered"
                       ? "success"
                       : order.status === "pending"
-                      ? "warning"
-                      : order.status === "cancelled"
-                      ? "error"
-                      : "default"
+                        ? "warning"
+                        : order.status === "cancelled"
+                          ? "error"
+                          : order.status === "processing"
+                            ? "secondary"
+                            : "default"
                   }
                 />
               </div>

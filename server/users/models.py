@@ -371,7 +371,7 @@ class PrescriptionRequest(models.Model):
 class Order(models.Model):
     PAYMENT_METHODS = (("cod", "Cash on Delivery"), ("card", "Card Payment"))
     STATUSES = (("pending", "Pending"), ("processing", "Processing"),
-                ("cancelled", "Cancelled"), ("failed", "Failed"), ("completed", "Completed"))
+                ("cancelled", "Cancelled"),("delivered", "Delivered"))
     PAY_STATUSES = (("pending", "Pending"), ("paid", "Paid"), ("failed", "Failed"), ("refunded", "Refunded"))
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")

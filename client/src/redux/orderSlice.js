@@ -40,7 +40,7 @@ export const fetchOrders = createAsyncThunk(
 const orderSlice = createSlice({
   name: "order",
   initialState: {
-    orders: [],      // <-- store multiple orders here
+    orderlist: [],      // <-- store multiple orders here
     order: null,     // single order (created)
     loading: false,
     error: null,
