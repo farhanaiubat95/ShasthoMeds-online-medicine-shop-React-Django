@@ -1,40 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../axiosInstance";
 
-// ===================
-// Async Thunk: Create Order
-// ===================
+// Create Order
 export const createOrder = createAsyncThunk(
   "order/createOrder",
   async ({ orderPayload, token }, { rejectWithValue }) => {
     try {
-      console.log("orderData:", orderPayload);
       const res = await axiosInstance.post("/orders/", orderPayload, {
-        headers: {
-          Authorization: `Bearer ${token}`, // add token if protected
-        },
-      });
-
-      return res.data; // axios parses JSON automatically
-    } catch (error) {
-      return rejectWithValue({
-        message: error.response?.data?.detail || error.message,
-        status: error.response?.status || 500,
-      });
-    }
-  },
-);
-
-
-// Fetch Orders
-export const fetchOrders = createAsyncThunk(
-  "order/fetchOrders",
-  async (token, { rejectWithValue }) => {
-    try {
-      const res = await axiosInstance.get("/orders/", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return res.data; // assuming API returns array of orders
+      return res.data;
     } catch (error) {
       return rejectWithValue({
         message: error.response?.data?.detail || error.message,
@@ -44,19 +19,36 @@ export const fetchOrders = createAsyncThunk(
   }
 );
 
-// ===================
-// Slice
-// ===================
+// Fetch Orders
+export const fetchOrders = createAsyncThunk(
+  "order/fetchOrders",
+  async (token, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get("/orders/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue({
+        message: error.response?.data?.detail || error.message,
+        status: error.response?.status || 500,
+      });
+    }
+  }
+);
+
 const orderSlice = createSlice({
   name: "order",
   initialState: {
-    order: null,
+    orders: [],      // <-- store multiple orders here
+    order: null,     // single order (created)
     loading: false,
     error: null,
     success: false,
   },
   reducers: {
     resetOrderState: (state) => {
+      state.orders = [];
       state.order = null;
       state.loading = false;
       state.error = null;
@@ -74,12 +66,26 @@ const orderSlice = createSlice({
       .addCase(createOrder.fulfilled, (state, action) => {
         state.loading = false;
         state.order = action.payload;
+        state.orders.push(action.payload); // add created order to orders list
         state.success = true;
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to place order";
         state.success = false;
+      })
+      // Fetch orders
+      .addCase(fetchOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload; // store fetched orders
+      })
+      .addCase(fetchOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch orders";
       });
   },
 });
