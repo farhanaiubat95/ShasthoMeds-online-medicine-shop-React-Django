@@ -172,7 +172,6 @@ const LogCartIcon = () => {
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
-                  display: "block",
                   maxWidth: {
                     sm: "40px", // small screen
                     md: "50px", // medium screen
@@ -266,7 +265,6 @@ const LogCartIcon = () => {
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
-                  display: "block",
                   maxWidth: {
                     sm: "30px", // small screen
                     md: "50px", // medium screen
