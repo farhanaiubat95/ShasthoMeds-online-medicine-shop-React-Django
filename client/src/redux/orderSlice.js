@@ -6,10 +6,10 @@ import axiosInstance from "../axiosInstance";
 // ===================
 export const createOrder = createAsyncThunk(
   "order/createOrder",
-  async ({ orderData, token }, { rejectWithValue }) => {
+  async ({ orderPayload, token }, { rejectWithValue }) => {
     try {
-      console.log("orderData:", orderData);
-      const res = await axiosInstance.post("/orders/", orderData, {
+      console.log("orderData:", orderPayload);
+      const res = await axiosInstance.post("/orders/", orderPayload, {
         headers: {
           Authorization: `Bearer ${token}`, // add token if protected
         },

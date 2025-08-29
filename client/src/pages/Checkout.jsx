@@ -75,14 +75,13 @@ const Checkout = () => {
   };
 
   const handleConfirm = async () => {
-     // Validate postal code
+    // Validate postal code
     if (!userInfo.postalCode || userInfo.postalCode.trim() === "") {
       alert("Please fill in your postal code.");
       return;
     }
 
-
-    const confirmData = {
+    const orderPayload = {
       user: authUser?.id,
       payment_method: paymentMethod,
       status: "pending",
@@ -93,44 +92,44 @@ const Checkout = () => {
       city: userInfo.city,
       postal_code: userInfo.postalCode,
       address: userInfo.address,
-      items: items.map((item) => ({
-        product_id: item.productId,   // backend expects product_id
-        productName: item.productName,
-        quantity: item.quantity,
-        price: item.productPrice,
-        subtotal: item.quantity * item.productPrice,
+      items: orderData.items.map((i) => ({
+        product_id: i.productId,
+        product_name: i.productName,
+        quantity: i.quantity,
+        price: i.productPrice,
+        subtotal: i.quantity * i.productPrice,
       })),
-      total_price: totalPrice,
-      total_new_price: totalNewPrice,
-      total_discount: totalDiscount,
-      total_amount: totalAmount,
+      total_price: orderData.totalPrice,
+      total_new_price: orderData.totalNewPrice,
+      total_discount: orderData.totalDiscount,
+      total_amount: orderData.totalAmount
     };
 
+    const token = localStorage.getItem("access_token");
+
     try {
-      const res = await axios.post("/api/orders/", confirmData, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true, // if your backend uses cookies/session auth
-      });
+      const res = await dispatch(createOrder({ orderPayload, token }));
 
       if (paymentMethod === "cod") {
-        // COD: just show success modal
-        setOpenModal(true);
+        // COD: show confirmation modal
         dispatch(clearCart());
-      } else if (paymentMethod === "card") {
-        // Card: redirect to SSLCommerz Gateway
-        const gatewayURL = res.data.payment.GatewayPageURL;
+        setOpenModal(true);
+      } else {
+        // Card payment: redirect to SSLCommerz gateway
+        const gatewayURL = res.data.redirectGatewayURL || res.data.GatewayPageURL;
         if (gatewayURL) {
           window.location.href = gatewayURL;
         } else {
-          alert("Payment gateway not available. Try again.");
+          alert("Payment URL not found!");
         }
       }
     } catch (err) {
-      console.error("Order failed:", err.response?.data || err.message);
-      alert("Order could not be placed. Please try again.");
+      console.error(err);
+      alert(
+        "Failed to place order: " + (err.response?.data?.detail || err.message),
+      );
     }
   };
-
 
   return (
     <Box

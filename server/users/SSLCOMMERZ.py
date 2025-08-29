@@ -1,6 +1,15 @@
+
 from sslcommerz_lib import SSLCOMMERZ
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
+from django.core.mail import send_mail
+
+from django.conf import settings
+
+EMAIL_HOST_USER = settings.EMAIL_HOST_USER
+
+from server.users.models import Order
 
 # === SSLCommerz Config ===
 # SSL Credentials
@@ -54,16 +63,82 @@ def create_payment_session(amount, tran_id, success_url, fail_url, cancel_url,
 @csrf_exempt
 def payment_success(request):
     data = request.POST.dict()
-    return JsonResponse({"status": "success", "data": data})
+    tran_id = data.get("tran_id")
+
+    if not tran_id:
+        return JsonResponse({"status": "failed", "message": "tran_id missing"})
+
+    try:
+        order = Order.objects.get(tran_id=tran_id)
+        order.payment_status = "paid"
+        order.status = "pending"
+        order.save()
+
+        # Optional: send confirmation email
+        send_mail(
+            subject=f"Payment Received - Order #{order.id}",
+            message=f"Dear {order.name},\n\nWe have received your payment.\n\nThank you!",
+            from_email=EMAIL_HOST_USER,
+            recipient_list=[order.email],
+        )
+
+        return JsonResponse({"status": "success", "message": "Payment verified"})
+    except Order.DoesNotExist:
+        return JsonResponse({"status": "failed", "message": "Order not found"})
 
 
+
+# ================== Failed ==================
 @csrf_exempt
 def payment_fail(request):
     data = request.POST.dict()
-    return JsonResponse({"status": "failed", "data": data})
+    tran_id = data.get("tran_id")
+
+    if not tran_id:
+        return JsonResponse({"status": "failed", "message": "tran_id missing"})
+
+    try:
+        order = Order.objects.get(tran_id=tran_id)
+        order.payment_status = "failed"
+        order.status = "pending"
+        order.save()
+
+        # Optional: notify customer about failed payment
+        send_mail(
+            subject=f"Payment Failed - Order #{order.id}",
+            message=f"Dear {order.name},\n\nYour payment could not be processed.\nPlease try again.",
+            from_email=EMAIL_HOST_USER,
+            recipient_list=[order.email],
+        )
+
+        return JsonResponse({"status": "failed", "message": "Payment failed"})
+    except Order.DoesNotExist:
+        return JsonResponse({"status": "failed", "message": "Order not found"})
 
 
+# ================== Cancelled ==================
 @csrf_exempt
 def payment_cancel(request):
     data = request.POST.dict()
-    return JsonResponse({"status": "cancelled", "data": data})
+    tran_id = data.get("tran_id")
+
+    if not tran_id:
+        return JsonResponse({"status": "failed", "message": "tran_id missing"})
+
+    try:
+        order = Order.objects.get(tran_id=tran_id)
+        order.payment_status = "pending"
+        order.status = "pending"
+        order.save()
+
+        # Optional: notify customer about cancelled payment
+        send_mail(
+            subject=f"Payment Cancelled - Order #{order.id}",
+            message=f"Dear {order.name},\n\nYour payment has been cancelled.\nIf this was a mistake, please place the order again.",
+            from_email=EMAIL_HOST_USER,
+            recipient_list=[order.email],
+        )
+
+        return JsonResponse({"status": "cancelled", "message": "Payment cancelled"})
+    except Order.DoesNotExist:
+        return JsonResponse({"status": "failed", "message": "Order not found"})
