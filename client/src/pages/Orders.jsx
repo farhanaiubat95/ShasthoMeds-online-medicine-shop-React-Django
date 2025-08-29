@@ -15,15 +15,14 @@ import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 import { useSelector, useDispatch } from "react-redux";
-import { fetchOrders } from "../redux/orderSlice";
 
 const Orders = () => {
   const dispatch = useDispatch();
-  const { orders, loading } = useSelector((state) => state.orders); // Redux orders
+  const { orders, loading } = useSelector((state) => state.orders);
 
-  useEffect(() => {
-    dispatch(fetchOrders());
-  }, [dispatch]);
+  // unwrap results array from API
+  const orderList = orders?.results || [];
+
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -39,12 +38,12 @@ const Orders = () => {
         <Typography className="text-center text-gray-600">
           Loading orders...
         </Typography>
-      ) : orders?.length === 0 ? (
+      ) : orderList.length === 0 ? (
         <Typography className="text-center text-gray-600">
           No orders found.
         </Typography>
       ) : (
-        orders.map((order) => (
+        orderList.map((order) => (
           <Box
             key={order.id}
             className="bg-white rounded-xl shadow p-4 sm:p-6 mb-6 border border-gray-200 xl:w-[800px] mx-auto"
@@ -95,11 +94,17 @@ const Orders = () => {
               </Box>
               <Box>
                 <Chip
-                  label={order.payment_status === "paid" ? "Paid" : "Unpaid"}
+                  label={
+                    order.payment_status?.toLowerCase() === "paid"
+                      ? "Paid"
+                      : "Unpaid"
+                  }
                   size="small"
                   sx={{
                     backgroundColor:
-                      order.payment_status === "paid" ? "#102E50" : "#C5172E",
+                      order.payment_status?.toLowerCase() === "paid"
+                        ? "#102E50"
+                        : "#C5172E",
                     color: "#fff",
                     fontWeight: 500,
                     borderRadius: "6px",
@@ -137,10 +142,10 @@ const Orders = () => {
                     order.status === "delivered"
                       ? "success"
                       : order.status === "pending"
-                        ? "warning"
-                        : order.status === "cancelled"
-                          ? "error"
-                          : "default"
+                      ? "warning"
+                      : order.status === "cancelled"
+                      ? "error"
+                      : "default"
                   }
                 />
               </div>
@@ -155,17 +160,23 @@ const Orders = () => {
             <Typography variant="subtitle1" className="font-semibold mb-2">
               Ordered Items
             </Typography>
-            {order.items.map((item, idx) => (
-              <Box
-                key={idx}
-                className="flex justify-between text-sm text-gray-700 mb-1"
-              >
-                <span>
-                  {item.product_name} × {item.quantity}
-                </span>
-                <span>Tk {item.subtotal}</span>
-              </Box>
-            ))}
+            {order.items?.length > 0 ? (
+              order.items.map((item, idx) => (
+                <Box
+                  key={idx}
+                  className="flex justify-between text-sm text-gray-700 mb-1"
+                >
+                  <span>
+                    {item.product_name} × {item.quantity}
+                  </span>
+                  <span>Tk {item.subtotal}</span>
+                </Box>
+              ))
+            ) : (
+              <Typography className="text-gray-500 text-sm">
+                No items found
+              </Typography>
+            )}
           </Box>
         ))
       )}
