@@ -1,4 +1,5 @@
 
+from django.shortcuts import redirect
 from sslcommerz_lib import SSLCOMMERZ
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -74,6 +75,8 @@ def payment_success(request):
         order.status = "pending"
         order.save()
 
+        
+
         # Optional: send confirmation email
         send_mail(
             subject=f"Payment Received - Order #{order.id}",
@@ -82,7 +85,8 @@ def payment_success(request):
             recipient_list=[order.email],
         )
 
-        return JsonResponse({"status": "success", "message": "Payment verified"})
+        return redirect(f"https://shasthomeds-online.onrender.com/payment-success?tran_id={tran_id}")
+    
     except Order.DoesNotExist:
         return JsonResponse({"status": "failed", "message": "Order not found"})
 

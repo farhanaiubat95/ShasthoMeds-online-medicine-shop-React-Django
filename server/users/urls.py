@@ -2,7 +2,8 @@
 
 from django.urls import include, path
 
-from users.SSLCOMMERZ import payment_success, payment_fail, payment_cancel
+from .SSLCOMMERZ import payment_success, payment_fail, payment_cancel
+
 
 from .views import (
     APIRootView, BrandViewSet, CartViewSet, CategoryViewSet,LogoutView, OrderViewSet, PrescriptionRequestViewSet, ProductViewSet, RegisterAPIView, ResendOTPView,

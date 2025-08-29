@@ -308,7 +308,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                         f"Total Amount: {order.total_amount} BDT\n\n"
                         "We will notify you once your order is shipped.\n\n"
                         "Thanks,\nShasthoMeds",
-                    from_email=settings.EMAIL_HOST_USER,
+                    from_email=EMAIL_HOST_USER,
                     recipient_list=[order.email],
                 )
             except Exception as e:
@@ -356,7 +356,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                             f"Total Amount: {order.total_amount} BDT\n\n"
                             "We will notify you once your order is shipped.\n\n"
                             "Thanks,\nShasthoMeds",
-                    from_email=settings.EMAIL_HOST_USER,
+                    from_email=EMAIL_HOST_USER,
                     recipient_list=[order.email],
                 )
             except Exception as e:
@@ -367,9 +367,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             ssl_response = create_payment_session(
                 amount=order.total_amount,
                 tran_id=order.tran_id,
-                success_url="https://shasthomeds-online.onrender.com/payment-success",
-                fail_url="https://shasthomeds-online.onrender.com/payment-fail",
-                cancel_url="https://shasthomeds-online.onrender.com/payment-cancel",
+                success_url="https://shasthomeds-backend.onrender.com/payment/success/",
+                fail_url="https://shasthomeds-backend.onrender.com/payment/fail/",
+                cancel_url="https://shasthomeds-backend.onrender.com/payment/cancel/",
                 customer_name=order.name,
                 customer_email=order.email,
                 customer_phone=order.phone,
