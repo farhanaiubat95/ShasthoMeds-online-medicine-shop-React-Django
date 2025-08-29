@@ -143,7 +143,7 @@ const LogCartIcon = () => {
           {/* Cart / Dashboard Button */}
           {user?.role === "user" ? (
             <Link to="/myaccount/cart" className="cursor-pointer">
-              <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2  xl:ml-0 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
+              <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2  xl:ml-2 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
                 <IconButton>
                   <Badge badgeContent={cartCount} color="error">
                     <ShoppingCart
