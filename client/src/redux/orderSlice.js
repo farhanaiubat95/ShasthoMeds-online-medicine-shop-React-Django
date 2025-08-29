@@ -24,17 +24,17 @@ export const fetchOrders = createAsyncThunk(
   "order/fetchOrders",
   async (token, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/orders/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return res.data;
-    } catch (error) {
-      return rejectWithValue({
-        message: error.response?.data?.detail || error.message,
-        status: error.response?.status || 500,
-      });
+      const res = await axios.get(
+        "https://shasthomeds-backend.onrender.com/orders/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      return res.data; // backend returns full cart object
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 const orderSlice = createSlice({

@@ -28,11 +28,11 @@ const Orders = () => {
   console.log("orderList", orderList);
   console.log("orderitems", orderList.items);
 
-    useEffect(() => {
-      if (token) {
-        dispatch(fetchOrders(token));
-      }
-  }, [dispatch]);
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchOrders(token)); // correct function
+    }
+  }, [dispatch, token]);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
