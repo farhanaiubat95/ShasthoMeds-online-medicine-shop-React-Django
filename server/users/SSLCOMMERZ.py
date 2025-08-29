@@ -9,7 +9,7 @@ from django.conf import settings
 
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
-from server.users.models import Order
+from .models import Order
 
 # === SSLCommerz Config ===
 # SSL Credentials
