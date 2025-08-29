@@ -102,7 +102,7 @@ const Checkout = () => {
       total_price: orderData.totalPrice,
       total_new_price: orderData.totalNewPrice,
       total_discount: orderData.totalDiscount,
-      total_amount: orderData.totalAmount
+      total_amount: orderData.totalAmount,
     };
 
     const token = localStorage.getItem("access_token");
@@ -115,12 +115,12 @@ const Checkout = () => {
         dispatch(clearCart());
         setOpenModal(true);
       } else {
+        const data = res.payload;
         // Card payment: redirect to SSLCommerz gateway
-        const gatewayURL = res.data.redirectGatewayURL || res.data.GatewayPageURL;
-        if (gatewayURL) {
-          window.location.href = gatewayURL;
+        if (data && data.GatewayPageURL) {
+          window.location.href = data.GatewayPageURL;
         } else {
-          alert("Payment URL not found!");
+          alert("Payment page not found!");
         }
       }
     } catch (err) {
