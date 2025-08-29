@@ -64,11 +64,11 @@ const LogCartIcon = () => {
   return (
     <Box className="flex items-center justify-end space-x-2 w-[67%] lg:w-[60%]">
       <div className="flex items-center justify-between space-x-2 w-full">
-        <div className="w-[60%] sm:w-[66%] lg:w-[76%] ml-5">
+        <div className="flex-2 ml-5">
           <SearchBar />
         </div>
 
-        <div className="w-[40%] sm:w-[34%] ml-7 sm:ml-5 lg:ml-8 flex items-center justify-end">
+        <div className="flex-1 flex items-center justify-end">
           {/* Login Dropdown */}
           <div className="group cursor-pointer border-2 border-[#30C2C0] rounded h-[35px] sm:h-[40px] lg:h-[45px] flex items-center transition-all duration-300">
             <IconButton onClick={handleMenu}>
@@ -143,7 +143,7 @@ const LogCartIcon = () => {
           {/* Cart / Dashboard Button */}
           {user?.role === "user" ? (
             <Link to="/myaccount/cart" className="cursor-pointer">
-              <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-6 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
+              <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2  xl:ml-0 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
                 <IconButton>
                   <Badge badgeContent={cartCount} color="error">
                     <ShoppingCart
@@ -169,7 +169,7 @@ const LogCartIcon = () => {
             </Link>
           ) : user?.role === "admin" ? (
             <Link to="/admin-dashboard" className="cursor-pointer">
-              <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-6 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
+              <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 xl:ml-2 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
                 <IconButton>
                   <Badge badgeContent={0} color="error">
                     {" "}

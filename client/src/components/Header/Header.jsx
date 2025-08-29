@@ -11,20 +11,18 @@ import {
   Box,
 } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
-
+import Image from "../../assets/images/logo-1.png";
 // Components
 import LogCartIcon from "./LogCartIcon.jsx";
 // import Navbar from "./Navbar.jsx";
 
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { fetchCart } from "../../redux/cartSlice.js";
 
 export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const toggleDrawer = (open) => () => setDrawerOpen(open);
   const user = useSelector((state) => state.auth.user);
-
 
   return (
     <>
@@ -52,32 +50,41 @@ export default function Header() {
             >
               <MenuIcon sx={{ color: "#0F918F" }} />
             </IconButton>
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
+
+            {/* <Navbar /> */}
+            <Link
+              to="/"
               sx={{
                 color: "#0F918F",
-                fontSize: { xs: "16px", sm: "20px", md: "25px", lg: "30px" },
+                fontSize: {
+                  xs: "16px",
+                  sm: "20px",
+                  md: "25px",
+                  lg: "30px",
+                },
+                textDecoration: "none",
               }}
             >
-              {/* <Navbar /> */}
-              <Link
-                to="/"
-                sx={{
-                  color: "#0F918F",
-                  fontSize: {
-                    xs: "16px",
-                    sm: "20px",
-                    md: "25px",
-                    lg: "30px",
-                  },
-                  textDecoration: "none",
-                }}
-              >
-                Shasthomeds
-              </Link>
-            </Typography>
+              <Box className="flex items-center justify-center">
+                <img src={Image} className="w-[70px] " alt="" />
+                <Typography
+                  variant="h6"
+                  noWrap
+                  component="div"
+                  sx={{
+                    color: "#0F918F",
+                    fontSize: {
+                      xs: "16px",
+                      sm: "20px",
+                      md: "25px",
+                      lg: "30px",
+                    },
+                  }}
+                >
+                  Shasthomeds
+                </Typography>
+              </Box>
+            </Link>
           </Box>
 
           {/* Right - Icons */}
