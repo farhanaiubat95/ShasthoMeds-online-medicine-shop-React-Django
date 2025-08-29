@@ -66,7 +66,7 @@ export default function Header() {
               }}
             >
               <Box className="flex items-center justify-center">
-                <img src={Image} className="w-[70px] " alt="" />
+                <img src={Image} className="w-[50px] md:w-[60px] xl:w-[70px] " alt="" />
                 <Typography
                   variant="h6"
                   noWrap

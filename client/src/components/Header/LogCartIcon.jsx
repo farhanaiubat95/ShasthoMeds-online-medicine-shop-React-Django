@@ -12,6 +12,7 @@ import { styled } from "@mui/material/styles";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { Link, useNavigate } from "react-router-dom";
 
+import MedicalServicesIcon from "@mui/icons-material/MedicalServices"; // add import
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
@@ -19,7 +20,7 @@ import Person2Icon from "@mui/icons-material/Person2";
 import { Dashboard } from "@mui/icons-material";
 
 import SearchBar from "./SearchBar.jsx";
-
+import ArchiveIcon from "@mui/icons-material/Archive";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../../redux/userSlice";
 import { fetchCart } from "../../redux/cartSlice";
@@ -68,7 +69,7 @@ const LogCartIcon = () => {
           <SearchBar />
         </div>
 
-        <div className="flex-1 flex items-center justify-end">
+        <div className=" flex items-center justify-end">
           {/* Login Dropdown */}
           <div className="group cursor-pointer border-2 border-[#30C2C0] rounded h-[35px] sm:h-[40px] lg:h-[45px] flex items-center transition-all duration-300">
             <IconButton onClick={handleMenu}>
@@ -76,15 +77,28 @@ const LogCartIcon = () => {
                 sx={{
                   color: user ? "#007bff" : "#0F918F",
                   fontSize: { xs: "25px", lg: "30px" },
+                  display: {
+                    xs: "none",
+                    sm: "block",
+                  },
                 }}
               />
               {user && (
                 <Typography
+                  variant="body1"
                   sx={{
-                    marginLeft: "5px",
-                    color: "#007bff",
-                    fontSize: "16px",
-                    fontWeight: 500,
+                    color: "#08CB00",
+                    marginLeft: "10px",
+                    fontSize: { xs: "12px", lg: "16px" },
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "block",
+                    maxWidth: {
+                      xs: "40px", // small screen
+                      sm: "50px", // medium screen
+                      md: "80px", // medium screen
+                    },
                   }}
                 >
                   {user.username}
@@ -139,6 +153,41 @@ const LogCartIcon = () => {
               )}
             </Menu>
           </div>
+          {/* Order Details Button */}
+          <Link to="/myaccount/orders" className="cursor-pointer">
+            <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
+              <IconButton>
+                <ArchiveIcon
+                  sx={{
+                    color: "#0F918F",
+                    fontSize: { xs: "25px", lg: "30px" },
+                  }}
+                />
+              </IconButton>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#0F918F",
+                  fontSize: "18px",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "block",
+                  maxWidth: {
+                    sm: "40px", // small screen
+                    md: "50px", // medium screen
+                    lg: "100px", // large screen
+                  },
+                  display: {
+                    xs: "none",
+                    sm: "block",
+                  },
+                }}
+              >
+                Order Details
+              </Typography>
+            </div>
+          </Link>
 
           {/* Cart / Dashboard Button */}
           {user?.role === "user" ? (
@@ -196,6 +245,44 @@ const LogCartIcon = () => {
               </div>
             </Link>
           ) : null}
+        </div>
+
+        <div className="flex items-center justify-end">
+          <Link to="/doctor-appointment" className="cursor-pointer">
+            <div className="border-2 border-[#30C2C0] rounded md:p-3  h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
+              <IconButton>
+                <MedicalServicesIcon
+                  sx={{
+                    color: "#0F918F",
+                    fontSize: { xs: "25px", lg: "30px" },
+                  }}
+                />
+              </IconButton>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#0F918F",
+                  fontSize: "18px",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "block",
+                  maxWidth: {
+                    sm: "30px", // small screen
+                    md: "50px", // medium screen
+                    lg: "120px", // large screen
+                    xl: "130px", // extra large screen
+                  },
+                  display: {
+                    xs: "none",
+                    sm: "block",
+                  },
+                }}
+              >
+                Doctor's Appointment
+              </Typography>
+            </div>
+          </Link>
         </div>
       </div>
     </Box>

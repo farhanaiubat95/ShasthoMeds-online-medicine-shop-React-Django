@@ -37,7 +37,7 @@ const PaymentSuccess = () => {
       <Button
         variant="contained"
         sx={{ backgroundColor: "#0F918F" }}
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/myaccount/orders")}
       >
         Back to Home
       </Button>

@@ -25,6 +25,7 @@ import Payment from "../components/Admin/Payment";
 import Findpagecheck from "../components/product/Findpagecheck";
 import Checkout from "../pages/CheckOut";
 import Paymen_succesfull from "../pages/PaymenSuccesfull";
+import Orders from "../pages/Orders";
 
 const Routers = () => {
   return (
@@ -47,14 +48,10 @@ const Routers = () => {
         {/* Protected User Routes */}
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
           <Route path="/myaccount" element={<CustomerLayout />}>
-            {/* <Route index element={<CustomerHome />}>
-              <Route index element={<HomeMain />} />
-              <Route path="productdetails/:id" element={<ProductDetail />} />
-            </Route> */}
-
             <Route path="profile" element={<Profile />} />
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
+            <Route path="orders" element={<Orders />} />
           </Route>
         </Route>
 

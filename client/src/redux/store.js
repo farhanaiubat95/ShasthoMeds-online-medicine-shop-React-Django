@@ -6,7 +6,6 @@ import categoryReducer from './categorySlice';
 import cartReducer from './cartSlice';
 import orderReducer from './orderSlice';
 
-
 // Configure Redux store with both reducers
 export const store = configureStore({
   reducer: {

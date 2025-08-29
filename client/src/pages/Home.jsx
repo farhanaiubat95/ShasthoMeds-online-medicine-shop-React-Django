@@ -1,13 +1,26 @@
 // src/pages/Home.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, IconButton, Drawer } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import Sidebar from "../components/Home/Sidebar";
 import Navbar from "../components/Header/Navbar";
 import { Outlet } from "react-router-dom"; // import Outlet for nested routing
+import { fetchBrands } from "../redux/brandSlice";
+import { useDispatch } from "react-redux";
+import { fetchCategories } from "../redux/categorySlice";
 
 export default function Home() {
+  const dispatch = useDispatch();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchBrands()); // call the fetchBrands action
+  }, [dispatch]);
+
+
+   useEffect(() => {
+    dispatch(fetchCategories()); // call the fetchCategories action
+  }, [dispatch]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);

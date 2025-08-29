@@ -25,6 +25,25 @@ export const createOrder = createAsyncThunk(
   },
 );
 
+
+// Fetch Orders
+export const fetchOrders = createAsyncThunk(
+  "order/fetchOrders",
+  async (token, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get("/orders/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data; // assuming API returns array of orders
+    } catch (error) {
+      return rejectWithValue({
+        message: error.response?.data?.detail || error.message,
+        status: error.response?.status || 500,
+      });
+    }
+  }
+);
+
 // ===================
 // Slice
 // ===================
