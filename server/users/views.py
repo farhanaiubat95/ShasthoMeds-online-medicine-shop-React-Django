@@ -278,6 +278,13 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             order = serializer.save()
 
+            try:
+                cart = Cart.objects.get(user=request.user)
+                cart.items.all().delete()  # Delete all CartItem(s)
+                cart.delete()  # Optional: delete the empty cart itself
+            except Cart.DoesNotExist:
+                pass  # User had no cart, nothing to delete
+
             # Reduce product stock
             for item in order.items.all():
                 product = item.product
@@ -287,6 +294,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 else:
                 # Optional: handle out-of-stock scenario
                     print(f"Not enough stock for {product.name}")
+            
 
             # Send email to customer
             try:
@@ -318,6 +326,13 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             order = serializer.save()
+
+            try:
+                cart = Cart.objects.get(user=request.user)
+                cart.items.all().delete()  # Delete all CartItem(s)
+                cart.delete()  # Optional: delete the empty cart itself
+            except Cart.DoesNotExist:
+                pass  # User had no cart, nothing to delete
 
             # Reduce product stock
             for item in order.items.all():
