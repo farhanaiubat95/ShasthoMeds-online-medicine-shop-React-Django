@@ -75,11 +75,12 @@ const Checkout = () => {
   };
 
   const handleConfirm = async () => {
-    // Validate postal code
+     // Validate postal code
     if (!userInfo.postalCode || userInfo.postalCode.trim() === "") {
       alert("Please fill in your postal code.");
       return;
     }
+
 
     const confirmData = {
       user: authUser?.id,
@@ -93,7 +94,7 @@ const Checkout = () => {
       postal_code: userInfo.postalCode,
       address: userInfo.address,
       items: items.map((item) => ({
-        product_id: item.productId, // match backend field names
+        product_id: item.productId,   // backend expects product_id
         productName: item.productName,
         quantity: item.quantity,
         price: item.productPrice,
@@ -106,30 +107,30 @@ const Checkout = () => {
     };
 
     try {
-      const res = await dispatch(
-        createOrder({ orderData: confirmData, token: authUser?.access_token }),
-      ).unwrap();
-      console.log("Response from backend:", res);
+      const res = await axios.post("/api/orders/", confirmData, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true, // if your backend uses cookies/session auth
+      });
 
-      dispatch(clearCart());
-
-      // COD → show modal
       if (paymentMethod === "cod") {
+        // COD: just show success modal
         setOpenModal(true);
+        dispatch(clearCart());
       } else if (paymentMethod === "card") {
-        console.log("Redirecting to payment gateway...");
-        // Card → redirect to payment gateway
-        if (res.gateway_url) {
-          window.location.href = res.gateway_url; // Redirect user
+        // Card: redirect to SSLCommerz Gateway
+        const gatewayURL = res.data.payment.GatewayPageURL;
+        if (gatewayURL) {
+          window.location.href = gatewayURL;
         } else {
-          alert("Failed to initiate payment. Please try again.");
+          alert("Payment gateway not available. Try again.");
         }
       }
     } catch (err) {
-      console.error("Order Error:", err);
-      alert("Something went wrong!");
+      console.error("Order failed:", err.response?.data || err.message);
+      alert("Order could not be placed. Please try again.");
     }
   };
+
 
   return (
     <Box

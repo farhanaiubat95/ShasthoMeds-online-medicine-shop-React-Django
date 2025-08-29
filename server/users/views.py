@@ -10,6 +10,8 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 from sslcommerz_lib import SSLCOMMERZ  # using sslcommerz-lib wrapper
 
+from django.utils.crypto import get_random_string
+
 from .models import Brand, Cart, CartItem, Category, Order, PrescriptionRequest,Product
 from .serializers import BrandSerializer, CartSerializer, CategorySerializer, OrderSerializer, PrescriptionRequestSerializer,ProductSerializer
 
@@ -261,81 +263,55 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
 
 
 # ---------------- Order ViewSet ----------------
+
+
+SSL_SUCCESS_URL = "https://shasthomeds-online.onrender.com/payment-success"
+SSL_FAIL_URL = "https://shasthomeds-online.onrender.com/payment-fail"
+SSL_CANCEL_URL = "https://shasthomeds-online.onrender.com/payment-cancel"
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated]
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["request"] = self.request
-        return context
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        payment_method = data.get("payment_method")
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_staff:
-            return Order.objects.all()
-        return Order.objects.filter(user=user)
-    
-    def perform_create(self, serializer):
-        user = self.request.user
+        # COD: Just save order directly
+        if payment_method == "cod":
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            order = serializer.save()
+            return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
-        # Save order first to generate order_id and tran_id
-        order = serializer.save(user=user)
+        # Card Payment: Generate tran_id + call SSLCOMMERZ
+        elif payment_method == "card":
+            # Generate tran_id
+            tran_id = get_random_string(16)
+            data["tran_id"] = tran_id
 
-        # Clear user's cart after successful order
-        from .models import Cart
-        Cart.objects.filter(user=user).delete()
+            # Save order in DB
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            order = serializer.save()
 
-        # Send order confirmation email
-        try:
-            send_mail(
-                subject=f"Order Confirmation - #{order.order_id}",
-                message=f"Hello {order.name},\n\nYour order #{order.order_id} has been placed successfully.",
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[order.email],
-                fail_silently=True,
-            )
-        except Exception as e:
-            print(f"Failed to send confirmation email: {str(e)}")
-
-        # ---------------- SSLCOMMERZ Integration ----------------
-        if order.payment_method.lower() == "card":
-            print("Payment Method:", order.payment_method)
-
-            # tran_id is already generated in model.save()
-            sslcommerz = SSLCOMMERZ(
-                store_id=settings.SSL_STORE_ID,
-                store_pass=settings.SSL_STORE_PASS,
-                is_sandbox=settings.ISSANDBOX
+            # Call create_payment_session with your order data
+            ssl_response = create_payment_session(
+                amount=order.total_amount,
+                tran_id=order.tran_id,
+                success_url=SSL_SUCCESS_URL,
+                fail_url=SSL_FAIL_URL,
+                cancel_url=SSL_CANCEL_URL,
+                customer_name=order.name,
+                customer_email=order.email,
+                customer_phone=order.phone,
+                product_name="Order #" + str(order.id),
+                product_category="General",
             )
 
-            payment_data = {
-                "total_amount": float(order.total_amount),
-                "currency": "BDT",
-                "tran_id": str(order.tran_id),  # <-- use model's tran_id
-                "success_url": settings.SSL_SUCCESS_URL,
-                "fail_url": settings.SSL_FAIL_URL,
-                "cancel_url": settings.SSL_CANCEL_URL,
-                "cus_name": order.name,
-                "cus_email": order.email,
-                "cus_phone": order.phone,
-                "product_name": "Medicine",
-                "product_category": "Medicine",
-                "product_profile": "general",
-            }
+            # Return SSLCommerz session response to frontend
+            return Response(ssl_response, status=status.HTTP_200_OK)
 
-            try:
-                response = sslcommerz.create_session(payment_data)
-                print("SSLCOMMERZ Response:", response)
-
-                # Store Gateway URL in Payment (optional)
-                order.gateway_url = response.get("GatewayPageURL", "")
-                order.save()
-            except Exception as e:
-                print(f"SSLCOMMERZ session creation failed: {str(e)}")
-                raise
-
-        return order
-
+        else:
+            return Response({"error": "Invalid payment method"}, status=status.HTTP_400_BAD_REQUEST)
 

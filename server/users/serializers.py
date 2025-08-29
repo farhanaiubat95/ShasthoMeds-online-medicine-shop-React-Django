@@ -4,7 +4,7 @@ from shasthomeds.settings import EMAIL_HOST_USER
 from django.contrib.auth.password_validation import validate_password
 import random
 from django.core.mail import send_mail
-from .models import Brand, Cart, CartItem,Category, Order, PrescriptionRequest,Product
+from .models import Brand, Cart, CartItem,Category, Order, OrderItem, PrescriptionRequest,Product
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer  # pyright: ignore[reportMissingImports]
 
 # Models
@@ -317,28 +317,23 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
     
     
 # Serializer for Order
+# serializers.py
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = "__all__"
+
+
 class OrderSerializer(serializers.ModelSerializer):
-    items = serializers.JSONField() 
+    items = OrderItemSerializer(many=True)
 
     class Meta:
         model = Order
-        fields = [
-            "id","order_id", "user", "payment_method", "status","payment_status",
-            "name", "email", "phone", "city", "postal_code", "address",
-            "total_price", "total_new_price", "total_discount", "total_amount",
-            "items", "created_at", "updated_at"
-        ]
-        read_only_fields = ["id","created_at", "updated_at", "order_id"]
+        fields = "__all__"
 
     def create(self, validated_data):
-        return Order.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        # Allow admin to update status, e.g., cancelled
-        items = validated_data.pop("items", None)
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        if items is not None:
-            instance.items = items
-        instance.save()
-        return instance
+        items_data = validated_data.pop("items")
+        order = Order.objects.create(**validated_data)
+        for item_data in items_data:
+            OrderItem.objects.create(order=order, **item_data)
+        return order

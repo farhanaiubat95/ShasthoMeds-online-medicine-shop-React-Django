@@ -1,6 +1,8 @@
 # Rest API endpoint
 
 from django.urls import include, path
+
+from server.users import SSLCOMMERZ
 from .views import (
     APIRootView, BrandViewSet, CartViewSet, CategoryViewSet,LogoutView, OrderViewSet, PrescriptionRequestViewSet, ProductViewSet, RegisterAPIView, ResendOTPView,
     UpdateProfileView, VerifyOTPView, CustomTokenObtainPairView,
@@ -29,6 +31,10 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
     path('api/logout/', LogoutView.as_view(), name='logout'),
+
+    path("payment/success/", SSLCOMMERZ.payment_success, name="payment_success"),
+    path("payment/fail/", SSLCOMMERZ.payment_fail, name="payment_fail"),
+    path("payment/cancel/", SSLCOMMERZ.payment_cancel, name="payment_cancel"),
 
     # Include router URLs
     path('', include(router.urls)),  # Corrected path and added namespace
