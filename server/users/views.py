@@ -277,6 +277,25 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             order = serializer.save()
+
+            # Send email to customer
+            try:
+                product_list = "\n".join(
+                    [f"{item.product.name} x {item.quantity}" for item in order.items.all()]
+                )
+                send_mail(
+                    subject=f"Order Confirmation - #{order.id}",
+                    message=f"Dear {order.name},\n\nThank you for your order.\n\n"
+                        f"Order Details:\n{product_list}\n\n"
+                        f"Total Amount: {order.total_amount} BDT\n\n"
+                        "We will notify you once your order is shipped.\n\n"
+                        "Thanks,\nShasthoMeds",
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[order.email],
+                )
+            except Exception as e:
+                # Optional: log the email error
+                print(f"Error sending email: {str(e)}")
             return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
         # Card Payment: Generate tran_id + call SSLCOMMERZ
@@ -289,6 +308,25 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             order = serializer.save()
+
+            # Send email to customer
+            try:
+                product_list = "\n".join(
+                    [f"{item.product.name} x {item.quantity}" for item in order.items.all()]
+                )
+                send_mail(
+                    subject=f"Order Confirmation - #{order.id}",
+                    message=f"Dear {order.name},\n\nThank you for your order.\n\n"
+                            f"Order Details:\n{product_list}\n\n"
+                            f"Total Amount: {order.total_amount} BDT\n\n"
+                            "We will notify you once your order is shipped.\n\n"
+                            "Thanks,\nShasthoMeds",
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[order.email],
+                )
+            except Exception as e:
+                # Optional: log the email error
+                print(f"Error sending email: {str(e)}")
 
             # Call create_payment_session with your order data
             ssl_response = create_payment_session(
