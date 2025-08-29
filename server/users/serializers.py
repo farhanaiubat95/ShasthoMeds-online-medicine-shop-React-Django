@@ -323,7 +323,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = OrderItem
-        fields = ('product_id', 'productName', 'quantity', 'price', 'subtotal')
+        fields = ('product_id', 'product_name', 'quantity', 'price', 'subtotal')
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)  # nested items
@@ -345,7 +345,7 @@ class OrderSerializer(serializers.ModelSerializer):
             OrderItem.objects.create(
                 order=order,
                 product=product,
-                product_name=item_data['productName'],
+                product_name=item_data['product_name'],
                 quantity=item_data['quantity'],
                 price=item_data['price'],
                 subtotal=item_data['subtotal']
