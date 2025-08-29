@@ -319,7 +319,7 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
 # Serializer for Order
 class OrderItemSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField()
-    productName = serializers.CharField()
+    product_name  = serializers.CharField()
     
     class Meta:
         model = OrderItem
