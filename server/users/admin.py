@@ -139,42 +139,29 @@ class PrescriptionRequestAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "order_id", "user", "payment_method", "status","payment_status","tran_id",
-        "name", "email", "phone", "city", "total_amount","gateway_url",
-        "total_items", "items_preview", "created_at", "updated_at"
+        "id",
+        "user",
+        "payment_method",
+        "tran_id",
+        "total_amount",
+        "payment_status",
+        "status",
+        "created_at",
+        "updated_at",
     )
-    list_filter = ("status", "payment_method", "created_at")
-    search_fields = ("user__email", "order_id")
+    search_fields = (
+        "user__email",
+        "tran_id",
+        "status",
+        "payment_status",
+    )
+    list_filter = ("payment_method", "payment_status", "status", "created_at")
+    readonly_fields = ("tran_id", "created_at", "updated_at")
 
-    def total_items(self, obj):
-        return len(obj.items) if obj.items else 0
-    total_items.short_description = "Total Items"
+    # Show nested items in the order change page
+    def items_list(self, obj):
+        return ", ".join([f"{item.productName} (x{item.quantity})" for item in obj.items.all()])
+    items_list.short_description = "Items"
 
-    def items_preview(self, obj):
-        if not obj.items:
-            return "-"
-        html = "<ul>"
-        for item in obj.items:
-            html += f"<li>{item.get('productName', 'Unknown')} x {item.get('quantity', 0)} = Tk {item.get('subtotal', 0)}</li>"
-        html += "</ul>"
-        return format_html(html)
-    items_preview.short_description = "Items"
-
-    # No need for custom save_model for cancellation
-    def save_model(self, request, obj, form, change):
-        previous_status = None
-        if obj.pk:
-            previous_status = Order.objects.get(pk=obj.pk).status
-        
-        super().save_model(request, obj, form, change)  # Update order in DB
-        
-        # Send email if status changed to cancelled
-        if obj.status == 'cancelled' and previous_status != 'cancelled':
-            send_mail(
-                subject="Order Cancelled",
-                message=f"Hello {obj.user.username},\n\nYour order #{obj.id} has been cancelled.",
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[obj.user.email],
-                fail_silently=False,
-            )
-
+    # Optional: add items_list to readonly_fields if you want to see it
+    readonly_fields += ("items_list",)

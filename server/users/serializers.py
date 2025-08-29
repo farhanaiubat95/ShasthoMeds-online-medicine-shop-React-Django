@@ -317,7 +317,6 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
     
     
 # Serializer for Order
-# serializers.py
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem

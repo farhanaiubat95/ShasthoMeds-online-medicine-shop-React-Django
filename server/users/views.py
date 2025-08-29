@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import viewsets, status, permissions
 from django.shortcuts import get_object_or_404
 from django.conf import settings
-from sslcommerz_lib import SSLCOMMERZ  # using sslcommerz-lib wrapper
+from .SSLCOMMERZ import create_payment_session
 
 from django.utils.crypto import get_random_string
 
