@@ -278,6 +278,16 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             order = serializer.save()
 
+            # Reduce product stock
+            for item in order.items.all():
+                product = item.product
+                if product.stock >= item.quantity:
+                    product.stock -= item.quantity
+                    product.save()
+                else:
+                # Optional: handle out-of-stock scenario
+                    print(f"Not enough stock for {product.name}")
+
             # Send email to customer
             try:
                 product_list = "\n".join(
@@ -308,6 +318,16 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             order = serializer.save()
+
+            # Reduce product stock
+            for item in order.items.all():
+                product = item.product
+                if product.stock >= item.quantity:
+                    product.stock -= item.quantity
+                    product.save()
+                else:
+                # Optional: handle out-of-stock scenario
+                    print(f"Not enough stock for {product.name}")
 
             # Send email to customer
             try:
