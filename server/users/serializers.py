@@ -318,21 +318,33 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
     
 # Serializer for Order
 class OrderItemSerializer(serializers.ModelSerializer):
+    product_id = serializers.IntegerField()
+    productName = serializers.CharField()
+    
     class Meta:
         model = OrderItem
-        fields = "__all__"
-
+        fields = ('product_id', 'productName', 'quantity', 'price', 'subtotal')
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True)
+    items = OrderItemSerializer(many=True)  # nested items
 
     class Meta:
         model = Order
-        fields = "__all__"
+        fields = '__all__'
 
     def create(self, validated_data):
-        items_data = validated_data.pop("items")
+        items_data = validated_data.pop('items')
         order = Order.objects.create(**validated_data)
+
+        # create OrderItem objects after order is saved
         for item_data in items_data:
-            OrderItem.objects.create(order=order, **item_data)
+            product = Product.objects.get(id=item_data['product_id'])
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                product_name=item_data['productName'],
+                quantity=item_data['quantity'],
+                price=item_data['price'],
+                subtotal=item_data['subtotal']
+            )
         return order
