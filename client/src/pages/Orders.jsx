@@ -15,15 +15,10 @@ import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 import { useSelector, useDispatch } from "react-redux";
-import { fetchOrders } from "../redux/orderSlice.js"; // Make sure this exists
 
 const Orders = () => {
   const dispatch = useDispatch();
   const { orders, loading } = useSelector((state) => state.orders); // Redux orders
-
-  useEffect(() => {
-    dispatch(fetchOrders());
-  }, [dispatch]);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);

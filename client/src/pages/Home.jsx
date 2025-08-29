@@ -20,7 +20,12 @@ export default function Home() {
 
    useEffect(() => {
     dispatch(fetchCategories()); // call the fetchCategories action
-  }, [dispatch]);
+   }, [dispatch]);
+  
+   useEffect(() => {
+      dispatch(fetchOrders());
+    }, [dispatch]);
+  
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
