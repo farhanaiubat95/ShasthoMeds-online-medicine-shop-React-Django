@@ -15,10 +15,15 @@ import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 import { useSelector, useDispatch } from "react-redux";
+import { fetchOrders } from "../redux/orderSlice";
 
 const Orders = () => {
   const dispatch = useDispatch();
   const { orders, loading } = useSelector((state) => state.orders); // Redux orders
+
+  useEffect(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -31,9 +36,13 @@ const Orders = () => {
       </Typography>
 
       {loading ? (
-        <Typography className="text-center text-gray-600">Loading orders...</Typography>
+        <Typography className="text-center text-gray-600">
+          Loading orders...
+        </Typography>
       ) : orders?.length === 0 ? (
-        <Typography className="text-center text-gray-600">No orders found.</Typography>
+        <Typography className="text-center text-gray-600">
+          No orders found.
+        </Typography>
       ) : (
         orders.map((order) => (
           <Box
@@ -45,10 +54,15 @@ const Orders = () => {
               <Box className="flex items-center gap-2 mb-2 sm:mb-0">
                 <Typography className="text-sm sm:text-base font-medium text-gray-700">
                   Order ID:{" "}
-                  <span className="text-blue-700 font-semibold">#{order.id}</span>
+                  <span className="text-blue-700 font-semibold">
+                    #{order.id}
+                  </span>
                 </Typography>
                 <Tooltip title="Copy Order ID">
-                  <IconButton size="small" onClick={() => copyToClipboard(order.id)}>
+                  <IconButton
+                    size="small"
+                    onClick={() => copyToClipboard(order.id)}
+                  >
                     <ContentCopyIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
@@ -84,7 +98,8 @@ const Orders = () => {
                   label={order.payment_status === "paid" ? "Paid" : "Unpaid"}
                   size="small"
                   sx={{
-                    backgroundColor: order.payment_status === "paid" ? "#102E50" : "#C5172E",
+                    backgroundColor:
+                      order.payment_status === "paid" ? "#102E50" : "#C5172E",
                     color: "#fff",
                     fontWeight: 500,
                     borderRadius: "6px",
@@ -106,13 +121,15 @@ const Orders = () => {
                 <br />
                 <Chip
                   icon={
-                    order.status === "delivered"
-                      ? <CheckCircleIcon />
-                      : order.status === "pending"
-                      ? <HourglassBottomIcon />
-                      : order.status === "cancelled"
-                      ? <CancelIcon />
-                      : <LocalShippingIcon />
+                    order.status === "delivered" ? (
+                      <CheckCircleIcon />
+                    ) : order.status === "pending" ? (
+                      <HourglassBottomIcon />
+                    ) : order.status === "cancelled" ? (
+                      <CancelIcon />
+                    ) : (
+                      <LocalShippingIcon />
+                    )
                   }
                   label={order.status}
                   size="small"
@@ -120,10 +137,10 @@ const Orders = () => {
                     order.status === "delivered"
                       ? "success"
                       : order.status === "pending"
-                      ? "warning"
-                      : order.status === "cancelled"
-                      ? "error"
-                      : "default"
+                        ? "warning"
+                        : order.status === "cancelled"
+                          ? "error"
+                          : "default"
                   }
                 />
               </div>
@@ -156,5 +173,4 @@ const Orders = () => {
   );
 };
 
-
-export default Orders
+export default Orders;

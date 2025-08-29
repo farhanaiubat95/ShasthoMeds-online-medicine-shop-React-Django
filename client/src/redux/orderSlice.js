@@ -44,7 +44,6 @@ const orderSlice = createSlice({
     order: null,     // single order (created)
     loading: false,
     error: null,
-    success: false,
   },
   reducers: {
     resetOrderState: (state) => {
