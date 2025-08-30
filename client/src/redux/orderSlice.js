@@ -17,7 +17,7 @@ export const createOrder = createAsyncThunk(
         status: error.response?.status || 500,
       });
     }
-  }
+  },
 );
 
 // Fetch Orders
@@ -41,10 +41,11 @@ export const fetchOrders = createAsyncThunk(
 const orderSlice = createSlice({
   name: "order",
   initialState: {
-    orderlist: [],      // <-- store multiple orders here
-    order: null,     // single order (created)
+    orders: [], // <-- rename from orderlist to orders
+    order: null, // single order (created)
     loading: false,
     error: null,
+    success: false,
   },
   reducers: {
     resetOrderState: (state) => {
