@@ -14,26 +14,37 @@ import {
   TableBody,
 } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchBrands, addBrand, removeBrand } from "../../redux/brandSlice.js";
+import {
+  fetchBrands,
+  addBrand,
+  updateBrand,
+  removeBrand,
+} from "../../redux/brandSlice.js";
 
 const AllBrand = () => {
   const dispatch = useDispatch();
-  const { items, loading, error } = useSelector((state) => state.brands || {});
-  const brands = Array.isArray(items?.results) ? items.results : [];
 
+  // Redux state
+  const { items, loading, error } = useSelector((state) => state.brands || {});
+  const brands = Array.isArray(items?.results) ? items.results : items || [];
+
+  // Local state
   const [brandName, setBrandName] = useState("");
   const [brandImage, setBrandImage] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editBrandId, setEditBrandId] = useState(null);
 
+  // Fetch brands on mount
   useEffect(() => {
     dispatch(fetchBrands());
   }, [dispatch]);
 
+  // Handle file input
   const handleFileChange = (e) => {
     setBrandImage(e.target.files[0]);
   };
 
+  // Reset form
   const resetForm = () => {
     setBrandName("");
     setBrandImage(null);
@@ -41,7 +52,8 @@ const AllBrand = () => {
     setEditBrandId(null);
   };
 
-  const handleSubmit = () => {
+  // Handle Add / Update submission
+  const handleSubmit = async () => {
     if (!brandName) return alert("Brand Name is required");
 
     const token = localStorage.getItem("access_token");
@@ -49,26 +61,40 @@ const AllBrand = () => {
     formData.append("name", brandName);
     if (brandImage) formData.append("image", brandImage);
 
-    if (editMode) {
-      alert("Update feature can be added here with Redux/Backend");
+    try {
+      if (editMode) {
+        await dispatch(updateBrand({ id: editBrandId, brandData: formData, token })).unwrap();
+        alert("Brand updated successfully");
+      } else {
+        await dispatch(addBrand({ brandData: formData, token })).unwrap();
+        alert("Brand added successfully");
+      }
       resetForm();
-    } else {
-      dispatch(addBrand({ brandData: formData, token }));
-      resetForm();
+      dispatch(fetchBrands()); // auto-refresh after add/update
+    } catch (err) {
+      alert(err?.message || "Something went wrong");
     }
   };
 
+  // Handle Edit button click
   const handleEditClick = (brand) => {
     setEditMode(true);
     setEditBrandId(brand.id);
     setBrandName(brand.name);
-    setBrandImage(null); // existing image remains
+    setBrandImage(null); // keep current image until new file uploaded
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm("Delete this brand?")) {
-      const token = localStorage.getItem("accessToken");
-      dispatch(removeBrand({ id, token }));
+  // Handle Delete button
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this brand?")) return;
+
+    const token = localStorage.getItem("access_token");
+    try {
+      await dispatch(removeBrand({ id, token })).unwrap();
+      alert("Brand deleted successfully");
+      dispatch(fetchBrands()); // auto-refresh after delete
+    } catch (err) {
+      alert(err?.message || "Failed to delete brand");
     }
   };
 
@@ -106,6 +132,19 @@ const AllBrand = () => {
             <Button fullWidth variant="contained" onClick={handleSubmit}>
               {editMode ? "Update" : "Submit"}
             </Button>
+
+            {/* Cancel Edit */}
+            {editMode && (
+              <Button
+                fullWidth
+                variant="outlined"
+                color="secondary"
+                sx={{ mt: 1 }}
+                onClick={resetForm}
+              >
+                Cancel
+              </Button>
+            )}
           </CardContent>
         </Card>
 
@@ -162,6 +201,7 @@ const AllBrand = () => {
         </Box>
       </Box>
 
+      {/* Loading and Error */}
       {loading && <Typography>Loading brands...</Typography>}
       {error && <Typography color="error">{error}</Typography>}
     </Box>
