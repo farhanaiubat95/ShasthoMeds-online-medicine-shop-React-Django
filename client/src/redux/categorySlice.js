@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import axiosInstance from "../axiosInstance";
 
 const API_URL = "https://shasthomeds-backend.onrender.com/categories/";
 
@@ -21,11 +22,12 @@ export const fetchCategories = createAsyncThunk(
 );
 
 // Add a category
+
 export const addCategory = createAsyncThunk(
   "categories/addCategory",
   async ({ categoryData, token }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/categories/", categoryData, {
+      const res = await axios.post(API_URL, categoryData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -33,11 +35,10 @@ export const addCategory = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err.response?.data || "Failed to add category");
     }
-  }
+  },
 );
-
 
 // Update a category
 export const updateCategory = createAsyncThunk(
@@ -50,7 +51,11 @@ export const updateCategory = createAsyncThunk(
           "Content-Type": "multipart/form-data",
         },
       };
-      const response = await axios.patch(`${API_URL}${id}/`, categoryData, config);
+      const response = await axios.patch(
+        `${API_URL}${id}/`,
+        categoryData,
+        config,
+      );
       return response.data; // backend returns the updated category
     } catch (error) {
       return rejectWithValue(
@@ -59,7 +64,6 @@ export const updateCategory = createAsyncThunk(
     }
   },
 );
-
 
 // Remove a category
 export const removeCategory = createAsyncThunk(

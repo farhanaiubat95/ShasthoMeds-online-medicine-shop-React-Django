@@ -83,26 +83,48 @@ const AllCategories = () => {
     if (categoryImage) formData.append("image", categoryImage);
     formData.append("is_active", true);
 
-    // Debug: log FormData content
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+    try {
+      if (editMode && editCategoryData) {
+        // Update category
+        const resultAction = await dispatch(
+          updateCategory({
+            id: editCategoryData.id,
+            categoryData: formData,
+            token,
+          }),
+        );
 
-    if (editMode && editCategoryData) {
-      // Update category
-      await dispatch(
-        updateCategory({
-          id: editCategoryData.id,
-          categoryData: formData,
-          token,
-        }),
-      );
-    } else {
-      // Add new category
-      await dispatch(addCategory({ categoryData: formData, token }));
-    }
+        if (updateCategory.fulfilled.match(resultAction)) {
+          alert("Category updated successfully!");
+          dispatch(fetchCategories()); // refresh list
+          resetForm();
+        } else {
+          alert(
+            resultAction.payload?.detail ||
+              "Failed to update category. Please try again.",
+          );
+        }
+      } else {
+        // Add new category
+        const resultAction = await dispatch(
+          addCategory({ categoryData: formData, token }),
+        );
 
-    resetForm();
+        if (addCategory.fulfilled.match(resultAction)) {
+          alert("Category added successfully!");
+          dispatch(fetchCategories()); // refresh list
+          resetForm();
+        } else {
+          alert(
+            resultAction.payload?.detail ||
+              "Failed to add category. Please try again.",
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Error submitting category:", err);
+      alert("Something went wrong. Please try again later.");
+    }
   };
 
   const handleEditClick = (category) => {
@@ -110,7 +132,7 @@ const AllCategories = () => {
     setEditCategoryData(category);
     setCategoryName(category.name);
     setParentId(category.parent || "");
-    setCategoryImage;
+    setCategoryImage(null);
   };
 
   const handleDelete = async (id) => {
