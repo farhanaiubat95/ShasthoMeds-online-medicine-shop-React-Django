@@ -62,6 +62,8 @@ const AllBrand = () => {
     formData.append("name", brandName);
     if (brandImage) formData.append("image", brandImage);
 
+    console.log("Form Data:", formData);
+
     try {
       if (editMode) {
 
