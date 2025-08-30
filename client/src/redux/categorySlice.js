@@ -25,28 +25,32 @@ export const addCategory = createAsyncThunk(
   "categories/addCategory",
   async ({ categoryData, token }, { rejectWithValue }) => {
     try {
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-      };
-      const response = await axios.post(API_URL, categoryData, config);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to add category");
+      const res = await axiosInstance.post("/categories/", categoryData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
+
 
 // Update a category
 export const updateCategory = createAsyncThunk(
   "categories/updateCategory",
   async ({ id, categoryData, token }, { rejectWithValue }) => {
     try {
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const response = await axios.patch(
-        `${API_URL}${id}/`,
-        categoryData,
-        config,
-      );
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      const response = await axios.patch(`${API_URL}${id}/`, categoryData, config);
       return response.data; // backend returns the updated category
     } catch (error) {
       return rejectWithValue(
@@ -55,6 +59,7 @@ export const updateCategory = createAsyncThunk(
     }
   },
 );
+
 
 // Remove a category
 export const removeCategory = createAsyncThunk(
