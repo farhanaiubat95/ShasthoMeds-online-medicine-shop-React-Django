@@ -55,6 +55,7 @@ const AllCategories = () => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    console.log("File:", file);
     if (
       file &&
       ["image/jpeg", "image/png", "application/pdf"].includes(file.type)
@@ -80,6 +81,12 @@ const AllCategories = () => {
     formData.append("name", categoryName);
     if (parentId) formData.append("parent", parentId);
     if (categoryImage) formData.append("image", categoryImage);
+    formData.append("is_active", true);
+
+    // Debug: log FormData content
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
 
     if (editMode && editCategoryData) {
       // Update category
@@ -103,7 +110,7 @@ const AllCategories = () => {
     setEditCategoryData(category);
     setCategoryName(category.name);
     setParentId(category.parent || "");
-    setCategoryImage(null);
+    setCategoryImage;
   };
 
   const handleDelete = async (id) => {
@@ -222,13 +229,19 @@ const AllCategories = () => {
               </Select>
             </FormControl>
 
+            <label htmlFor="category-image-upload">
+              <Button variant="outlined" component="span">
+                {categoryImage ? "Change Image" : "Upload Image"}
+              </Button>
+            </label>
             <input
-              id="prescription-upload"
+              id="category-image-upload"
               type="file"
               accept="image/*,.pdf"
               onChange={handleFileChange}
-              className=" w-full"
+              className="hidden"
             />
+            {categoryImage && <Typography>{categoryImage.name}</Typography>}
 
             <Button
               fullWidth
