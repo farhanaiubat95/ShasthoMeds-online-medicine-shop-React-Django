@@ -26,7 +26,7 @@ const AllBrand = () => {
 
   // Redux state
   const { items, loading, error } = useSelector((state) => state.brands || {});
-  const brands = Array.isArray(items?.results) ? items.results : items || [];
+  const brands = Array.isArray(items?.results) ? items.results : [];
 
   // Local state
   const [brandName, setBrandName] = useState("");
@@ -63,7 +63,9 @@ const AllBrand = () => {
 
     try {
       if (editMode) {
-        await dispatch(updateBrand({ id: editBrandId, brandData: formData, token })).unwrap();
+        await dispatch(
+          updateBrand({ id: editBrandId, brandData: formData, token })
+        ).unwrap();
         alert("Brand updated successfully");
       } else {
         await dispatch(addBrand({ brandData: formData, token })).unwrap();
@@ -169,7 +171,7 @@ const AllBrand = () => {
                       {brand.image && (
                         <img
                           src={brand.image}
-                          alt=""
+                          alt={brand.name}
                           style={{
                             width: "50px",
                             height: "50px",

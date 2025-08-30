@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Base URL for your backend
 const API_URL = "https://shasthomeds-backend.onrender.com/brands/";
 
 // ================= Async Thunks ================= //
@@ -12,7 +11,7 @@ export const fetchBrands = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(API_URL);
-      return response.data; // expected array
+      return response.data; // expected { results: [...] }
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to fetch brands");
     }
@@ -27,11 +26,11 @@ export const addBrand = createAsyncThunk(
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data", // if uploading image
+          "Content-Type": "multipart/form-data",
         },
       };
       const response = await axios.post(API_URL, brandData, config);
-      return response.data;
+      return response.data; // single brand object
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to add brand");
     }
@@ -75,7 +74,7 @@ export const removeBrand = createAsyncThunk(
 const brandSlice = createSlice({
   name: "brands",
   initialState: {
-    items: [],
+    items: { results: [] }, // match categories structure
     loading: false,
     error: null,
   },
@@ -89,7 +88,7 @@ const brandSlice = createSlice({
       })
       .addCase(fetchBrands.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = action.payload; // { results: [...] }
       })
       .addCase(fetchBrands.rejected, (state, action) => {
         state.loading = false;
@@ -103,8 +102,8 @@ const brandSlice = createSlice({
       })
       .addCase(addBrand.fulfilled, (state, action) => {
         state.loading = false;
-        if (!Array.isArray(state.items)) state.items = [];
-        state.items.push(action.payload);
+        if (!Array.isArray(state.items.results)) state.items.results = [];
+        state.items.results.push(action.payload);
       })
       .addCase(addBrand.rejected, (state, action) => {
         state.loading = false;
@@ -118,8 +117,12 @@ const brandSlice = createSlice({
       })
       .addCase(updateBrand.fulfilled, (state, action) => {
         state.loading = false;
-        const idx = state.items.findIndex((b) => b.id === action.payload.id);
-        if (idx !== -1) state.items[idx] = action.payload;
+        if (Array.isArray(state.items.results)) {
+          const idx = state.items.results.findIndex(
+            (b) => b.id === action.payload.id
+          );
+          if (idx !== -1) state.items.results[idx] = action.payload;
+        }
       })
       .addCase(updateBrand.rejected, (state, action) => {
         state.loading = false;
@@ -133,7 +136,11 @@ const brandSlice = createSlice({
       })
       .addCase(removeBrand.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = state.items.filter((b) => b.id !== action.payload);
+        if (Array.isArray(state.items.results)) {
+          state.items.results = state.items.results.filter(
+            (b) => b.id !== action.payload
+          );
+        }
       })
       .addCase(removeBrand.rejected, (state, action) => {
         state.loading = false;
