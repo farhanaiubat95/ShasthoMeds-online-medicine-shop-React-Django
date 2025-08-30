@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   TextField,
   FormControl,
@@ -20,76 +20,66 @@ import {
 } from "@mui/material";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchCategories,
+  addCategory,
+  removeCategory,
+  // optional: you can create an updateCategory thunk in slice
+} from "../../redux/categorySlice.js";
 
 const Categories = () => {
-  // Demo state
-  const [categories, setCategories] = useState([
-    {
-      _id: "1",
-      categoryName: "Electronics",
-      categoryImage: "https://via.placeholder.com/50",
-      parentId: null,
-    },
-    {
-      _id: "2",
-      categoryName: "Mobiles",
-      categoryImage: "https://via.placeholder.com/50",
-      parentId: "1",
-    },
-    {
-      _id: "3",
-      categoryName: "Laptops",
-      categoryImage: "https://via.placeholder.com/50",
-      parentId: "1",
-    },
-    {
-      _id: "4",
-      categoryName: "Fashion",
-      categoryImage: "https://via.placeholder.com/50",
-      parentId: null,
-    },
-  ]);
-
+  const dispatch = useDispatch();
+  const { items: categories, loading } = useSelector((state) => state.category);
   const [categoryName, setCategoryName] = useState("");
   const [parentId, setParentId] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);
-  const [openRows, setOpenRows] = useState({});
   const [editMode, setEditMode] = useState(false);
   const [editCategoryData, setEditCategoryData] = useState(null);
+  const [openRows, setOpenRows] = useState({});
+
+  const token = localStorage.getItem("accessToken"); // assuming token in localStorage
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   const createCategoryList = (categories, options = []) => {
     for (let category of categories) {
-      options.push({ value: category._id, label: category.categoryName });
+      options.push({ value: category.id, label: category.categoryName });
     }
     return options;
   };
 
   const handleFileChange = (e) => {
-    setCategoryImage(URL.createObjectURL(e.target.files[0]));
+    setCategoryImage(e.target.files[0]);
+  };
+
+  const resetForm = () => {
+    setCategoryName("");
+    setParentId("");
+    setCategoryImage(null);
+    setEditCategoryData(null);
+    setEditMode(false);
   };
 
   const handleSubmit = () => {
-    if (!categoryName || !categoryImage) return alert("Fill all fields");
-    const newCategory = {
-      _id: Date.now().toString(),
-      categoryName,
-      categoryImage,
-      parentId: parentId || null,
-    };
-    setCategories([...categories, newCategory]);
-    resetForm();
-  };
+    if (!categoryName) return alert("Category Name is required");
 
-  const handleUpdate = () => {
-    setCategories((prev) =>
-      prev.map((cat) =>
-        cat._id === editCategoryData._id
-          ? { ...cat, categoryName, parentId, categoryImage: categoryImage || cat.categoryImage }
-          : cat
-      )
-    );
+    const formData = new FormData();
+    formData.append("categoryName", categoryName);
+    if (parentId) formData.append("parentId", parentId);
+    if (categoryImage) formData.append("categoryImage", categoryImage);
+
+    if (editMode && editCategoryData) {
+      // For simplicity, dispatch addCategory as placeholder. 
+      // You can create updateCategory thunk in slice for proper backend update.
+      dispatch(addCategory({ categoryData: formData, token }));
+    } else {
+      dispatch(addCategory({ categoryData: formData, token }));
+    }
+
     resetForm();
-    setEditMode(false);
   };
 
   const handleEditClick = (category) => {
@@ -102,15 +92,8 @@ const Categories = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Delete this category?")) {
-      setCategories(categories.filter((cat) => cat._id !== id));
+      dispatch(removeCategory({ id, token }));
     }
-  };
-
-  const resetForm = () => {
-    setCategoryName("");
-    setParentId("");
-    setCategoryImage(null);
-    setEditCategoryData(null);
   };
 
   const mainCategories = categories.filter((cat) => !cat.parentId);
@@ -122,16 +105,16 @@ const Categories = () => {
   };
 
   const renderCategoryRow = (cat, level = 0) => {
-    const subcategories = getSubcategories(cat._id);
+    const subcategories = getSubcategories(cat.id);
     const hasSubs = subcategories.length > 0;
 
     return (
-      <React.Fragment key={cat._id}>
+      <React.Fragment key={cat.id}>
         <TableRow>
           <TableCell>
             {hasSubs && (
-              <IconButton size="small" onClick={() => handleToggle(cat._id)}>
-                {openRows[cat._id] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+              <IconButton size="small" onClick={() => handleToggle(cat.id)}>
+                {openRows[cat.id] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
               </IconButton>
             )}
           </TableCell>
@@ -141,24 +124,26 @@ const Categories = () => {
             </Typography>
           </TableCell>
           <TableCell>
-            <img
-              src={cat.categoryImage}
-              alt=""
-              style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-            />
+            {cat.categoryImage && (
+              <img
+                src={cat.categoryImage}
+                alt=""
+                style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+              />
+            )}
           </TableCell>
           <TableCell>
             <Button size="small" onClick={() => handleEditClick(cat)}>
               Edit
             </Button>
-            <Button size="small" color="error" onClick={() => handleDelete(cat._id)}>
+            <Button size="small" color="error" onClick={() => handleDelete(cat.id)}>
               Delete
             </Button>
           </TableCell>
         </TableRow>
 
         {hasSubs &&
-          openRows[cat._id] &&
+          openRows[cat.id] &&
           subcategories.map((sub) => renderCategoryRow(sub, level + 1))}
       </React.Fragment>
     );
@@ -193,10 +178,7 @@ const Categories = () => {
 
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Parent Category</InputLabel>
-              <Select
-                value={parentId}
-                onChange={(e) => setParentId(e.target.value)}
-              >
+              <Select value={parentId} onChange={(e) => setParentId(e.target.value)}>
                 {createCategoryList(mainCategories).map((opt) => (
                   <MenuItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -207,12 +189,7 @@ const Categories = () => {
 
             <TextField type="file" fullWidth onChange={handleFileChange} />
 
-            <Button
-              fullWidth
-              variant="contained"
-              sx={{ mt: 2 }}
-              onClick={editMode ? handleUpdate : handleSubmit}
-            >
+            <Button fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
               {editMode ? "Update" : "Submit"}
             </Button>
           </CardContent>

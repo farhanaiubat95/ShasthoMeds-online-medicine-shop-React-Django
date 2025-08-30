@@ -1,251 +1,325 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
-  Typography,
-  TextField,
   Button,
+  TextField,
+  Typography,
   MenuItem,
-  Paper,
-  Avatar,
-  Chip,
+  FormControlLabel,
+  Checkbox,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
-import EditSquareIcon from "@mui/icons-material/EditSquare";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchProducts,
+  createProduct,
+  removeProductApi,
+} from "../../redux/productSlice.js";
+import { fetchCategories } from "../../redux/categorySlice.js";
+import { fetchBrands } from "../../redux/brandSlice.js";
 
-const Products = () => {
+export default function Products() {
+  const dispatch = useDispatch();
+  const formRef = useRef(null);
+
+  const { products, loading } = useSelector((state) => state.product);
+  const { categories } = useSelector((state) => state.category);
+  const { brands } = useSelector((state) => state.brand);
+
   const [formMode, setFormMode] = useState("add");
-  const categories = [
-    { _id: 1, categoryName: "Electronics" },
-    { _id: 2, categoryName: "Fashion" },
-  ];
+  const [viewProduct, setViewProduct] = useState(null);
+  const [editIndex, setEditIndex] = useState(null);
 
-  const products = [
-    {
-      _id: 1,
-      productName: "Sample Product",
-      productTitle: "High quality sample",
-      brand: "BrandX",
-      productPrice: 1000,
-      productOffer: 10,
-      productDiscount: 100,
-      productPriceAfterDiscount: 900,
-      productDescription: "This is a sample product",
-      productCategory: 1,
-      productQuantity: 20,
-      inStock: true,
-      productRatings: 4.5,
-      productReviews: [{ reviews: "Excellent!" }],
-      createdBy: { name: "Admin" },
-      createdAt: new Date(),
-      productImage: [{ img: "sample.jpg" }],
-    },
-  ];
+  const [product, setProduct] = useState({
+    sku: "",
+    name: "",
+    description: "",
+    generic_name: "",
+    indication: "",
+    adult_dose: "",
+    child_dose: "",
+    contraindication: "",
+    precaution: "",
+    side_effect: "",
+    category: "",
+    brand: "",
+    price: "",
+    offer_price: "",
+    stock: "",
+    unit: "",
+    unit_value: "",
+    weight_value: "",
+    weight_unit: "",
+    package_quantity: "",
+    prescription_required: false,
+    image1: null,
+    image2: null,
+    image3: null,
+    is_active: true,
+  });
+
+  const units = ["Tablet", "Capsule", "Bottle", "Syrup"];
+  const weightUnits = ["mg", "g", "ml", "kg"];
+  const packageQuantities = ["1 Strip", "1 Box", "1 Bottle"];
+
+  // fetch products, categories, brands on mount
+  useEffect(() => {
+    dispatch(fetchProducts());
+    dispatch(fetchCategories());
+    dispatch(fetchBrands());
+  }, [dispatch]);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked, files } = e.target;
+    setProduct((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : type === "file" ? files[0] : value,
+    }));
+  };
+
+  const resetForm = () => {
+    setFormMode("add");
+    setProduct({
+      sku: "",
+      name: "",
+      description: "",
+      generic_name: "",
+      indication: "",
+      adult_dose: "",
+      child_dose: "",
+      contraindication: "",
+      precaution: "",
+      side_effect: "",
+      category: "",
+      brand: "",
+      price: "",
+      offer_price: "",
+      stock: "",
+      unit: "",
+      unit_value: "",
+      weight_value: "",
+      weight_unit: "",
+      package_quantity: "",
+      prescription_required: false,
+      image1: null,
+      image2: null,
+      image3: null,
+      is_active: true,
+    });
+    setEditIndex(null);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("accessToken"); // JWT token
+
+    const formData = new FormData();
+    Object.entries(product).forEach(([key, value]) => {
+      if (value !== null) formData.append(key, value);
+    });
+
+    dispatch(createProduct({ productData: formData, token }));
+    resetForm();
+  };
+
+  const handleAdd = () => {
+    if (formRef.current) {
+      const topPos = formRef.current.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({ top: topPos, behavior: "smooth" });
+    }
+  };
+
+  const handleEdit = (index) => {
+    setProduct(products[index]);
+    setFormMode("edit");
+    setEditIndex(index);
+
+    if (formRef.current) {
+      const topPos = formRef.current.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({ top: topPos, behavior: "smooth" });
+    }
+  };
+
+  const handleDelete = (index) => {
+    const token = localStorage.getItem("accessToken");
+    dispatch(removeProductApi({ id: products[index].id, token }));
+  };
+
+  const handleView = (index) => {
+    setViewProduct(products[index]);
+  };
+
+  const handleCloseView = () => setViewProduct(null);
 
   return (
-    <Box p={4}>
-      {/* Form */}
-      <Box className="form-container">
-        <Typography variant="h5" gutterBottom>
-          {formMode === "add" ? "Add New Product" : "Edit Product"}
-        </Typography>
+    <Box p={3}>
+      <Typography variant="h5" mb={2}>
+        {formMode === "add" ? "Add Product Form" : "Edit Product Form"}
+      </Typography>
 
-        <Box
-          component={Paper}
-          p={2}
-          mb={4}
-          display="grid"
-          gap={2}
-          gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}
-        >
-          <TextField label="Name" required />
-          <TextField label="Title" required />
-          <TextField label="Brand" required />
-          <TextField label="Price" type="number" required />
-          <TextField label="Offer (%)" type="number" />
-          <TextField label="Quantity" type="number" required />
-          <TextField label="Description" multiline rows={1} required />
-          <TextField select label="Category" required>
-            {categories.map((cat) => (
-              <MenuItem key={cat._id} value={cat._id}>
-                {cat.categoryName}
-              </MenuItem>
-            ))}
-          </TextField>
+      <Box
+        component="form"
+        ref={formRef}
+        onSubmit={handleSubmit}
+        display="grid"
+        gridTemplateColumns="1fr 1fr"
+        gap={2}
+        mb={4}
+      >
+        {/* --- form fields same as before --- */}
+        <TextField name="sku" label="SKU" value={product.sku} onChange={handleChange} fullWidth />
+        <TextField name="name" label="Name" value={product.name} onChange={handleChange} fullWidth />
+        <TextField name="description" label="Description" value={product.description} onChange={handleChange} fullWidth multiline />
+        <TextField name="generic_name" label="Generic Name" value={product.generic_name} onChange={handleChange} fullWidth />
+        <TextField name="indication" label="Indication" value={product.indication} onChange={handleChange} fullWidth />
+        <TextField name="adult_dose" label="Adult Dose" value={product.adult_dose} onChange={handleChange} fullWidth />
+        <TextField name="child_dose" label="Child Dose" value={product.child_dose} onChange={handleChange} fullWidth />
+        <TextField name="contraindication" label="Contraindication" value={product.contraindication} onChange={handleChange} fullWidth />
+        <TextField name="precaution" label="Precaution" value={product.precaution} onChange={handleChange} fullWidth />
+        <TextField name="side_effect" label="Side Effect" value={product.side_effect} onChange={handleChange} fullWidth />
 
-          {/* Image Upload */}
-          <Box>
-            <TextField type="file" multiple accept="image/*" />
-          </Box>
-        </Box>
+        <TextField select name="category" label="Category" value={product.category} onChange={handleChange} fullWidth>
+          {categories?.map((c) => (
+            <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+          ))}
+        </TextField>
 
-        <Box display="flex" gap={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ backgroundColor: "#246275", padding: "10px", flex: 1 }}
-          >
-            {formMode === "add" ? "SUBMIT" : "UPDATE"}
+        <TextField select name="brand" label="Brand" value={product.brand} onChange={handleChange} fullWidth>
+          {brands?.map((b) => (
+            <MenuItem key={b.id} value={b.id}>{b.name}</MenuItem>
+          ))}
+        </TextField>
+
+        <TextField name="price" label="Price" value={product.price} onChange={handleChange} fullWidth />
+        <TextField name="offer_price" label="Offer (%)" value={product.offer_price} onChange={handleChange} fullWidth />
+        <TextField name="stock" label="Stock" value={product.stock} onChange={handleChange} fullWidth />
+
+        <TextField select name="package_quantity" label="Package Quantity" value={product.package_quantity} onChange={handleChange} fullWidth>
+          {packageQuantities.map((pq) => (<MenuItem key={pq} value={pq}>{pq}</MenuItem>))}
+        </TextField>
+
+        <TextField name="unit_value" label="Unit Value" value={product.unit_value} onChange={handleChange} fullWidth />
+        <TextField select name="unit" label="Unit" value={product.unit} onChange={handleChange} fullWidth>
+          {units.map((u) => (<MenuItem key={u} value={u}>{u}</MenuItem>))}
+        </TextField>
+
+        <TextField name="weight_value" label="Weight Value" value={product.weight_value} onChange={handleChange} fullWidth />
+        <TextField select name="weight_unit" label="Weight Unit" value={product.weight_unit} onChange={handleChange} fullWidth>
+          {weightUnits.map((wu) => (<MenuItem key={wu} value={wu}>{wu}</MenuItem>))}
+        </TextField>
+
+        <FormControlLabel control={<Checkbox name="prescription_required" checked={product.prescription_required} onChange={handleChange} />} label="Prescription Required" />
+
+        <Button variant="outlined" component="label">
+          Upload Image 1
+          <input type="file" hidden name="image1" onChange={handleChange} />
+        </Button>
+        <Button variant="outlined" component="label">
+          Upload Image 2
+          <input type="file" hidden name="image2" onChange={handleChange} />
+        </Button>
+        <Button variant="outlined" component="label">
+          Upload Image 3
+          <input type="file" hidden name="image3" onChange={handleChange} />
+        </Button>
+
+        <FormControlLabel control={<Checkbox name="is_active" checked={product.is_active} onChange={handleChange} />} label="Is Active" />
+
+        <Box gridColumn="span 2" display="flex" gap={2}>
+          <Button type="submit" variant="contained" sx={{ backgroundColor: "#246275" }}>
+            {formMode === "add" ? "Submit" : "Update"}
           </Button>
-          {formMode === "edit" && (
-            <Button
-              variant="outlined"
-              sx={{ padding: "10px", backgroundColor: "#5c5d3c", color: "white" }}
-            >
-              Add New Product
+          {formMode !== "add" && (
+            <Button variant="contained" sx={{ backgroundColor: "#246275" }} onClick={resetForm}>
+              Add Product
             </Button>
           )}
         </Box>
       </Box>
 
-      {/* Product Table */}
-      <Box className="table-container">
-        <Typography variant="h5" gutterBottom mt={6}>
-          All Products
-        </Typography>
-
-        <TableContainer component={Paper} sx={{ maxHeight: 350, overflow: "auto" }}>
-          <Table size="small" stickyHeader>
+      {/* Table preview */}
+      <Box sx={{ overflowX: "auto" }}>
+        <Paper>
+          <Table sx={{ minWidth: 800 }}>
             <TableHead>
               <TableRow>
-                {[
-                  "Actions",
-                  "Images",
-                  "Name",
-                  "Title",
-                  "Brand",
-                  "Price",
-                  "Offer (%)",
-                  "Discount",
-                  "After Discount",
-                  "Description",
-                  "Category",
-                  "Quantity",
-                  "In Stock",
-                  "Rating",
-                  "Reviews",
-                  "Created By",
-                  "Created At",
-                ].map((header, index) => (
-                  <TableCell
-                    key={index}
-                    align="center"
-                    sx={{
-                      fontWeight: "bold",
-                      fontSize: "12px",
-                      backgroundColor: "#f5f5f5",
-                      top: 0,
-                      zIndex: 1,
-                    }}
-                  >
-                    {header}
-                  </TableCell>
-                ))}
+                <TableCell>SKU</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Price</TableCell>
+                <TableCell>Stock</TableCell>
+                <TableCell>Unit</TableCell>
+                <TableCell>Prescription</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {products.map((product) => (
-                <TableRow key={product._id}>
-                  <TableCell align="center">
-                    <Button sx={{ minWidth: "unset", mr: 1 }}>
-                      <EditSquareIcon />
-                    </Button>
-                    <Button color="error" sx={{ minWidth: "unset" }}>
-                      <DeleteIcon />
-                    </Button>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Box position="relative" display="inline-block">
-                      <Avatar
-                        src={`http://localhost:5000/uploads/${product.productImage?.[0]?.img}`}
-                        variant="square"
-                        sx={{ width: 40, height: 40 }}
-                      />
-                      {product.productImage?.length > 1 && (
-                        <Box
-                          position="absolute"
-                          top={0}
-                          right={0}
-                          bgcolor="rgba(0,0,0,0.6)"
-                          color="white"
-                          fontSize="10px"
-                          px={0.5}
-                          borderRadius="4px"
-                        >
-                          +{product.productImage.length - 1}
-                        </Box>
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell align="center">{product.productName}</TableCell>
-                  <TableCell
-                    sx={{
-                      maxWidth: 120,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                    align="center"
-                  >
-                    {product.productTitle}
-                  </TableCell>
-                  <TableCell align="center">{product.brand}</TableCell>
-                  <TableCell align="center">Tk{product.productPrice}</TableCell>
-                  <TableCell align="center">{product.productOffer}%</TableCell>
-                  <TableCell align="center">Tk{product.productDiscount}</TableCell>
-                  <TableCell align="center">
-                    Tk{product.productPriceAfterDiscount}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      maxWidth: 120,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                    align="center"
-                  >
-                    {product.productDescription}
-                  </TableCell>
-                  <TableCell align="center">
-                    {categories.find((c) => c._id === product.productCategory)
-                      ?.categoryName || product.productCategory}
-                  </TableCell>
-                  <TableCell align="center">{product.productQuantity}</TableCell>
-                  <TableCell align="center">
-                    <Chip
-                      label={product.inStock ? "Yes" : "No"}
-                      color={product.inStock ? "success" : "error"}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell align="center">{product.productRatings}/5</TableCell>
-                  <TableCell align="center">
-                    {product.productReviews?.length
-                      ? product.productReviews.map((r, i) => (
-                          <Typography key={i} variant="body2">
-                            - {r.reviews}
-                          </Typography>
-                        ))
-                      : "No reviews"}
-                  </TableCell>
-                  <TableCell align="center">{product.createdBy?.name}</TableCell>
-                  <TableCell align="center">
-                    {new Date(product.createdAt).toLocaleString()}
+              {products?.map((p, i) => (
+                <TableRow key={i}>
+                  <TableCell>{p.sku || "-"}</TableCell>
+                  <TableCell>{p.name || "-"}</TableCell>
+                  <TableCell>{p.price || "-"}</TableCell>
+                  <TableCell>{p.stock || "-"}</TableCell>
+                  <TableCell>{p.unit_value} {p.unit}</TableCell>
+                  <TableCell>{p.prescription_required ? "Yes" : "No"}</TableCell>
+                  <TableCell>
+                    <Button variant="outlined" color="success" size="small" sx={{ mr: 1 }} onClick={() => handleView(i)}>View</Button>
+                    <Button variant="outlined" color="secondary" size="small" sx={{ mr: 1 }} onClick={() => handleEdit(i)}>Edit</Button>
+                    <Button variant="outlined" color="error" size="small" onClick={() => handleDelete(i)}>Delete</Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </TableContainer>
+        </Paper>
       </Box>
+
+      {/* View Dialog */}
+      <Dialog open={!!viewProduct} onClose={handleCloseView} maxWidth="sm" fullWidth>
+        <DialogTitle>Product Details</DialogTitle>
+        <DialogContent dividers>
+          {viewProduct && (
+            <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
+              <Typography><strong>SKU:</strong> {viewProduct.sku}</Typography>
+              <Typography><strong>Name:</strong> {viewProduct.name}</Typography>
+              <Typography><strong>Description:</strong> {viewProduct.description}</Typography>
+              <Typography><strong>Generic Name:</strong> {viewProduct.generic_name}</Typography>
+              <Typography><strong>Indication:</strong> {viewProduct.indication}</Typography>
+              <Typography><strong>Adult Dose:</strong> {viewProduct.adult_dose}</Typography>
+              <Typography><strong>Child Dose:</strong> {viewProduct.child_dose}</Typography>
+              <Typography><strong>Contraindication:</strong> {viewProduct.contraindication}</Typography>
+              <Typography><strong>Precaution:</strong> {viewProduct.precaution}</Typography>
+              <Typography><strong>Side Effect:</strong> {viewProduct.side_effect}</Typography>
+              <Typography><strong>Category:</strong> {categories.find((c) => c.id === viewProduct.category)?.name || "-"}</Typography>
+              <Typography><strong>Brand:</strong> {brands.find((b) => b.id === viewProduct.brand)?.name || "-"}</Typography>
+              <Typography><strong>Price:</strong> {viewProduct.price}</Typography>
+              <Typography><strong>Offer:</strong> {viewProduct.offer_price}</Typography>
+              <Typography><strong>Stock:</strong> {viewProduct.stock}</Typography>
+              <Typography><strong>Unit:</strong> {viewProduct.unit_value} {viewProduct.unit}</Typography>
+              <Typography><strong>Weight:</strong> {viewProduct.weight_value} {viewProduct.weight_unit}</Typography>
+              <Typography><strong>Package Quantity:</strong> {viewProduct.package_quantity}</Typography>
+              <Typography><strong>Prescription Required:</strong> {viewProduct.prescription_required ? "Yes" : "No"}</Typography>
+              <Typography><strong>Active:</strong> {viewProduct.is_active ? "Yes" : "No"}</Typography>
+
+              {viewProduct.image1 && <img src={URL.createObjectURL(viewProduct.image1)} alt="Image 1" style={{ maxWidth: "100%", borderRadius: 4 }} />}
+              {viewProduct.image2 && <img src={URL.createObjectURL(viewProduct.image2)} alt="Image 2" style={{ maxWidth: "100%", borderRadius: 4 }} />}
+              {viewProduct.image3 && <img src={URL.createObjectURL(viewProduct.image3)} alt="Image 3" style={{ maxWidth: "100%", borderRadius: 4 }} />}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseView} variant="contained">Close</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
-};
+}
 
-export default Products;

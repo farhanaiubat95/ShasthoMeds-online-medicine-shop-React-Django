@@ -77,7 +77,7 @@ def payment_success(request):
 
         
 
-        # Optional: send confirmation email
+        # send confirmation email
         send_mail(
             subject=f"Payment Received - Order #{order.id}",
             message=f"Dear {order.name},\n\nWe have received your payment.\n\nThank you!"

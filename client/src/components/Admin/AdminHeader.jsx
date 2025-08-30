@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 
 import {
-  Search,
   AccountCircle,
   Logout,
   KeyboardArrowDown,
@@ -94,7 +93,7 @@ const AdminHeader = ({ onMenuClick, isMdUp }) => {
           <Typography
             className="w-[90%] "
             sx={{
-              color: "#0F918F",
+              color: "#d1f1f0",
               fontWeight: 700,
               whiteSpace: "nowrap",
             }}
@@ -105,94 +104,50 @@ const AdminHeader = ({ onMenuClick, isMdUp }) => {
         </Box>
 
         {/* Right section */}
-        <Box className="w-[50%] ">
-          <div className="flex items-center gap-2 w-full justify-end">
-            {/* Search */}
-            <Box className="w-[60%] lg:w-[80%] flex items-center justify-end">
-              <TextField
-                placeholder="Search Medicine"
-                variant="outlined"
-                size="small"
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    color: "white",
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                    borderRadius: 1,
-                    height: { xs: 30, md: 40 }, // responsive minHeight
-                    "& fieldset": {
-                      borderColor: "white",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#0F918F",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#0F918F",
-                      boxShadow: "0 0 5px #0F918F",
-                    },
-                  },
-                  "& .MuiInputBase-input::placeholder": {
-                    color: "rgba(255,255,255,0.7)",
-                    opacity: 1,
-                  },
-                  "& .MuiSvgIcon-root": {
-                    color: "white",
-                  },
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-            {/* User icon + username + arrow */}
-            <Box
-              className="w-[40%] lg:w-[20%]  flex items-center justify-center"
+        <Box className="w-[50%] flex items-center justify-end">
+          <Box
+            className="flex items-center justify-center"
+            sx={{
+              flex: "0 0 auto",
+              display: "flex",
+              alignItems: "center",
+              cursor: "pointer",
+              color: "white",
+              userSelect: "none",
+              gap: 0.5,
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+            }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            onClick={handleClick}
+            aria-controls={open ? "account-menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? "true" : undefined}
+          >
+            <AccountCircle
               sx={{
-                flex: "0 0 auto",
-                display: "flex",
-                alignItems: "center",
-                cursor: "pointer",
-                color: "white",
-                userSelect: "none",
-                gap: 0.5,
-                fontWeight: 600,
-                whiteSpace: "nowrap",
+                width: { xs: 20, md: 25 },
+                height: { xs: 20, md: 25 },
               }}
-              onMouseEnter={() => setHovered(true)}
-              onMouseLeave={() => setHovered(false)}
-              onClick={handleClick}
-              aria-controls={open ? "account-menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={open ? "true" : undefined}
-            >
-              <AccountCircle
-                sx={{
-                  width: { xs: 20, md: 25 },
-                  height: { xs: 20, md: 25 },
-                }}
-              />
+            />
 
-              <Typography
-                sx={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  width: 100,
-                }}
-              >
-                {username}
-              </Typography>
-              <KeyboardArrowDown
-                sx={{
-                  transition: "transform 0.3s ease",
-                  transform:
-                    hovered || open ? "rotate(180deg)" : "rotate(0deg)",
-                }}
-              />
-            </Box>
-          </div>
+            <Typography
+              sx={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                width: 100,
+              }}
+            >
+              {username}
+            </Typography>
+            <KeyboardArrowDown
+              sx={{
+                transition: "transform 0.3s ease",
+                transform: hovered || open ? "rotate(180deg)" : "rotate(0deg)",
+              }}
+            />
+          </Box>
         </Box>
 
         {/* Account menu */}

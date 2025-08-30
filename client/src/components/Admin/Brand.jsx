@@ -16,7 +16,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { fetchBrands, addBrand, removeBrand } from "../../redux/brandSlice.js";
 
-const FindPageCheck = () => {
+const Brand = () => {
   const dispatch = useDispatch();
   const { items: brands, loading, error } = useSelector((state) => state.brand);
 
@@ -151,4 +151,3 @@ const FindPageCheck = () => {
   );
 };
 
-export default FindPageCheck;

@@ -21,7 +21,7 @@ const Main = () => {
   return (
     <div className="max-w-7xl mx-auto px-6 py-5 ">
       {/* Header */}
-      <h2 className="text-3xl font-extrabold text-gray-900 mb-10">
+      <h2 className="text-xl lg:text-2xl font-semibold text-[#586277] mb-10">
         Admin Dashboard
       </h2>
 
