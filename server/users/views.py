@@ -11,6 +11,7 @@ from django.conf import settings
 from .SSLCOMMERZ import create_payment_session
 
 from django.utils.crypto import get_random_string
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import Brand, Cart, CartItem, Category, Order, PrescriptionRequest,Product
 from .serializers import BrandSerializer, CartSerializer, CategorySerializer, OrderSerializer, PrescriptionRequestSerializer,ProductSerializer
@@ -173,18 +174,21 @@ class BrandViewSet(viewsets.ModelViewSet):
     queryset = Brand.objects.all().order_by("-created_at")
     serializer_class = BrandSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # anyone can read, only logged-in users can create/update/delete
+    parser_classes = [MultiPartParser, FormParser]   # ADD THIS
 
 # View to get all categories
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by("-created_at")
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]   # ADD THIS
 
 # View to get all products
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # anyone can read, only logged-in can create/update/delete
+    parser_classes = [MultiPartParser, FormParser]
 
 # ---------------- Cart ViewSet ----------------
 class CartViewSet(viewsets.ViewSet):

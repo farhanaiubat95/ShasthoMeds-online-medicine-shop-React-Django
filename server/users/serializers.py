@@ -116,33 +116,40 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 # Serializer for Brand
 class BrandSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()  # override default field
+    image = serializers.ImageField(required=False, allow_null=True) # write support
 
     class Meta:
         model = Brand
         fields = ["id", "name", "slug", "image", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at", "slug"]
 
-    def get_image(self, obj):
-        if obj.image:
-            return obj.image.url  # full Cloudinary URL
-        return None
-    # Removed validate_image as it's handled by model-level validator
+    def to_representation(self, instance):
+        """Return Cloudinary URL for uploaded_image instead of file path"""
+        ret = super().to_representation(instance)
+        if instance.uploaded_image:
+            ret['uploaded_image'] = instance.uploaded_image.url  # Cloudinary URL
+        else:
+            ret['uploaded_image'] = None
+        return ret
 
 
 # Serializer for Category
 class CategorySerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()  # override default field
+    image = serializers.ImageField(required=False, allow_null=True)  # override default field
 
     class Meta:
         model = Category
         fields = ["id", "name", "slug", "image", "parent", "is_active", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at", "slug"]
 
-    def get_image(self, obj):
-        if obj.image:
-            return obj.image.url  # full Cloudinary URL
-        return None
+    def to_representation(self, instance):
+        """Return Cloudinary URL for uploaded_image instead of file path"""
+        ret = super().to_representation(instance)
+        if instance.uploaded_image:
+            ret['uploaded_image'] = instance.uploaded_image.url  # Cloudinary URL
+        else:
+            ret['uploaded_image'] = None
+        return ret
 
 # Serializer for Product
 class ProductSerializer(serializers.ModelSerializer):
@@ -151,9 +158,9 @@ class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
 
     # Return full Cloudinary URLs
-    image1 = serializers.SerializerMethodField()
-    image2 = serializers.SerializerMethodField()
-    image3 = serializers.SerializerMethodField()
+    image1 = serializers.ImageField(required=False, allow_null=True)
+    image2 = serializers.ImageField(required=False, allow_null=True)
+    image3 = serializers.ImageField(required=False, allow_null=True)
     display_unit = serializers.SerializerMethodField()
 
     class Meta:
@@ -161,20 +168,12 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at", "updated_at", "slug", "new_price", "discount_price"]
 
-    def get_image1(self, obj):
-        if obj.image1:
-            return obj.image1.url  # Cloudinary URL
-        return None
-
-    def get_image2(self, obj):
-        if obj.image2:
-            return obj.image2.url
-        return None
-
-    def get_image3(self, obj):
-        if obj.image3:
-            return obj.image3.url
-        return None
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["image1"] = instance.image1.url if instance.image1 else None
+        rep["image2"] = instance.image2.url if instance.image2 else None
+        rep["image3"] = instance.image3.url if instance.image3 else None
+        return rep
 
     def get_display_unit(self, obj):
         return obj.display_unit()
