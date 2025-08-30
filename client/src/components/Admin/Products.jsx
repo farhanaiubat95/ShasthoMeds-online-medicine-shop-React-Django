@@ -120,7 +120,7 @@ export default function Products() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("accessToken"); // JWT token
+    const token = localStorage.getItem("access_token"); // JWT token
 
     const formData = new FormData();
     Object.entries(product).forEach(([key, value]) => {

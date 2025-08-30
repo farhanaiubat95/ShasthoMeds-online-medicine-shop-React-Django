@@ -31,9 +31,9 @@ const AllCategories = () => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.categories);
   const categories = useSelector(
-    (state) => state.categories?.items?.results || []
+    (state) => state.categories?.items?.results || [],
   );
-
+  const token = localStorage.getItem("access_token");
   const [categoryName, setCategoryName] = useState("");
   const [parentId, setParentId] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);
@@ -41,7 +41,6 @@ const AllCategories = () => {
   const [editCategoryData, setEditCategoryData] = useState(null);
   const [openRows, setOpenRows] = useState({});
 
-  const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -215,7 +214,7 @@ const AllCategories = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Expand</TableCell>
+                  <TableCell>Category ID</TableCell>
                   <TableCell>Category Name</TableCell>
                   <TableCell>Image</TableCell>
                   <TableCell>Actions</TableCell>

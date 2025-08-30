@@ -44,7 +44,7 @@ const AllBrand = () => {
   const handleSubmit = () => {
     if (!brandName) return alert("Brand Name is required");
 
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("access_token");
     const formData = new FormData();
     formData.append("name", brandName);
     if (brandImage) formData.append("image", brandImage);
