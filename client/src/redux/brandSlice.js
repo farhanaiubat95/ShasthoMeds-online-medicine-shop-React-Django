@@ -16,7 +16,7 @@ export const fetchBrands = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to fetch brands");
     }
-  }
+  },
 );
 
 // Add new brand
@@ -30,7 +30,7 @@ export const addBrand = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to add brand");
     }
-  }
+  },
 );
 
 // Remove brand
@@ -44,7 +44,7 @@ export const removeBrand = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to delete brand");
     }
-  }
+  },
 );
 
 // ================= Slice ================= //
@@ -65,7 +65,7 @@ const brandSlice = createSlice({
       })
       .addCase(fetchBrands.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = Array.isArray(action.payload) ? action.payload : [];
       })
       .addCase(fetchBrands.rejected, (state, action) => {
         state.loading = false;
@@ -79,6 +79,7 @@ const brandSlice = createSlice({
       })
       .addCase(addBrand.fulfilled, (state, action) => {
         state.loading = false;
+        if (!Array.isArray(state.items)) state.items = [];
         state.items.push(action.payload);
       })
       .addCase(addBrand.rejected, (state, action) => {

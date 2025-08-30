@@ -13,9 +13,11 @@ export const fetchCategories = createAsyncThunk(
       const response = await axios.get(API_URL);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to fetch categories");
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch categories",
+      );
     }
-  }
+  },
 );
 
 // Add a category
@@ -31,7 +33,7 @@ export const addCategory = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to add category");
     }
-  }
+  },
 );
 
 // Remove a category
@@ -43,9 +45,11 @@ export const removeCategory = createAsyncThunk(
       await axios.delete(`${API_URL}${id}/`, config);
       return id;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to remove category");
+      return rejectWithValue(
+        error.response?.data || "Failed to remove category",
+      );
     }
-  }
+  },
 );
 
 // ========== Slice ========== //
@@ -66,8 +70,9 @@ const categorySlice = createSlice({
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = Array.isArray(action.payload) ? action.payload : [];
       })
+
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
@@ -80,8 +85,11 @@ const categorySlice = createSlice({
       })
       .addCase(addCategory.fulfilled, (state, action) => {
         state.loading = false;
+        // ensure items is always an array
+        if (!Array.isArray(state.items)) state.items = [];
         state.items.push(action.payload);
       })
+
       .addCase(addCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
