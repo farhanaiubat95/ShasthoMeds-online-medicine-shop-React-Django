@@ -25,6 +25,7 @@ import {
   fetchCategories,
   addCategory,
   removeCategory,
+  updateCategory,
 } from "../../redux/categorySlice.js";
 
 const AllCategories = () => {
@@ -41,7 +42,6 @@ const AllCategories = () => {
   const [editCategoryData, setEditCategoryData] = useState(null);
   const [openRows, setOpenRows] = useState({});
 
-
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
@@ -54,7 +54,15 @@ const AllCategories = () => {
   };
 
   const handleFileChange = (e) => {
-    setCategoryImage(e.target.files[0]);
+    const file = e.target.files[0];
+    if (
+      file &&
+      ["image/jpeg", "image/png", "application/pdf"].includes(file.type)
+    ) {
+      setCategoryImage(file);
+    } else {
+      alert("Invalid file type. Only JPG, PNG, or PDF allowed.");
+    }
   };
 
   const resetForm = () => {
@@ -65,7 +73,7 @@ const AllCategories = () => {
     setEditMode(false);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!categoryName) return alert("Category Name is required");
 
     const formData = new FormData();
@@ -73,7 +81,20 @@ const AllCategories = () => {
     if (parentId) formData.append("parent", parentId);
     if (categoryImage) formData.append("image", categoryImage);
 
-    dispatch(addCategory({ categoryData: formData, token }));
+    if (editMode && editCategoryData) {
+      // Update category
+      await dispatch(
+        updateCategory({
+          id: editCategoryData.id,
+          categoryData: formData,
+          token,
+        }),
+      );
+    } else {
+      // Add new category
+      await dispatch(addCategory({ categoryData: formData, token }));
+    }
+
     resetForm();
   };
 
@@ -85,9 +106,10 @@ const AllCategories = () => {
     setCategoryImage(null);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Delete this category?")) {
-      dispatch(removeCategory({ id, token }));
+      await dispatch(removeCategory({ id, token }));
+      await dispatch(fetchCategories()); // fetch latest list
     }
   };
 
@@ -118,6 +140,11 @@ const AllCategories = () => {
                 {openRows[cat.id] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
               </IconButton>
             )}
+          </TableCell>
+          <TableCell>
+            <Typography sx={{ paddingLeft: `${level * 20}px` }}>
+              {cat.id}
+            </Typography>
           </TableCell>
           <TableCell>
             <Typography sx={{ paddingLeft: `${level * 20}px` }}>
@@ -195,7 +222,13 @@ const AllCategories = () => {
               </Select>
             </FormControl>
 
-            <TextField type="file" fullWidth onChange={handleFileChange} />
+            <input
+              id="prescription-upload"
+              type="file"
+              accept="image/*,.pdf"
+              onChange={handleFileChange}
+              className="hidden w-full"
+            />
 
             <Button
               fullWidth
@@ -214,6 +247,7 @@ const AllCategories = () => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell>Expand</TableCell>
                   <TableCell>Category ID</TableCell>
                   <TableCell>Category Name</TableCell>
                   <TableCell>Image</TableCell>
