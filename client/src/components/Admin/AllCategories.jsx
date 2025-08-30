@@ -76,6 +76,7 @@ const AllCategories = () => {
 
   const handleSubmit = async () => {
     if (!categoryName) return alert("Category Name is required");
+    if (!token) return alert("Login required");
 
     const formData = new FormData();
     formData.append("name", categoryName);

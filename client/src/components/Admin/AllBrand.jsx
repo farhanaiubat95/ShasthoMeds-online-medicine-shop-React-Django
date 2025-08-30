@@ -27,6 +27,7 @@ const AllBrand = () => {
   // Redux state
   const { items, loading, error } = useSelector((state) => state.brands || {});
   const brands = Array.isArray(items?.results) ? items.results : [];
+  const token = localStorage.getItem("access_token");
 
   // Local state
   const [brandName, setBrandName] = useState("");
@@ -55,19 +56,22 @@ const AllBrand = () => {
   // Handle Add / Update submission
   const handleSubmit = async () => {
     if (!brandName) return alert("Brand Name is required");
+    if (!token) return alert("Login required");
 
-    const token = localStorage.getItem("access_token");
     const formData = new FormData();
     formData.append("name", brandName);
     if (brandImage) formData.append("image", brandImage);
 
     try {
       if (editMode) {
+
         await dispatch(
-          updateBrand({ id: editBrandId, brandData: formData, token })
+          updateBrand({ id: editBrandId, brandData: formData, token }),
         ).unwrap();
         alert("Brand updated successfully");
       } else {
+        if (!token) return alert("Login required");
+
         await dispatch(addBrand({ brandData: formData, token })).unwrap();
         alert("Brand added successfully");
       }
