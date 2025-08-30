@@ -2,54 +2,40 @@
 import React, { useState } from "react";
 import {
   Box,
-  Typography,
   Drawer,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Card,
-  CardContent,
-  Grid,
-  IconButton,
   useTheme,
   useMediaQuery,
   ListItemButton,
 } from "@mui/material";
 
-import MenuIcon from "@mui/icons-material/Menu";
 import {
-  Person,
   Category,
   Payment,
   Notifications,
-  Layers,
-  Settings,
 } from "@mui/icons-material";
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import AdminHeader from "../components/Admin/AdminHeader";
 import { Link, Outlet } from "react-router-dom";
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import WidgetsIcon from '@mui/icons-material/Widgets';
 
 const drawerWidth = 240;
 
 const sidebarItems = [
   { text: "All User", icon: <PeopleOutlineIcon />, path: "/admin-dashboard/all-user" },
-  { text: "Add Categories", icon: <Category />, path: "/admin-dashboard/category" },
+  { text: "Add Categories", icon: <Category />, path: "/admin-dashboard/all-categories" },
+  { text: "Add Brands", icon: <LibraryBooksIcon />, path: "/admin-dashboard/all-brands" },
   { text: "Add Product", icon: <AddShoppingCartIcon />, path: "/admin-dashboard/product" },
   { text: "Payment", icon: <Payment />, path: "/admin-dashboard/payment" },
-  { text: "Order Notification", icon: <Notifications />, path: "/admin-dashboard/notification" },
+  { text: "All Orders", icon: <WidgetsIcon />, path: "/admin-dashboard/all-orders" },
+  { text: "Notification", icon: <Notifications />, path: "/admin-dashboard/notification" },
 ];
 
 const costData = [

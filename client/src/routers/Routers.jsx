@@ -17,7 +17,7 @@ import HomeMain from "../components/Home/HomeMain";
 import AdminDashboard from "../pages/AdminDashboard";
 // import AdminLayout from "../Layout/AdminLayout";
 import Main from "../components/Admin/Main";
-import Categories from "../components/Admin/Categories";
+import AllCategories from "../components/Admin/AllCategories";
 import Products from "../components/Admin/Products";
 import AllCustomer from "../components/Admin/AllCustomer";
 import Notification from "../components/Admin/Notification";
@@ -26,6 +26,7 @@ import Findpagecheck from "../components/product/Findpagecheck";
 import Checkout from "../pages/CheckOut";
 import Paymen_succesfull from "../pages/PaymenSuccesfull";
 import Orders from "../pages/Orders";
+import AllBrand from "../components/Admin/AllBrand";
 
 const Routers = () => {
   return (
@@ -59,7 +60,9 @@ const Routers = () => {
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin-dashboard" element={<AdminDashboard />}>
             <Route index element={<Main />} />
-            <Route path="category" element={<Categories />} />
+            <Route path="all-categories" element={<AllCategories />} />
+            <Route path="all-brands" element={<AllBrand />} />
+            <Route path="all-orders" element={<Orders />} />
             <Route path="product" element={<Products />} />
             <Route path="profile" element={<Profile />} />
             <Route path="all-user" element={<AllCustomer />} />

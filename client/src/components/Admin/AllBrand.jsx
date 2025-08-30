@@ -16,10 +16,9 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { fetchBrands, addBrand, removeBrand } from "../../redux/brandSlice.js";
 
-const Brand = () => {
+const AllBrand = () => {
   const dispatch = useDispatch();
-  const { items: brands, loading, error } = useSelector((state) => state.brand);
-
+  const { items: brands, loading, error } = useSelector((state) => state.brands || {});
   const [brandName, setBrandName] = useState("");
   const [brandImage, setBrandImage] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -95,7 +94,12 @@ const Brand = () => {
               sx={{ mb: 2 }}
             />
 
-            <TextField type="file" fullWidth onChange={handleFileChange} sx={{ mb: 2 }} />
+            <TextField
+              type="file"
+              fullWidth
+              onChange={handleFileChange}
+              sx={{ mb: 2 }}
+            />
 
             <Button fullWidth variant="contained" onClick={handleSubmit}>
               {editMode ? "Update" : "Submit"}
@@ -125,15 +129,26 @@ const Brand = () => {
                         <img
                           src={brand.image}
                           alt=""
-                          style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            borderRadius: "50%",
+                          }}
                         />
                       )}
                     </TableCell>
                     <TableCell>
-                      <Button size="small" onClick={() => handleEditClick(brand)}>
+                      <Button
+                        size="small"
+                        onClick={() => handleEditClick(brand)}
+                      >
                         Edit
                       </Button>
-                      <Button size="small" color="error" onClick={() => handleDelete(brand.id)}>
+                      <Button
+                        size="small"
+                        color="error"
+                        onClick={() => handleDelete(brand.id)}
+                      >
                         Delete
                       </Button>
                     </TableCell>
@@ -151,3 +166,4 @@ const Brand = () => {
   );
 };
 
+export default AllBrand;

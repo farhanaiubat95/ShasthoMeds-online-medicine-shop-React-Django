@@ -28,9 +28,9 @@ import {
   // optional: you can create an updateCategory thunk in slice
 } from "../../redux/categorySlice.js";
 
-const Categories = () => {
+const AllCategories = () => {
   const dispatch = useDispatch();
-  const { items: categories, loading } = useSelector((state) => state.category);
+  const categories = useSelector((state) => state.categories?.items || []);
   const [categoryName, setCategoryName] = useState("");
   const [parentId, setParentId] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);
@@ -218,4 +218,4 @@ const Categories = () => {
   );
 };
 
-export default Categories;
+export default AllCategories;
