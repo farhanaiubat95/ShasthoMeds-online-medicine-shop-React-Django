@@ -176,7 +176,7 @@ const drawerContent = (
         <div className="bg-[#0F918F] h-[40px] p-2">
          <Link to="/" className="text-white hover:underline text-md lg:text-xl">Home</Link>
         </div>
-        <div className="w-full bg-[#bad8db] h-[83vh] overflow-hidden">
+        <div className="w-full bg-[#dbe3e4] h-[83vh] overflow-hidden">
           <div className="w-full h-full overflow-y-scroll ">
             <Outlet />
          </div>
