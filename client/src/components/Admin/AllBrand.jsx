@@ -35,6 +35,13 @@ const AllBrand = () => {
   const [editMode, setEditMode] = useState(false);
   const [editBrandId, setEditBrandId] = useState(null);
 
+  // Slug generator
+  const makeSlug = (str) =>
+    str
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+
   // Fetch brands on mount
   useEffect(() => {
     dispatch(fetchBrands());
@@ -69,6 +76,7 @@ const AllBrand = () => {
 
     const formData = new FormData();
     formData.append("name", brandName);
+    formData.append("slug", makeSlug(brandName)); // ✅ Auto-generated slug
     if (brandImage) formData.append("image", brandImage);
 
     for (let pair of formData.entries()) {
@@ -82,8 +90,6 @@ const AllBrand = () => {
         ).unwrap();
         alert("Brand updated successfully");
       } else {
-        if (!token) return alert("Login required");
-
         await dispatch(addBrand({ brandData: formData, token })).unwrap();
         alert("Brand added successfully");
       }
