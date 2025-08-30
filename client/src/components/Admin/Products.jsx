@@ -31,9 +31,9 @@ export default function Products() {
   const dispatch = useDispatch();
   const formRef = useRef(null);
 
-  const { products, loading } = useSelector((state) => state.product);
-  const { categories } = useSelector((state) => state.category);
-  const { brands } = useSelector((state) => state.brand);
+  const { products, loading } = useSelector((state) => state.products);
+  const { categories } = useSelector((state) => state.categories);
+  const { brands } = useSelector((state) => state.brands);
 
   const [formMode, setFormMode] = useState("add");
   const [viewProduct, setViewProduct] = useState(null);
