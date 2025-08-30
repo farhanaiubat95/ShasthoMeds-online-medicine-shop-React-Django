@@ -148,6 +148,7 @@ const AllCategories = () => {
   };
 
   const handleDelete = async (id) => {
+    if (!token) return alert("Login required");
     if (window.confirm("Delete this category?")) {
       await dispatch(removeCategory({ id, token }));
       await dispatch(fetchCategories());

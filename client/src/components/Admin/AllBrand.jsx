@@ -114,6 +114,7 @@ const AllBrand = () => {
 
   // Handle Delete button
   const handleDelete = async (id) => {
+    if (!token) return alert("Login required");
     if (!window.confirm("Delete this brand?")) return;
 
     try {
