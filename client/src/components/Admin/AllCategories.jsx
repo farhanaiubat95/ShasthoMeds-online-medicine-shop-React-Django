@@ -30,6 +30,7 @@ import {
 
 const AllCategories = () => {
   const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.categories);
   const categories = useSelector((state) => state.categories?.items || []);
   const [categoryName, setCategoryName] = useState("");
   const [parentId, setParentId] = useState("");
@@ -72,7 +73,7 @@ const AllCategories = () => {
     if (categoryImage) formData.append("categoryImage", categoryImage);
 
     if (editMode && editCategoryData) {
-      // For simplicity, dispatch addCategory as placeholder. 
+      // For simplicity, dispatch addCategory as placeholder.
       // You can create updateCategory thunk in slice for proper backend update.
       dispatch(addCategory({ categoryData: formData, token }));
     } else {
@@ -96,9 +97,14 @@ const AllCategories = () => {
     }
   };
 
-  const mainCategories = categories.filter((cat) => !cat.parentId);
+  const mainCategories = Array.isArray(categories)
+    ? categories.filter((cat) => !cat.parentId)
+    : [];
+
   const getSubcategories = (parentId) =>
-    categories.filter((cat) => cat.parentId === parentId);
+    Array.isArray(categories)
+      ? categories.filter((cat) => cat.parentId === parentId)
+      : [];
 
   const handleToggle = (id) => {
     setOpenRows((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -136,7 +142,11 @@ const AllCategories = () => {
             <Button size="small" onClick={() => handleEditClick(cat)}>
               Edit
             </Button>
-            <Button size="small" color="error" onClick={() => handleDelete(cat.id)}>
+            <Button
+              size="small"
+              color="error"
+              onClick={() => handleDelete(cat.id)}
+            >
               Delete
             </Button>
           </TableCell>
@@ -178,7 +188,10 @@ const AllCategories = () => {
 
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Parent Category</InputLabel>
-              <Select value={parentId} onChange={(e) => setParentId(e.target.value)}>
+              <Select
+                value={parentId}
+                onChange={(e) => setParentId(e.target.value)}
+              >
                 {createCategoryList(mainCategories).map((opt) => (
                   <MenuItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -189,7 +202,12 @@ const AllCategories = () => {
 
             <TextField type="file" fullWidth onChange={handleFileChange} />
 
-            <Button fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 2 }}
+              onClick={handleSubmit}
+            >
               {editMode ? "Update" : "Submit"}
             </Button>
           </CardContent>
