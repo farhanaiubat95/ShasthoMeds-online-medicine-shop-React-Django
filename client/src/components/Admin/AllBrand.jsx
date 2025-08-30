@@ -32,6 +32,7 @@ const AllBrand = () => {
   // Local state
   const [brandName, setBrandName] = useState("");
   const [brandSlug, setBrandSlug] = useState("");
+  const [slugEditedManually, setSlugEditedManually] = useState(false);
   const [brandImage, setBrandImage] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editBrandId, setEditBrandId] = useState(null);
@@ -43,10 +44,12 @@ const AllBrand = () => {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "");
 
-  // Update slug when name changes
+  // Auto-update slug when name changes, unless manually edited
   useEffect(() => {
-    if (!editMode) setBrandSlug(makeSlug(brandName));
-  }, [brandName, editMode]);
+    if (!slugEditedManually) {
+      setBrandSlug(makeSlug(brandName));
+    }
+  }, [brandName, slugEditedManually]);
 
   // Fetch brands on mount
   useEffect(() => {
@@ -70,6 +73,7 @@ const AllBrand = () => {
   const resetForm = () => {
     setBrandName("");
     setBrandSlug("");
+    setSlugEditedManually(false);
     setBrandImage(null);
     setEditMode(false);
     setEditBrandId(null);
@@ -97,7 +101,7 @@ const AllBrand = () => {
         alert("Brand added successfully");
       }
       resetForm();
-      dispatch(fetchBrands()); // auto-refresh after add/update
+      dispatch(fetchBrands());
     } catch (err) {
       alert(err?.message || "Something went wrong");
     }
@@ -109,21 +113,8 @@ const AllBrand = () => {
     setEditBrandId(brand.id);
     setBrandName(brand.name);
     setBrandSlug(brand.slug || makeSlug(brand.name));
-    setBrandImage(null); // keep current image until new file uploaded
-  };
-
-  // Handle Delete button
-  const handleDelete = async (id) => {
-    if (!token) return alert("Login required");
-    if (!window.confirm("Delete this brand?")) return;
-
-    try {
-      await dispatch(removeBrand({ id, token })).unwrap();
-      alert("Brand deleted successfully");
-      dispatch(fetchBrands()); // auto-refresh after delete
-    } catch (err) {
-      alert(err?.message || "Failed to delete brand");
-    }
+    setSlugEditedManually(false); // allow auto-update on name change
+    setBrandImage(null);
   };
 
   return (
@@ -135,14 +126,12 @@ const AllBrand = () => {
 
       {/* Form and Table */}
       <Box className="flex gap-6 p-6 flex-wrap">
-        {/* Form */}
         <Card sx={{ flex: "1 1 300px" }}>
           <CardContent>
             <Typography variant="h6" className="pb-4">
               {editMode ? "Edit Brand" : "Add New Brand"}
             </Typography>
 
-            {/* Brand Name */}
             <TextField
               fullWidth
               label="Brand Name"
@@ -151,16 +140,17 @@ const AllBrand = () => {
               sx={{ mb: 2 }}
             />
 
-            {/* Slug */}
             <TextField
               fullWidth
               label="Slug"
               value={brandSlug}
-              onChange={(e) => setBrandSlug(e.target.value)}
+              onChange={(e) => {
+                setBrandSlug(e.target.value);
+                setSlugEditedManually(true);
+              }}
               sx={{ mb: 2 }}
             />
 
-            {/* Brand Image */}
             <Button
               variant="outlined"
               component="label"
@@ -185,7 +175,6 @@ const AllBrand = () => {
               {editMode ? "Update" : "Submit"}
             </Button>
 
-            {/* Cancel Edit */}
             {editMode && (
               <Button
                 fullWidth
@@ -255,7 +244,6 @@ const AllBrand = () => {
         </Box>
       </Box>
 
-      {/* Loading and Error */}
       {loading && <Typography>Loading brands...</Typography>}
       {error && <Typography color="error">{error}</Typography>}
     </Box>

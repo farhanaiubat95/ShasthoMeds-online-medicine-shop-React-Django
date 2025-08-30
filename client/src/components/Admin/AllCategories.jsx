@@ -32,29 +32,36 @@ const AllCategories = () => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.categories);
   const categories = useSelector(
-    (state) => state.categories?.items?.results || [],
+    (state) => state.categories?.items?.results || []
   );
   const token = localStorage.getItem("access_token");
+
   const [categoryName, setCategoryName] = useState("");
   const [categorySlug, setCategorySlug] = useState("");
+  const [slugEditedManually, setSlugEditedManually] = useState(false);
   const [parentId, setParentId] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editCategoryData, setEditCategoryData] = useState(null);
   const [openRows, setOpenRows] = useState({});
 
-  // Generate slug from name
+  // Slug generator
   const makeSlug = (str) =>
-    str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+    str
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+
+  // Auto-update slug when name changes (unless manually edited)
+  useEffect(() => {
+    if (!slugEditedManually) {
+      setCategorySlug(makeSlug(categoryName));
+    }
+  }, [categoryName, slugEditedManually]);
 
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
-
-  // Update slug automatically when name changes (only for new category)
-  useEffect(() => {
-    if (!editMode) setCategorySlug(makeSlug(categoryName));
-  }, [categoryName, editMode]);
 
   const createCategoryList = (categories, options = []) => {
     for (let category of categories) {
@@ -78,6 +85,7 @@ const AllCategories = () => {
   const resetForm = () => {
     setCategoryName("");
     setCategorySlug("");
+    setSlugEditedManually(false);
     setParentId("");
     setCategoryImage(null);
     setEditCategoryData(null);
@@ -103,7 +111,7 @@ const AllCategories = () => {
             id: editCategoryData.id,
             categoryData: formData,
             token,
-          }),
+          })
         );
 
         if (updateCategory.fulfilled.match(resultAction)) {
@@ -113,12 +121,12 @@ const AllCategories = () => {
         } else {
           alert(
             resultAction.payload?.detail ||
-              "Failed to update category. Please try again.",
+              "Failed to update category. Please try again."
           );
         }
       } else {
         const resultAction = await dispatch(
-          addCategory({ categoryData: formData, token }),
+          addCategory({ categoryData: formData, token })
         );
 
         if (addCategory.fulfilled.match(resultAction)) {
@@ -128,7 +136,7 @@ const AllCategories = () => {
         } else {
           alert(
             resultAction.payload?.detail ||
-              "Failed to add category. Please try again.",
+              "Failed to add category. Please try again."
           );
         }
       }
@@ -143,12 +151,12 @@ const AllCategories = () => {
     setEditCategoryData(category);
     setCategoryName(category.name);
     setCategorySlug(category.slug || makeSlug(category.name));
+    setSlugEditedManually(false);
     setParentId(category.parent || "");
     setCategoryImage(null);
   };
 
   const handleDelete = async (id) => {
-    if (!token) return alert("Login required");
     if (window.confirm("Delete this category?")) {
       await dispatch(removeCategory({ id, token }));
       await dispatch(fetchCategories());
@@ -182,9 +190,19 @@ const AllCategories = () => {
               </IconButton>
             )}
           </TableCell>
-          <TableCell>{cat.id}</TableCell>
-          <TableCell>{cat.name}</TableCell>
-          <TableCell>{cat.slug}</TableCell>
+          <TableCell>
+            <Typography sx={{ paddingLeft: `${level * 20}px` }}>
+              {cat.id}
+            </Typography>
+          </TableCell>
+          <TableCell>
+            <Typography sx={{ paddingLeft: `${level * 20}px` }}>
+              {cat.name}
+            </Typography>
+            <Typography sx={{ paddingLeft: `${level * 20}px` }} variant="caption" color="textSecondary">
+              Slug: {cat.slug || "-"}
+            </Typography>
+          </TableCell>
           <TableCell>
             {cat.image && (
               <img
@@ -198,7 +216,11 @@ const AllCategories = () => {
             <Button size="small" onClick={() => handleEditClick(cat)}>
               Edit
             </Button>
-            <Button size="small" color="error" onClick={() => handleDelete(cat.id)}>
+            <Button
+              size="small"
+              color="error"
+              onClick={() => handleDelete(cat.id)}
+            >
               Delete
             </Button>
           </TableCell>
@@ -215,14 +237,12 @@ const AllCategories = () => {
 
   return (
     <Box>
-      {/* Summary */}
       <Box className="flex gap-6 p-4 bg-gray-100">
         <Typography>Total Categories: {categories.length}</Typography>
         <Typography>Main Categories: {mainCategories.length}</Typography>
         <Typography>Subcategories: {allSubcategories.length}</Typography>
       </Box>
 
-      {/* Form */}
       <Box className="flex gap-6 p-6 flex-wrap">
         <Card sx={{ flex: "1 1 300px" }}>
           <CardContent>
@@ -242,13 +262,19 @@ const AllCategories = () => {
               fullWidth
               label="Slug"
               value={categorySlug}
-              onChange={(e) => setCategorySlug(e.target.value)}
+              onChange={(e) => {
+                setCategorySlug(e.target.value);
+                setSlugEditedManually(true);
+              }}
               sx={{ mb: 2 }}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Parent Category</InputLabel>
-              <Select value={parentId} onChange={(e) => setParentId(e.target.value)}>
+              <Select
+                value={parentId}
+                onChange={(e) => setParentId(e.target.value)}
+              >
                 {createCategoryList(mainCategories).map((opt) => (
                   <MenuItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -271,22 +297,25 @@ const AllCategories = () => {
             />
             {categoryImage && <Typography>{categoryImage.name}</Typography>}
 
-            <Button fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 2 }}
+              onClick={handleSubmit}
+            >
               {editMode ? "Update" : "Submit"}
             </Button>
           </CardContent>
         </Card>
 
-        {/* Table */}
         <Box sx={{ flex: "2 1 500px" }}>
           <TableContainer>
             <Table>
               <TableHead>
                 <TableRow>
                   <TableCell>Expand</TableCell>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Slug</TableCell>
+                  <TableCell>Category ID</TableCell>
+                  <TableCell>Category Name / Slug</TableCell>
                   <TableCell>Image</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
