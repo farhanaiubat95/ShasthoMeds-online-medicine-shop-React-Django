@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import axiosInstance from "../axiosInstance";
 
 const API_URL = "https://shasthomeds-backend.onrender.com/categories/";
 
@@ -12,17 +11,16 @@ export const fetchCategories = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(API_URL);
-      return response.data;
+      return response.data; // { results: [...] }
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || "Failed to fetch categories",
+        error.response?.data || "Failed to fetch categories"
       );
     }
-  },
+  }
 );
 
 // Add a category
-
 export const addCategory = createAsyncThunk(
   "categories/addCategory",
   async ({ categoryData, token }, { rejectWithValue }) => {
@@ -37,7 +35,7 @@ export const addCategory = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.response?.data || "Failed to add category");
     }
-  },
+  }
 );
 
 // Update a category
@@ -45,24 +43,19 @@ export const updateCategory = createAsyncThunk(
   "categories/updateCategory",
   async ({ id, categoryData, token }, { rejectWithValue }) => {
     try {
-      const config = {
+      const response = await axios.patch(`${API_URL}${id}/`, categoryData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-      };
-      const response = await axios.patch(
-        `${API_URL}${id}/`,
-        categoryData,
-        config,
-      );
-      return response.data; // backend returns the updated category
+      });
+      return response.data; // updated category
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || "Failed to update category",
+        error.response?.data || "Failed to update category"
       );
     }
-  },
+  }
 );
 
 // Remove a category
@@ -70,22 +63,23 @@ export const removeCategory = createAsyncThunk(
   "categories/removeCategory",
   async ({ id, token }, { rejectWithValue }) => {
     try {
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.delete(`${API_URL}${id}/`, config);
+      await axios.delete(`${API_URL}${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return id;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || "Failed to remove category",
+        error.response?.data || "Failed to remove category"
       );
     }
-  },
+  }
 );
 
 // ========== Slice ========== //
 const categorySlice = createSlice({
-  name: "category",
+  name: "categories",
   initialState: {
-    items: [],
+    items: { results: [] }, // match backend
     loading: false,
     error: null,
   },
@@ -99,7 +93,7 @@ const categorySlice = createSlice({
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = action.payload; // { results: [...] }
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loading = false;
@@ -107,57 +101,31 @@ const categorySlice = createSlice({
       })
 
       // addCategory
-      .addCase(addCategory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(addCategory.fulfilled, (state, action) => {
-        state.loading = false;
-        // ensure items is always an array
-        if (!Array.isArray(state.items)) state.items = [];
-        state.items.push(action.payload);
-      })
-      .addCase(addCategory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        if (Array.isArray(state.items.results)) {
+          state.items.results.push(action.payload);
+        }
       })
 
       // updateCategory
-      .addCase(updateCategory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(updateCategory.fulfilled, (state, action) => {
-        state.loading = false;
-        if (!Array.isArray(state.items)) state.items = [];
-        const index = state.items.findIndex((c) => c.id === action.payload.id);
-        if (index !== -1) {
-          state.items[index] = action.payload; // replace the old category
+        const idx = state.items.results.findIndex(
+          (c) => c.id === action.payload.id
+        );
+        if (idx !== -1) {
+          state.items.results[idx] = action.payload;
         }
-      })
-      .addCase(updateCategory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
       })
 
       // removeCategory
-      .addCase(removeCategory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(removeCategory.fulfilled, (state, action) => {
-        state.loading = false;
-        if (Array.isArray(state.items)) {
-          state.items = state.items.filter((c) => c.id !== action.payload);
-        } else {
-          state.items = [];
-        }
-      })
-      .addCase(removeCategory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        state.items.results = state.items.results.filter(
+          (c) => c.id !== action.payload
+        );
       });
   },
 });
+
+
 
 export default categorySlice.reducer;
