@@ -36,15 +36,25 @@ const AllCategories = () => {
   );
   const token = localStorage.getItem("access_token");
   const [categoryName, setCategoryName] = useState("");
+  const [categorySlug, setCategorySlug] = useState("");
   const [parentId, setParentId] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editCategoryData, setEditCategoryData] = useState(null);
   const [openRows, setOpenRows] = useState({});
 
+  // Generate slug from name
+  const makeSlug = (str) =>
+    str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  // Update slug automatically when name changes (only for new category)
+  useEffect(() => {
+    if (!editMode) setCategorySlug(makeSlug(categoryName));
+  }, [categoryName, editMode]);
 
   const createCategoryList = (categories, options = []) => {
     for (let category of categories) {
@@ -55,7 +65,6 @@ const AllCategories = () => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    console.log("File:", file);
     if (
       file &&
       ["image/jpeg", "image/png", "application/pdf"].includes(file.type)
@@ -68,6 +77,7 @@ const AllCategories = () => {
 
   const resetForm = () => {
     setCategoryName("");
+    setCategorySlug("");
     setParentId("");
     setCategoryImage(null);
     setEditCategoryData(null);
@@ -76,17 +86,18 @@ const AllCategories = () => {
 
   const handleSubmit = async () => {
     if (!categoryName) return alert("Category Name is required");
+    if (!categorySlug) return alert("Slug is required");
     if (!token) return alert("Login required");
 
     const formData = new FormData();
     formData.append("name", categoryName);
+    formData.append("slug", categorySlug);
     if (parentId) formData.append("parent", parentId);
     if (categoryImage) formData.append("image", categoryImage);
     formData.append("is_active", true);
 
     try {
       if (editMode && editCategoryData) {
-        // Update category
         const resultAction = await dispatch(
           updateCategory({
             id: editCategoryData.id,
@@ -97,7 +108,7 @@ const AllCategories = () => {
 
         if (updateCategory.fulfilled.match(resultAction)) {
           alert("Category updated successfully!");
-          dispatch(fetchCategories()); // refresh list
+          dispatch(fetchCategories());
           resetForm();
         } else {
           alert(
@@ -106,14 +117,13 @@ const AllCategories = () => {
           );
         }
       } else {
-        // Add new category
         const resultAction = await dispatch(
           addCategory({ categoryData: formData, token }),
         );
 
         if (addCategory.fulfilled.match(resultAction)) {
           alert("Category added successfully!");
-          dispatch(fetchCategories()); // refresh list
+          dispatch(fetchCategories());
           resetForm();
         } else {
           alert(
@@ -132,6 +142,7 @@ const AllCategories = () => {
     setEditMode(true);
     setEditCategoryData(category);
     setCategoryName(category.name);
+    setCategorySlug(category.slug || makeSlug(category.name));
     setParentId(category.parent || "");
     setCategoryImage(null);
   };
@@ -139,11 +150,10 @@ const AllCategories = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Delete this category?")) {
       await dispatch(removeCategory({ id, token }));
-      await dispatch(fetchCategories()); // fetch latest list
+      await dispatch(fetchCategories());
     }
   };
 
-  // Fix property names to match your backend response
   const mainCategories = Array.isArray(categories)
     ? categories.filter((cat) => !cat.parent)
     : [];
@@ -171,16 +181,9 @@ const AllCategories = () => {
               </IconButton>
             )}
           </TableCell>
-          <TableCell>
-            <Typography sx={{ paddingLeft: `${level * 20}px` }}>
-              {cat.id}
-            </Typography>
-          </TableCell>
-          <TableCell>
-            <Typography sx={{ paddingLeft: `${level * 20}px` }}>
-              {cat.name}
-            </Typography>
-          </TableCell>
+          <TableCell>{cat.id}</TableCell>
+          <TableCell>{cat.name}</TableCell>
+          <TableCell>{cat.slug}</TableCell>
           <TableCell>
             {cat.image && (
               <img
@@ -194,11 +197,7 @@ const AllCategories = () => {
             <Button size="small" onClick={() => handleEditClick(cat)}>
               Edit
             </Button>
-            <Button
-              size="small"
-              color="error"
-              onClick={() => handleDelete(cat.id)}
-            >
+            <Button size="small" color="error" onClick={() => handleDelete(cat.id)}>
               Delete
             </Button>
           </TableCell>
@@ -238,12 +237,17 @@ const AllCategories = () => {
               sx={{ mb: 2 }}
             />
 
+            <TextField
+              fullWidth
+              label="Slug"
+              value={categorySlug}
+              onChange={(e) => setCategorySlug(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Parent Category</InputLabel>
-              <Select
-                value={parentId}
-                onChange={(e) => setParentId(e.target.value)}
-              >
+              <Select value={parentId} onChange={(e) => setParentId(e.target.value)}>
                 {createCategoryList(mainCategories).map((opt) => (
                   <MenuItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -266,12 +270,7 @@ const AllCategories = () => {
             />
             {categoryImage && <Typography>{categoryImage.name}</Typography>}
 
-            <Button
-              fullWidth
-              variant="contained"
-              sx={{ mt: 2 }}
-              onClick={handleSubmit}
-            >
+            <Button fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
               {editMode ? "Update" : "Submit"}
             </Button>
           </CardContent>
@@ -284,8 +283,9 @@ const AllCategories = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Expand</TableCell>
-                  <TableCell>Category ID</TableCell>
-                  <TableCell>Category Name</TableCell>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Slug</TableCell>
                   <TableCell>Image</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>

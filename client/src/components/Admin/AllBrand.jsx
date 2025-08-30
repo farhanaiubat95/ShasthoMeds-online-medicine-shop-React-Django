@@ -31,6 +31,7 @@ const AllBrand = () => {
 
   // Local state
   const [brandName, setBrandName] = useState("");
+  const [brandSlug, setBrandSlug] = useState("");
   const [brandImage, setBrandImage] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editBrandId, setEditBrandId] = useState(null);
@@ -42,6 +43,11 @@ const AllBrand = () => {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "");
 
+  // Update slug when name changes
+  useEffect(() => {
+    if (!editMode) setBrandSlug(makeSlug(brandName));
+  }, [brandName, editMode]);
+
   // Fetch brands on mount
   useEffect(() => {
     dispatch(fetchBrands());
@@ -50,7 +56,6 @@ const AllBrand = () => {
   // Handle file input
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    console.log("File:", file);
     if (
       file &&
       ["image/jpeg", "image/png", "application/pdf"].includes(file.type)
@@ -64,6 +69,7 @@ const AllBrand = () => {
   // Reset form
   const resetForm = () => {
     setBrandName("");
+    setBrandSlug("");
     setBrandImage(null);
     setEditMode(false);
     setEditBrandId(null);
@@ -72,21 +78,18 @@ const AllBrand = () => {
   // Handle Add / Update submission
   const handleSubmit = async () => {
     if (!brandName) return alert("Brand Name is required");
+    if (!brandSlug) return alert("Slug is required");
     if (!token) return alert("Login required");
 
     const formData = new FormData();
     formData.append("name", brandName);
-    formData.append("slug", makeSlug(brandName)); // ✅ Auto-generated slug
+    formData.append("slug", brandSlug);
     if (brandImage) formData.append("image", brandImage);
-
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ": ", pair[1]);
-    }
 
     try {
       if (editMode) {
         await dispatch(
-          updateBrand({ id: editBrandId, brandData: formData, token }),
+          updateBrand({ id: editBrandId, brandData: formData, token })
         ).unwrap();
         alert("Brand updated successfully");
       } else {
@@ -105,6 +108,7 @@ const AllBrand = () => {
     setEditMode(true);
     setEditBrandId(brand.id);
     setBrandName(brand.name);
+    setBrandSlug(brand.slug || makeSlug(brand.name));
     setBrandImage(null); // keep current image until new file uploaded
   };
 
@@ -112,7 +116,6 @@ const AllBrand = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this brand?")) return;
 
-    const token = localStorage.getItem("access_token");
     try {
       await dispatch(removeBrand({ id, token })).unwrap();
       alert("Brand deleted successfully");
@@ -144,6 +147,15 @@ const AllBrand = () => {
               label="Brand Name"
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+
+            {/* Slug */}
+            <TextField
+              fullWidth
+              label="Slug"
+              value={brandSlug}
+              onChange={(e) => setBrandSlug(e.target.value)}
               sx={{ mb: 2 }}
             />
 
@@ -195,6 +207,7 @@ const AllBrand = () => {
                 <TableRow>
                   <TableCell>ID</TableCell>
                   <TableCell>Name</TableCell>
+                  <TableCell>Slug</TableCell>
                   <TableCell>Image</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
@@ -204,6 +217,7 @@ const AllBrand = () => {
                   <TableRow key={brand.id}>
                     <TableCell>{brand.id}</TableCell>
                     <TableCell>{brand.name}</TableCell>
+                    <TableCell>{brand.slug}</TableCell>
                     <TableCell>
                       {brand.image && (
                         <img
