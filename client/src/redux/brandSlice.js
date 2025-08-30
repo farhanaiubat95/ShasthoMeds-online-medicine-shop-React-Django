@@ -65,7 +65,7 @@ const brandSlice = createSlice({
       })
       .addCase(fetchBrands.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = Array.isArray(action.payload) ? action.payload : [];
+        state.items = action.payload;
       })
       .addCase(fetchBrands.rejected, (state, action) => {
         state.loading = false;

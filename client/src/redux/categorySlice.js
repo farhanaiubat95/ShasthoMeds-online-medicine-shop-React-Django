@@ -70,9 +70,8 @@ const categorySlice = createSlice({
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = Array.isArray(action.payload) ? action.payload : [];
+        state.items = action.payload;
       })
-
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
@@ -89,7 +88,6 @@ const categorySlice = createSlice({
         if (!Array.isArray(state.items)) state.items = [];
         state.items.push(action.payload);
       })
-
       .addCase(addCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
