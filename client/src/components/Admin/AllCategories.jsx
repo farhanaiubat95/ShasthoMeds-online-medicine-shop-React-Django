@@ -31,7 +31,10 @@ import {
 const AllCategories = () => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.categories);
-  const categories = useSelector((state) => state.categories?.items || []);
+  const categories = useSelector(
+    (state) => state.categories?.items?.results || [],
+  );
+
   const [categoryName, setCategoryName] = useState("");
   const [parentId, setParentId] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);

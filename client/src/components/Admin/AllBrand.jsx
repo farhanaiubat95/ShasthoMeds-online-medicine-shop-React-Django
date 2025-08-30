@@ -19,7 +19,7 @@ import { fetchBrands, addBrand, removeBrand } from "../../redux/brandSlice.js";
 const AllBrand = () => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.brands || {});
-  const brands = Array.isArray(items) ? items : [];
+  const brands = Array.isArray(items?.results) ? items.results : [];
 
   const [brandName, setBrandName] = useState("");
   const [brandImage, setBrandImage] = useState(null);
