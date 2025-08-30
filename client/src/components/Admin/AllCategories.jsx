@@ -227,7 +227,7 @@ const AllCategories = () => {
               type="file"
               accept="image/*,.pdf"
               onChange={handleFileChange}
-              className="hidden w-full"
+              className=" w-full"
             />
 
             <Button
