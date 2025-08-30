@@ -265,8 +265,15 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
 # ---------------- Order ViewSet ----------------
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:  # Admin gets all orders
+            return Order.objects.all().order_by('-created_at')
+        # Regular users only see their own orders
+        return Order.objects.filter(user=user).order_by('-created_at')
 
     def create(self, request, *args, **kwargs):
         data = request.data
