@@ -121,7 +121,7 @@ class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
         fields = ["id", "name", "slug", "image", "created_at", "updated_at"]
-        read_only_fields = ["id", "created_at", "updated_at", "slug"]
+        read_only_fields = ["id", "created_at", "updated_at"]
 
     def to_representation(self, instance):
         """Return Cloudinary URL for image instead of file path"""
