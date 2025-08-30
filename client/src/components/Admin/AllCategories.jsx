@@ -25,14 +25,13 @@ import {
   fetchCategories,
   addCategory,
   removeCategory,
-  // optional: you can create an updateCategory thunk in slice
 } from "../../redux/categorySlice.js";
 
 const AllCategories = () => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.categories);
   const categories = useSelector(
-    (state) => state.categories?.items?.results || [],
+    (state) => state.categories?.items?.results || []
   );
 
   const [categoryName, setCategoryName] = useState("");
@@ -42,7 +41,7 @@ const AllCategories = () => {
   const [editCategoryData, setEditCategoryData] = useState(null);
   const [openRows, setOpenRows] = useState({});
 
-  const token = localStorage.getItem("accessToken"); // assuming token in localStorage
+  const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -50,7 +49,7 @@ const AllCategories = () => {
 
   const createCategoryList = (categories, options = []) => {
     for (let category of categories) {
-      options.push({ value: category.id, label: category.categoryName });
+      options.push({ value: category.id, label: category.name });
     }
     return options;
   };
@@ -71,26 +70,19 @@ const AllCategories = () => {
     if (!categoryName) return alert("Category Name is required");
 
     const formData = new FormData();
-    formData.append("categoryName", categoryName);
-    if (parentId) formData.append("parentId", parentId);
-    if (categoryImage) formData.append("categoryImage", categoryImage);
+    formData.append("name", categoryName);
+    if (parentId) formData.append("parent", parentId);
+    if (categoryImage) formData.append("image", categoryImage);
 
-    if (editMode && editCategoryData) {
-      // For simplicity, dispatch addCategory as placeholder.
-      // You can create updateCategory thunk in slice for proper backend update.
-      dispatch(addCategory({ categoryData: formData, token }));
-    } else {
-      dispatch(addCategory({ categoryData: formData, token }));
-    }
-
+    dispatch(addCategory({ categoryData: formData, token }));
     resetForm();
   };
 
   const handleEditClick = (category) => {
     setEditMode(true);
     setEditCategoryData(category);
-    setCategoryName(category.categoryName);
-    setParentId(category.parentId || "");
+    setCategoryName(category.name);
+    setParentId(category.parent || "");
     setCategoryImage(null);
   };
 
@@ -100,13 +92,14 @@ const AllCategories = () => {
     }
   };
 
+  // Fix property names to match your backend response
   const mainCategories = Array.isArray(categories)
-    ? categories.filter((cat) => !cat.parentId)
+    ? categories.filter((cat) => !cat.parent)
     : [];
 
   const getSubcategories = (parentId) =>
     Array.isArray(categories)
-      ? categories.filter((cat) => cat.parentId === parentId)
+      ? categories.filter((cat) => cat.parent === parentId)
       : [];
 
   const handleToggle = (id) => {
@@ -129,14 +122,14 @@ const AllCategories = () => {
           </TableCell>
           <TableCell>
             <Typography sx={{ paddingLeft: `${level * 20}px` }}>
-              {cat.categoryName}
+              {cat.name}
             </Typography>
           </TableCell>
           <TableCell>
-            {cat.categoryImage && (
+            {cat.image && (
               <img
-                src={cat.categoryImage}
-                alt=""
+                src={cat.image}
+                alt={cat.name}
                 style={{ width: "50px", height: "50px", borderRadius: "50%" }}
               />
             )}
@@ -162,15 +155,15 @@ const AllCategories = () => {
     );
   };
 
+  const allSubcategories = categories.filter((cat) => cat.parent);
+
   return (
     <Box>
       {/* Summary */}
       <Box className="flex gap-6 p-4 bg-gray-100">
         <Typography>Total Categories: {categories.length}</Typography>
         <Typography>Main Categories: {mainCategories.length}</Typography>
-        <Typography>
-          Subcategories: {categories.length - mainCategories.length}
-        </Typography>
+        <Typography>Subcategories: {allSubcategories.length}</Typography>
       </Box>
 
       {/* Form */}
