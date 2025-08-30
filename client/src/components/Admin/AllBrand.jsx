@@ -132,20 +132,35 @@ const AllBrand = () => {
               {editMode ? "Edit Brand" : "Add New Brand"}
             </Typography>
 
-            <input
-              id="brand-image-upload"
-              type="file"
-              accept="image/*,.pdf"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-
+            {/* Brand Name */}
             <TextField
-              type="file"
               fullWidth
-              onChange={handleFileChange}
+              label="Brand Name"
+              value={brandName}
+              onChange={(e) => setBrandName(e.target.value)}
               sx={{ mb: 2 }}
             />
+
+            {/* Brand Image */}
+            <Button
+              variant="outlined"
+              component="label"
+              fullWidth
+              sx={{ mb: 2 }}
+            >
+              Upload Brand Image
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                hidden
+                onChange={handleFileChange}
+              />
+            </Button>
+            {brandImage && (
+              <Typography variant="body2" sx={{ mb: 2 }}>
+                Selected: {brandImage.name}
+              </Typography>
+            )}
 
             <Button fullWidth variant="contained" onClick={handleSubmit}>
               {editMode ? "Update" : "Submit"}
