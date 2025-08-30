@@ -39,7 +39,7 @@ const PaymentSuccess = () => {
         sx={{ backgroundColor: "#0F918F" }}
         onClick={() => navigate("/myaccount/orders")}
       >
-        Back to Home
+        All Order Details
       </Button>
     </Box>
   );
