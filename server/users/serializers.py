@@ -116,7 +116,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 # Serializer for Brand
 class BrandSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(required=False, allow_null=True) # write support
+    image = serializers.ImageField(required=False, allow_null=True) # write_only field
 
     class Meta:
         model = Brand
@@ -124,18 +124,18 @@ class BrandSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at", "slug"]
 
     def to_representation(self, instance):
-        """Return Cloudinary URL for uploaded_image instead of file path"""
+        """Return Cloudinary URL for image instead of file path"""
         ret = super().to_representation(instance)
-        if instance.uploaded_image:
-            ret['uploaded_image'] = instance.uploaded_image.url  # Cloudinary URL
+        if instance.image:
+            ret['image'] = instance.image.url  # Cloudinary URL
         else:
-            ret['uploaded_image'] = None
+            ret['image'] = None
         return ret
 
 
 # Serializer for Category
 class CategorySerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(required=False, allow_null=True)  # override default field
+    image = serializers.ImageField(required=False, allow_null=True) # write_only field
 
     class Meta:
         model = Category
@@ -143,12 +143,12 @@ class CategorySerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at", "slug"]
 
     def to_representation(self, instance):
-        """Return Cloudinary URL for uploaded_image instead of file path"""
+        """Return Cloudinary URL for image instead of file path"""
         ret = super().to_representation(instance)
-        if instance.uploaded_image:
-            ret['uploaded_image'] = instance.uploaded_image.url  # Cloudinary URL
+        if instance.image:
+            ret['image'] = instance.image.url  # Cloudinary URL
         else:
-            ret['uploaded_image'] = None
+            ret['image'] = None
         return ret
 
 # Serializer for Product
@@ -158,7 +158,7 @@ class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
 
     # Return full Cloudinary URLs
-    image1 = serializers.ImageField(required=False, allow_null=True)
+    image1 = serializers.ImageField(required=False, allow_null=True) # write_only field
     image2 = serializers.ImageField(required=False, allow_null=True)
     image3 = serializers.ImageField(required=False, allow_null=True)
     display_unit = serializers.SerializerMethodField()
