@@ -15,7 +15,7 @@ export const fetchBrands = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to fetch brands");
     }
-  }
+  },
 );
 
 // Add new brand
@@ -23,18 +23,16 @@ export const addBrand = createAsyncThunk(
   "brands/addBrand",
   async ({ brandData, token }, { rejectWithValue }) => {
     try {
-      const config = {
+      const res = await axios.post(API_URL, brandData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
         },
-      };
-      const response = await axios.post(API_URL, brandData, config);
-      return response.data; // single brand object
-    } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to add brand");
+      });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "Failed to add category");
     }
-  }
+  },
 );
 
 // Update brand
@@ -53,7 +51,7 @@ export const updateBrand = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to update brand");
     }
-  }
+  },
 );
 
 // Remove brand
@@ -67,7 +65,7 @@ export const removeBrand = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to delete brand");
     }
-  }
+  },
 );
 
 // ================= Slice ================= //
@@ -100,10 +98,12 @@ const brandSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
+      // addBrand
       .addCase(addBrand.fulfilled, (state, action) => {
         state.loading = false;
-        if (!Array.isArray(state.items.results)) state.items.results = [];
-        state.items.results.push(action.payload);
+        if (Array.isArray(state.items.results)) {
+          state.items.results.push(action.payload);
+        }
       })
       .addCase(addBrand.rejected, (state, action) => {
         state.loading = false;
@@ -119,7 +119,7 @@ const brandSlice = createSlice({
         state.loading = false;
         if (Array.isArray(state.items.results)) {
           const idx = state.items.results.findIndex(
-            (b) => b.id === action.payload.id
+            (b) => b.id === action.payload.id,
           );
           if (idx !== -1) state.items.results[idx] = action.payload;
         }
@@ -138,7 +138,7 @@ const brandSlice = createSlice({
         state.loading = false;
         if (Array.isArray(state.items.results)) {
           state.items.results = state.items.results.filter(
-            (b) => b.id !== action.payload
+            (b) => b.id !== action.payload,
           );
         }
       })

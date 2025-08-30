@@ -42,7 +42,16 @@ const AllBrand = () => {
 
   // Handle file input
   const handleFileChange = (e) => {
-    setBrandImage(e.target.files[0]);
+    const file = e.target.files[0];
+    console.log("File:", file);
+    if (
+      file &&
+      ["image/jpeg", "image/png", "application/pdf"].includes(file.type)
+    ) {
+      setBrandImage(file);
+    } else {
+      alert("Invalid file type. Only JPG, PNG, or PDF allowed.");
+    }
   };
 
   // Reset form
@@ -62,11 +71,12 @@ const AllBrand = () => {
     formData.append("name", brandName);
     if (brandImage) formData.append("image", brandImage);
 
-    console.log("Form Data:", formData);
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ": ", pair[1]);
+    }
 
     try {
       if (editMode) {
-
         await dispatch(
           updateBrand({ id: editBrandId, brandData: formData, token }),
         ).unwrap();
@@ -122,12 +132,12 @@ const AllBrand = () => {
               {editMode ? "Edit Brand" : "Add New Brand"}
             </Typography>
 
-            <TextField
-              fullWidth
-              label="Brand Name"
-              value={brandName}
-              onChange={(e) => setBrandName(e.target.value)}
-              sx={{ mb: 2 }}
+            <input
+              id="brand-image-upload"
+              type="file"
+              accept="image/*,.pdf"
+              onChange={handleFileChange}
+              className="hidden"
             />
 
             <TextField
