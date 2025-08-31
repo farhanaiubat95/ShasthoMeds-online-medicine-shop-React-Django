@@ -133,21 +133,24 @@ export default function Products() {
     if (!token) return alert("Login required");
 
     // convert empty string to null
-    const categoryId = product.category ? product.category : null;
+    const category_id = product.category ? product.category : null;
     const brandId = product.brand ? product.brand : null;
-    console.log("Category ID:", categoryId);
+    console.log("Category ID:", category_id);
     console.log("Brand ID:", brandId);
 
-    if (!product.category) return alert("Category is required");
-    if (!product.brand) return alert("Brand is required");
+    if (!category_id) return alert("Category is required");
+    if (!brandId) return alert("Brand is required");
 
-    const formData = new FormData();
+    // Explicitly append foreign keys first
+    formData.append("category_id", category_id);
+
+    // Append the rest of the fields (skip category & brand)
     Object.entries(product).forEach(([key, value]) => {
-      if (value !== null && value !== "") formData.append(key, value);
+      if (key === "category") return;
+      if (value !== null && value !== "") {
+        formData.append(key, value);
+      }
     });
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
 
     try {
       if (formMode === "edit" && editIndex !== null) {
