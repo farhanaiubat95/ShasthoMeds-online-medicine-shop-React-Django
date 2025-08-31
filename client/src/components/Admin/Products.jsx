@@ -163,6 +163,41 @@ export default function Products() {
     dispatch(removeProductApi({ id: products[index].id, token }));
   };
 
+  const ProductField = ({ label, value }) => {
+    const [expanded, setExpanded] = useState(false);
+
+    if (!value) return null; // skip rendering if empty
+
+    const toggleExpanded = () => setExpanded(!expanded);
+
+    return (
+      <Box width="100%" border="1px solid #ddd" borderRadius="8px" p={1} mb={1}>
+        <Tooltip title={value} arrow placement="top-start">
+          <Typography
+            sx={{
+              whiteSpace: expanded ? "normal" : "nowrap",
+              overflow: "hidden",
+              textOverflow: expanded ? "clip" : "ellipsis",
+            }}
+          >
+            <strong>{label}:</strong> {value}
+          </Typography>
+        </Tooltip>
+
+        {String(value).length > 50 && ( // toggle only if text is long
+          <Button
+            variant="text"
+            size="small"
+            onClick={toggleExpanded}
+            sx={{ mt: 0.5, p: 0, textTransform: "none" }}
+          >
+            {expanded ? "See Less" : "See More"}
+          </Button>
+        )}
+      </Box>
+    );
+  };
+
   const handleView = (index) => {
     setViewProduct(products[index]);
   };
@@ -496,7 +531,7 @@ export default function Products() {
         <DialogTitle>Product Details</DialogTitle>
         <DialogContent dividers>
           {viewProduct && (
-            <Box display={"flex"} gap={2} flexDirection={"row"}>
+            <Box display={"flex"} gap={2} flexDirection={"column"}>
               {/* Product details 1*/}
               <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
                 {viewProduct.sku && (
@@ -615,147 +650,20 @@ export default function Products() {
                   />
                 )}
               </Box>
+
               {/* Product Details 2 */}
-              import {Tooltip} from "@mui/material";
-              {viewProduct.indication && (
-                <Box
-                  width="100%"
-                  border={1}
-                  borderColor="grey.300"
-                  borderRadius={2}
-                  p={1}
-                  mb={1}
-                >
-                  <Tooltip title={viewProduct.indication} placement="top-start">
-                    <Typography
-                      sx={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      <strong>Indication:</strong> {viewProduct.indication}
-                    </Typography>
-                  </Tooltip>
-                </Box>
-              )}
-              {viewProduct.adult_dose && (
-                <Box
-                  width="100%"
-                  border={1}
-                  borderColor="grey.300"
-                  borderRadius={2}
-                  p={1}
-                  mb={1}
-                >
-                  <Tooltip title={viewProduct.adult_dose} placement="top-start">
-                    <Typography
-                      sx={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      <strong>Adult Dose:</strong> {viewProduct.adult_dose}
-                    </Typography>
-                  </Tooltip>
-                </Box>
-              )}
-              {viewProduct.child_dose && (
-                <Box
-                  width="100%"
-                  border={1}
-                  borderColor="grey.300"
-                  borderRadius={2}
-                  p={1}
-                  mb={1}
-                >
-                  <Tooltip title={viewProduct.child_dose} placement="top-start">
-                    <Typography
-                      sx={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      <strong>Child Dose:</strong> {viewProduct.child_dose}
-                    </Typography>
-                  </Tooltip>
-                </Box>
-              )}
-              {viewProduct.contraindication && (
-                <Box
-                  width="100%"
-                  border={1}
-                  borderColor="grey.300"
-                  borderRadius={2}
-                  p={1}
-                  mb={1}
-                >
-                  <Tooltip
-                    title={viewProduct.contraindication}
-                    placement="top-start"
-                  >
-                    <Typography
-                      sx={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      <strong>Contraindication:</strong>{" "}
-                      {viewProduct.contraindication}
-                    </Typography>
-                  </Tooltip>
-                </Box>
-              )}
-              {viewProduct.precaution && (
-                <Box
-                  width="100%"
-                  border={1}
-                  borderColor="grey.300"
-                  borderRadius={2}
-                  p={1}
-                  mb={1}
-                >
-                  <Tooltip title={viewProduct.precaution} placement="top-start">
-                    <Typography
-                      sx={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      <strong>Precaution:</strong> {viewProduct.precaution}
-                    </Typography>
-                  </Tooltip>
-                </Box>
-              )}
-              {viewProduct.side_effect && (
-                <Box
-                  width="100%"
-                  border={1}
-                  borderColor="grey.300"
-                  borderRadius={2}
-                  p={1}
-                  mb={1}
-                >
-                  <Tooltip
-                    title={viewProduct.side_effect}
-                    placement="top-start"
-                  >
-                    <Typography
-                      sx={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      <strong>Side Effect:</strong> {viewProduct.side_effect}
-                    </Typography>
-                  </Tooltip>
-                </Box>
-              )}
+              <ProductField label="Indication" value={viewProduct.indication} />
+              <ProductField label="Adult Dose" value={viewProduct.adult_dose} />
+              <ProductField label="Child Dose" value={viewProduct.child_dose} />
+              <ProductField
+                label="Contraindication"
+                value={viewProduct.contraindication}
+              />
+              <ProductField label="Precaution" value={viewProduct.precaution} />
+              <ProductField
+                label="Side Effect"
+                value={viewProduct.side_effect}
+              />
             </Box>
           )}
         </DialogContent>
