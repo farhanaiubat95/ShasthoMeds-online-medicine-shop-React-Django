@@ -131,12 +131,16 @@ export default function Products() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token) return alert("Login required");
+    const formData = new FormData();
 
     // convert empty string to null
     const category_id = product.category ? product.category : null;
     const brandId = product.brand ? product.brand : null;
     console.log("Category ID:", category_id);
     console.log("Brand ID:", brandId);
+
+    if (!category_id) return alert("Category is required");
+    if (!brandId) return alert("Brand is required");
 
     if (!category_id) return alert("Category is required");
     if (!brandId) return alert("Brand is required");
