@@ -567,23 +567,50 @@ export default function Products() {
 
               {viewProduct.image1 && (
                 <img
-                  src={URL.createObjectURL(viewProduct.image1)}
-                  alt="Image 1"
-                  style={{ maxWidth: "100%", borderRadius: 4 }}
+                  src={
+                    product.image1 instanceof File ||
+                    product.image1 instanceof Blob
+                      ? URL.createObjectURL(product.image1)
+                      : product.image1
+                  }
+                  alt={product.name}
+                  style={{
+                    maxWidth: "100%",
+                    borderRadius: 4,
+                    objectFit: "cover",
+                  }}
                 />
               )}
               {viewProduct.image2 && (
                 <img
-                  src={URL.createObjectURL(viewProduct.image2)}
-                  alt="Image 2"
-                  style={{ maxWidth: "100%", borderRadius: 4 }}
+                  src={
+                    product.image2 instanceof File ||
+                    product.image2 instanceof Blob
+                      ? URL.createObjectURL(product.image2)
+                      : product.image2
+                  }
+                  alt={product.name}
+                  style={{
+                    maxWidth: "100%",
+                    borderRadius: 4,
+                    objectFit: "cover",
+                  }}
                 />
               )}
               {viewProduct.image3 && (
                 <img
-                  src={URL.createObjectURL(viewProduct.image3)}
-                  alt="Image 3"
-                  style={{ maxWidth: "100%", borderRadius: 4 }}
+                  src={
+                    product.image3 instanceof File ||
+                    product.image3 instanceof Blob
+                      ? URL.createObjectURL(product.image3)
+                      : product.image3
+                  }
+                  alt={product.name}
+                  style={{
+                    maxWidth: "100%",
+                    borderRadius: 4,
+                    objectFit: "cover",
+                  }}
                 />
               )}
             </Box>
