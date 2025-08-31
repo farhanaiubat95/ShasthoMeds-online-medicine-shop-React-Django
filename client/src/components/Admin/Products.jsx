@@ -23,6 +23,7 @@ import {
   fetchProducts,
   createProduct,
   removeProductApi,
+  updateProduct,
 } from "../../redux/productSlice.js";
 import { fetchCategories } from "../../redux/categorySlice.js";
 import { fetchBrands } from "../../redux/brandSlice.js";
@@ -40,6 +41,8 @@ export default function Products() {
       ? state.brands.items.results
       : [],
   );
+
+  const token = localStorage.getItem("access_token");
 
   const [formMode, setFormMode] = useState("add");
   const [viewProduct, setViewProduct] = useState(null);
@@ -73,9 +76,9 @@ export default function Products() {
     is_active: true,
   });
 
-  const units = ["Tablet", "Capsule", "Bottle", "Syrup"];
-  const weightUnits = ["mg", "g", "ml", "kg"];
-  const packageQuantities = ["1 Strip", "1 Box", "1 Bottle"];
+  const units = ["pcs", "tablet", "capsule", "bottle"];
+  const weightUnits = ["mg", "g", "ml"];
+  const packageQuantities = ["1 strip", "1 box", "1 pack"];
 
   // fetch products, categories, brands on mount
   useEffect(() => {
@@ -125,17 +128,38 @@ export default function Products() {
     setEditIndex(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("access_token"); // JWT token
+    if (!token) return alert("Login required");
 
     const formData = new FormData();
+
     Object.entries(product).forEach(([key, value]) => {
       if (value !== null) formData.append(key, value);
     });
 
-    dispatch(createProduct({ productData: formData, token }));
-    resetForm();
+    try {
+      if (formMode === "edit" && editIndex !== null) {
+        const id = products[editIndex].id;
+        await dispatch(
+          updateProduct({ id, productData: formData, token }),
+        ).unwrap();
+        console.log("Product updated successfully");
+      } else {
+        await dispatch(
+          createProduct({ productData: formData, token }),
+        ).unwrap();
+        console.log("Product added successfully");
+      }
+
+      // Auto refresh after success
+      dispatch(fetchProducts(token));
+
+      resetForm();
+    } catch (err) {
+      console.error("Error saving product:", err);
+      alert(err?.message || "Something went wrong while saving product");
+    }
   };
 
   const handleAdd = () => {
@@ -158,9 +182,21 @@ export default function Products() {
     }
   };
 
-  const handleDelete = (index) => {
-    const token = localStorage.getItem("accessToken");
-    dispatch(removeProductApi({ id: products[index].id, token }));
+  const handleDelete = async (id) => {
+    if (!token) return alert("Login required");
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
+
+    try {
+      await dispatch(removeProductApi({ id, token })).unwrap();
+      console.log("Product deleted successfully");
+
+      // Auto refresh
+      dispatch(fetchProducts(token));
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      alert(err?.message || "Failed to delete product");
+    }
   };
 
   const ProductField = ({ label, value }) => {
@@ -296,7 +332,7 @@ export default function Products() {
           select
           name="category"
           label="Category"
-          value={product.category}
+          value={product.category.name || ""}
           onChange={handleChange}
           fullWidth
         >
@@ -311,7 +347,7 @@ export default function Products() {
           select
           name="brand"
           label="Brand"
-          value={product.brand}
+          value={product.brand.name || ""}
           onChange={handleChange}
           fullWidth
         >
@@ -509,7 +545,7 @@ export default function Products() {
                       variant="outlined"
                       color="error"
                       size="small"
-                      onClick={() => handleDelete(i)}
+                      onClick={() => handleDelete(products[i].id)}
                     >
                       Delete
                     </Button>
@@ -544,30 +580,28 @@ export default function Products() {
                     <strong>Name:</strong> {viewProduct.name}
                   </Typography>
                 )}
-                {viewProduct.description && (
-                  <Typography>
-                    <strong>Description:</strong> {viewProduct.description}
-                  </Typography>
-                )}
                 {viewProduct.generic_name && (
                   <Typography>
                     <strong>Generic Name:</strong> {viewProduct.generic_name}
                   </Typography>
                 )}
+                {viewProduct.stock && (
+                  <Typography>
+                    <strong>Stock:</strong> {viewProduct.stock}
+                  </Typography>
+                )}
                 {viewProduct.category && (
                   <Typography>
-                    <strong>Category:</strong>{" "}
-                    {categories.find((c) => c.id === viewProduct.category)
-                      ?.name || "-"}
+                    <strong>Category:</strong> {viewProduct.category.name}
                   </Typography>
                 )}
+
                 {viewProduct.brand && (
                   <Typography>
-                    <strong>Brand:</strong>{" "}
-                    {brands.find((b) => b.id === viewProduct.brand)?.name ||
-                      "-"}
+                    <strong>Brand:</strong> {viewProduct.brand.name}
                   </Typography>
                 )}
+
                 {viewProduct.price && (
                   <Typography>
                     <strong>Price:</strong> {viewProduct.price}
@@ -578,11 +612,7 @@ export default function Products() {
                     <strong>Offer:</strong> {viewProduct.offer_price}
                   </Typography>
                 )}
-                {viewProduct.stock && (
-                  <Typography>
-                    <strong>Stock:</strong> {viewProduct.stock}
-                  </Typography>
-                )}
+
                 {(viewProduct.unit_value || viewProduct.unit) && (
                   <Typography>
                     <strong>Unit:</strong> {viewProduct.unit_value}{" "}
@@ -652,6 +682,10 @@ export default function Products() {
               </Box>
 
               {/* Product Details 2 */}
+              <ProductField
+                label="Description"
+                value={viewProduct.description}
+              />
               <ProductField label="Indication" value={viewProduct.indication} />
               <ProductField label="Adult Dose" value={viewProduct.adult_dose} />
               <ProductField label="Child Dose" value={viewProduct.child_dose} />

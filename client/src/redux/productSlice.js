@@ -47,6 +47,29 @@ export const createProduct = createAsyncThunk(
   },
 );
 
+// ---- 2.1 Async thunk to update product ----
+export const updateProduct = createAsyncThunk(
+  "product/updateProduct",
+  async ({ id, productData, token }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data", // keep if file upload, else use application/json
+        },
+      };
+      const response = await axios.put(
+        `https://shasthomeds-backend.onrender.com/products/${id}/`,
+        productData,
+        config,
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
 // ---- 3. Async thunk to remove product ----
 export const removeProductApi = createAsyncThunk(
   "product/removeProduct",
@@ -105,6 +128,25 @@ const productSlice = createSlice({
         state.error = action.payload;
       })
 
+      // updateProduct
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.products.findIndex(
+          (p) => p.id === action.payload.id,
+        );
+        if (index !== -1) {
+          state.products[index] = action.payload; // update the product in place
+        }
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       // removeProduct
       .addCase(removeProductApi.pending, (state) => {
         state.loading = true;
@@ -112,9 +154,7 @@ const productSlice = createSlice({
       })
       .addCase(removeProductApi.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = state.products.filter(
-          (p) => p.id !== action.payload
-        );
+        state.products = state.products.filter((p) => p.id !== action.payload);
       })
       .addCase(removeProductApi.rejected, (state, action) => {
         state.loading = false;
