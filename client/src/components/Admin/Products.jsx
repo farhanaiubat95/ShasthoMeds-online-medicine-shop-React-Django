@@ -171,10 +171,21 @@ export default function Products() {
   };
 
   const handleEdit = (index) => {
-    setProduct(products[index]);
+    const p = products[index];
+
+    setProduct({
+      ...p,
+      category: p.category?.id || "", // store ID, not object
+      brand: p.brand?.id || "", // store ID, not object
+      image1: null,
+      image2: null,
+      image3: null,
+    });
+
     setFormMode("edit");
     setEditIndex(index);
 
+    // scroll to form
     if (formRef.current) {
       const topPos =
         formRef.current.getBoundingClientRect().top + window.pageYOffset;
@@ -330,13 +341,13 @@ export default function Products() {
 
         <TextField
           select
-          name="category"
           label="Category"
-          value={product.category.name || ""}
-          onChange={handleChange}
+          value={product.category || ""} // this will be the ID
+          onChange={(e) => setProduct({ ...product, category: e.target.value })}
           fullWidth
+          margin="normal"
         >
-          {categories?.map((c) => (
+          {categories.map((c) => (
             <MenuItem key={c.id} value={c.id}>
               {c.name}
             </MenuItem>
@@ -345,13 +356,13 @@ export default function Products() {
 
         <TextField
           select
-          name="brand"
           label="Brand"
-          value={product.brand.name || ""}
-          onChange={handleChange}
+          value={product.brand || ""} // this will be the ID
+          onChange={(e) => setProduct({ ...product, brand: e.target.value })}
           fullWidth
+          margin="normal"
         >
-          {brands?.map((b) => (
+          {brands.map((b) => (
             <MenuItem key={b.id} value={b.id}>
               {b.name}
             </MenuItem>
@@ -653,7 +664,7 @@ export default function Products() {
                     style={{
                       width: "80px",
                       height: "80px",
-                      borderRadius: "50%",
+                      borderRadius: "15%",
                     }}
                   />
                 )}
@@ -664,7 +675,7 @@ export default function Products() {
                     style={{
                       width: "80px",
                       height: "80px",
-                      borderRadius: "50%",
+                      borderRadius: "5%",
                     }}
                   />
                 )}
@@ -675,7 +686,7 @@ export default function Products() {
                     style={{
                       width: "80px",
                       height: "80px",
-                      borderRadius: "50%",
+                      borderRadius: "5%",
                     }}
                   />
                 )}
