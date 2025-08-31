@@ -58,7 +58,7 @@ export const updateProduct = createAsyncThunk(
           "Content-Type": "multipart/form-data", // keep if file upload, else use application/json
         },
       };
-      const response = await axios.put(
+      const response = await axios.patch(
         `https://shasthomeds-backend.onrender.com/products/${id}/`,
         productData,
         config,
