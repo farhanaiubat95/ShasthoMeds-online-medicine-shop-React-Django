@@ -38,7 +38,7 @@ export default function Header() {
           className="justify-between"
         >
           {/* Left - Mobile Menu */}
-          <Box className="flex items-center w-[33%] lg:w-[40%] ">
+          <Box className="flex items-center w-[33%] lg:w-[25%] ">
             <IconButton
               edge="start"
               onClick={toggleDrawer(true)}

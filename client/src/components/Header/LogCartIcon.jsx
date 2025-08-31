@@ -63,7 +63,7 @@ const LogCartIcon = () => {
   };
 
   return (
-    <Box className="flex items-center justify-end space-x-2 w-[67%] lg:w-[60%]">
+    <Box className="flex items-center justify-end space-x-2 w-[67%] lg:w-[75%]">
       <div className="flex items-center justify-between space-x-2 w-full">
         <div className="flex-2 ml-5">
           <SearchBar />
@@ -190,6 +190,7 @@ const LogCartIcon = () => {
               </Link>
             </>
           )}
+
 
           {/* Cart / Dashboard Button */}
           {user?.role === "user" ? (
