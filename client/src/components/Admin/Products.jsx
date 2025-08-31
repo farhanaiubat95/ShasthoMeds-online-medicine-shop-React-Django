@@ -130,26 +130,23 @@ export default function Products() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!token) return alert("Login required");
 
-    // --- Validation: Ensure required fields ---
-    if (!product.category) return alert("Category is required");
-    if (!product.brand) return alert("Brand is required");
-    if (!product.name) return alert("Product name is required");
-    if (!product.sku) return alert("SKU is required");
+    // convert empty string to null
+    const categoryId = product.category ? product.category : null;
+    const brandId = product.brand ? product.brand : null;
+    console.log("Category ID:", categoryId);
+    console.log("Brand ID:", brandId);
+
+    if (!categoryId) return alert("Category is required");
+    if (!brandId) return alert("Brand is required");
 
     const formData = new FormData();
 
-    // Only append non-null, non-empty values
     Object.entries(product).forEach(([key, value]) => {
-      if (
-        value !== null &&
-        value !== "" &&
-        !(typeof value === "string" && value.trim() === "")
-      ) {
-        formData.append(key, value);
-      }
+      if (key === "category") formData.append("category", categoryId);
+      else if (key === "brand") formData.append("brand", brandId);
+      else if (value !== null && value !== "") formData.append(key, value);
     });
 
     try {
@@ -166,7 +163,6 @@ export default function Products() {
         console.log("Product added successfully");
       }
 
-      // Refresh product list after success
       dispatch(fetchProducts(token));
       resetForm();
     } catch (err) {
@@ -355,7 +351,7 @@ export default function Products() {
         <TextField
           select
           label="Category"
-          value={product.category || ""} // this will be the ID
+          value={product.category} // this will be the ID
           onChange={(e) => setProduct({ ...product, category: e.target.value })}
           fullWidth
           margin="normal"
@@ -370,7 +366,7 @@ export default function Products() {
         <TextField
           select
           label="Brand"
-          value={product.brand || ""} // this will be the ID
+          value={product.brand} // this will be the ID
           onChange={(e) => setProduct({ ...product, brand: e.target.value })}
           fullWidth
           margin="normal"
