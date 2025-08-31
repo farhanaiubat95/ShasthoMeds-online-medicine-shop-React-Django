@@ -26,6 +26,7 @@ import {
 } from "../../redux/productSlice.js";
 import { fetchCategories } from "../../redux/categorySlice.js";
 import { fetchBrands } from "../../redux/brandSlice.js";
+import { Tooltip } from "@mui/material";
 
 export default function Products() {
   const dispatch = useDispatch();
@@ -495,130 +496,89 @@ export default function Products() {
         <DialogTitle>Product Details</DialogTitle>
         <DialogContent dividers>
           {viewProduct && (
-            <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
-              {viewProduct.sku && (
-                <Typography>
-                  <strong>SKU:</strong> {viewProduct.sku}
-                </Typography>
-              )}
-              {viewProduct.name && (
-                <Typography>
-                  <strong>Name:</strong> {viewProduct.name}
-                </Typography>
-              )}
-              {viewProduct.description && (
-                <Typography>
-                  <strong>Description:</strong> {viewProduct.description}
-                </Typography>
-              )}
-              {viewProduct.generic_name && (
-                <Typography>
-                  <strong>Generic Name:</strong> {viewProduct.generic_name}
-                </Typography>
-              )}
-              {viewProduct.category && (
-                <Typography>
-                  <strong>Category:</strong>{" "}
-                  {categories.find((c) => c.id === viewProduct.category)
-                    ?.name || "-"}
-                </Typography>
-              )}
-              {viewProduct.brand && (
-                <Typography>
-                  <strong>Brand:</strong>{" "}
-                  {brands.find((b) => b.id === viewProduct.brand)?.name || "-"}
-                </Typography>
-              )}
-              {viewProduct.price && (
-                <Typography>
-                  <strong>Price:</strong> {viewProduct.price}
-                </Typography>
-              )}
-              {viewProduct.offer_price && (
-                <Typography>
-                  <strong>Offer:</strong> {viewProduct.offer_price}
-                </Typography>
-              )}
-              {viewProduct.stock && (
-                <Typography>
-                  <strong>Stock:</strong> {viewProduct.stock}
-                </Typography>
-              )}
-              {(viewProduct.unit_value || viewProduct.unit) && (
-                <Typography>
-                  <strong>Unit:</strong> {viewProduct.unit_value}{" "}
-                  {viewProduct.unit}
-                </Typography>
-              )}
-              {(viewProduct.weight_value || viewProduct.weight_unit) && (
-                <Typography>
-                  <strong>Weight:</strong> {viewProduct.weight_value}{" "}
-                  {viewProduct.weight_unit}
-                </Typography>
-              )}
-              {viewProduct.package_quantity && (
-                <Typography>
-                  <strong>Package Quantity:</strong>{" "}
-                  {viewProduct.package_quantity}
-                </Typography>
-              )}
-              {"prescription_required" in viewProduct && (
-                <Typography>
-                  <strong>Prescription Required:</strong>{" "}
-                  {viewProduct.prescription_required ? "Yes" : "No"}
-                </Typography>
-              )}
-              {"is_active" in viewProduct && (
-                <Typography>
-                  <strong>Active:</strong>{" "}
-                  {viewProduct.is_active ? "Yes" : "No"}
-                </Typography>
-              )}
-
-              {viewProduct.indication && (
-                <Box width={"100%"}>
+            <Box display={"flex"} gap={2} flexDirection={"row"}>
+              {/* Product details 1*/}
+              <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
+                {viewProduct.sku && (
                   <Typography>
-                    <strong>Indication:</strong> {viewProduct.indication}
+                    <strong>SKU:</strong> {viewProduct.sku}
                   </Typography>
-                </Box>
-              )}
-              {viewProduct.adult_dose && (
-                <Box width={"100%"}>
+                )}
+                {viewProduct.name && (
                   <Typography>
-                    <strong>Adult Dose:</strong> {viewProduct.adult_dose}
+                    <strong>Name:</strong> {viewProduct.name}
                   </Typography>
-                </Box>
-              )}
-              {viewProduct.child_dose && (
-                <Box width={"100%"}>
+                )}
+                {viewProduct.description && (
                   <Typography>
-                    <strong>Child Dose:</strong> {viewProduct.child_dose}
+                    <strong>Description:</strong> {viewProduct.description}
                   </Typography>
-                </Box>
-              )}
-              {viewProduct.contraindication && (
-                <Box width={"100%"}>
+                )}
+                {viewProduct.generic_name && (
                   <Typography>
-                    <strong>Contraindication:</strong>{" "}
-                    {viewProduct.contraindication}
+                    <strong>Generic Name:</strong> {viewProduct.generic_name}
                   </Typography>
-                </Box>
-              )}
-              {viewProduct.precaution && (
-                <Box width={"100%"}>
+                )}
+                {viewProduct.category && (
                   <Typography>
-                    <strong>Precaution:</strong> {viewProduct.precaution}
+                    <strong>Category:</strong>{" "}
+                    {categories.find((c) => c.id === viewProduct.category)
+                      ?.name || "-"}
                   </Typography>
-                </Box>
-              )}
-              {viewProduct.side_effect && (
-                <Box width={"100%"}>
+                )}
+                {viewProduct.brand && (
                   <Typography>
-                    <strong>Side Effect:</strong> {viewProduct.side_effect}
+                    <strong>Brand:</strong>{" "}
+                    {brands.find((b) => b.id === viewProduct.brand)?.name ||
+                      "-"}
                   </Typography>
-                </Box>
-              )}
-
+                )}
+                {viewProduct.price && (
+                  <Typography>
+                    <strong>Price:</strong> {viewProduct.price}
+                  </Typography>
+                )}
+                {viewProduct.offer_price && (
+                  <Typography>
+                    <strong>Offer:</strong> {viewProduct.offer_price}
+                  </Typography>
+                )}
+                {viewProduct.stock && (
+                  <Typography>
+                    <strong>Stock:</strong> {viewProduct.stock}
+                  </Typography>
+                )}
+                {(viewProduct.unit_value || viewProduct.unit) && (
+                  <Typography>
+                    <strong>Unit:</strong> {viewProduct.unit_value}{" "}
+                    {viewProduct.unit}
+                  </Typography>
+                )}
+                {(viewProduct.weight_value || viewProduct.weight_unit) && (
+                  <Typography>
+                    <strong>Weight:</strong> {viewProduct.weight_value}{" "}
+                    {viewProduct.weight_unit}
+                  </Typography>
+                )}
+                {viewProduct.package_quantity && (
+                  <Typography>
+                    <strong>Package Quantity:</strong>{" "}
+                    {viewProduct.package_quantity}
+                  </Typography>
+                )}
+                {"prescription_required" in viewProduct && (
+                  <Typography>
+                    <strong>Prescription Required:</strong>{" "}
+                    {viewProduct.prescription_required ? "Yes" : "No"}
+                  </Typography>
+                )}
+                {"is_active" in viewProduct && (
+                  <Typography>
+                    <strong>Active:</strong>{" "}
+                    {viewProduct.is_active ? "Yes" : "No"}
+                  </Typography>
+                )}
+              </Box>
               {/* Images with correct condition + fixed variable */}
               <Box display="flex" gap={2}>
                 {viewProduct.image1 && (
@@ -626,8 +586,8 @@ export default function Products() {
                     src={viewProduct.image1}
                     alt={viewProduct.image1}
                     style={{
-                      width: "50px",
-                      height: "50px",
+                      width: "80px",
+                      height: "80px",
                       borderRadius: "50%",
                     }}
                   />
@@ -637,8 +597,8 @@ export default function Products() {
                     src={viewProduct.image2}
                     alt={viewProduct.image2}
                     style={{
-                      width: "50px",
-                      height: "50px",
+                      width: "80px",
+                      height: "80px",
                       borderRadius: "50%",
                     }}
                   />
@@ -648,13 +608,154 @@ export default function Products() {
                     src={viewProduct.image3}
                     alt={viewProduct.image3}
                     style={{
-                      width: "50px",
-                      height: "50px",
+                      width: "80px",
+                      height: "80px",
                       borderRadius: "50%",
                     }}
                   />
                 )}
               </Box>
+              {/* Product Details 2 */}
+              import {Tooltip} from "@mui/material";
+              {viewProduct.indication && (
+                <Box
+                  width="100%"
+                  border={1}
+                  borderColor="grey.300"
+                  borderRadius={2}
+                  p={1}
+                  mb={1}
+                >
+                  <Tooltip title={viewProduct.indication} placement="top-start">
+                    <Typography
+                      sx={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      <strong>Indication:</strong> {viewProduct.indication}
+                    </Typography>
+                  </Tooltip>
+                </Box>
+              )}
+              {viewProduct.adult_dose && (
+                <Box
+                  width="100%"
+                  border={1}
+                  borderColor="grey.300"
+                  borderRadius={2}
+                  p={1}
+                  mb={1}
+                >
+                  <Tooltip title={viewProduct.adult_dose} placement="top-start">
+                    <Typography
+                      sx={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      <strong>Adult Dose:</strong> {viewProduct.adult_dose}
+                    </Typography>
+                  </Tooltip>
+                </Box>
+              )}
+              {viewProduct.child_dose && (
+                <Box
+                  width="100%"
+                  border={1}
+                  borderColor="grey.300"
+                  borderRadius={2}
+                  p={1}
+                  mb={1}
+                >
+                  <Tooltip title={viewProduct.child_dose} placement="top-start">
+                    <Typography
+                      sx={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      <strong>Child Dose:</strong> {viewProduct.child_dose}
+                    </Typography>
+                  </Tooltip>
+                </Box>
+              )}
+              {viewProduct.contraindication && (
+                <Box
+                  width="100%"
+                  border={1}
+                  borderColor="grey.300"
+                  borderRadius={2}
+                  p={1}
+                  mb={1}
+                >
+                  <Tooltip
+                    title={viewProduct.contraindication}
+                    placement="top-start"
+                  >
+                    <Typography
+                      sx={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      <strong>Contraindication:</strong>{" "}
+                      {viewProduct.contraindication}
+                    </Typography>
+                  </Tooltip>
+                </Box>
+              )}
+              {viewProduct.precaution && (
+                <Box
+                  width="100%"
+                  border={1}
+                  borderColor="grey.300"
+                  borderRadius={2}
+                  p={1}
+                  mb={1}
+                >
+                  <Tooltip title={viewProduct.precaution} placement="top-start">
+                    <Typography
+                      sx={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      <strong>Precaution:</strong> {viewProduct.precaution}
+                    </Typography>
+                  </Tooltip>
+                </Box>
+              )}
+              {viewProduct.side_effect && (
+                <Box
+                  width="100%"
+                  border={1}
+                  borderColor="grey.300"
+                  borderRadius={2}
+                  p={1}
+                  mb={1}
+                >
+                  <Tooltip
+                    title={viewProduct.side_effect}
+                    placement="top-start"
+                  >
+                    <Typography
+                      sx={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      <strong>Side Effect:</strong> {viewProduct.side_effect}
+                    </Typography>
+                  </Tooltip>
+                </Box>
+              )}
             </Box>
           )}
         </DialogContent>
