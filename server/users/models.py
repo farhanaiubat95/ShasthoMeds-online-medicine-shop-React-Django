@@ -137,9 +137,9 @@ class Product(models.Model):
     )
 
     PACKAGE_CHOICES = (
-        ('strip', '1 Strip'),
-        ('box', '1 Box'),
-        ('pack', '1 Pack'),
+        ('1 strip', '1 Strip'),
+        ('1 box', '1 Box'),
+        ('1 pack', '1 Pack'),
     )
 
     sku = models.CharField(max_length=100, unique=True)
