@@ -138,19 +138,21 @@ export default function Products() {
     console.log("Category ID:", categoryId);
     console.log("Brand ID:", brandId);
 
-    if (!categoryId) return alert("Category is required");
-    if (!brandId) return alert("Brand is required");
+    if (!product.category) return alert("Category is required");
+    if (!product.brand) return alert("Brand is required");
 
     const formData = new FormData();
     Object.entries(product).forEach(([key, value]) => {
-      if (key === "category") formData.append("category", parseInt(categoryId));
-      else if (key === "brand") formData.append("brand", parseInt(brandId));
-      else if (value !== null && value !== "") formData.append(key, value);
+      if (value !== null && value !== "") formData.append(key, value);
     });
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
 
     try {
       if (formMode === "edit" && editIndex !== null) {
         const id = products[editIndex].id;
+
         await dispatch(
           updateProduct({ id, productData: formData, token }),
         ).unwrap();
@@ -351,7 +353,9 @@ export default function Products() {
           select
           label="Category"
           value={product.category} // this will be the ID
-          onChange={(e) => setProduct({ ...product, category: e.target.value })}
+          onChange={(e) =>
+            setProduct({ ...product, category: parseInt(e.target.value, 10) })
+          }
           fullWidth
           margin="normal"
         >
@@ -366,7 +370,9 @@ export default function Products() {
           select
           label="Brand"
           value={product.brand} // this will be the ID
-          onChange={(e) => setProduct({ ...product, brand: e.target.value })}
+          onChange={(e) =>
+            setProduct({ ...product, brand: parseInt(e.target.value, 10) })
+          }
           fullWidth
           margin="normal"
         >
