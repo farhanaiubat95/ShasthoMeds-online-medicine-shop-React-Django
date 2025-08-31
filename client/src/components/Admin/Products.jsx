@@ -130,33 +130,44 @@ export default function Products() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!token) return alert("Login required");
+
+    // --- Validation: Ensure required fields ---
+    if (!product.category) return alert("Category is required");
+    if (!product.brand) return alert("Brand is required");
+    if (!product.name) return alert("Product name is required");
+    if (!product.sku) return alert("SKU is required");
 
     const formData = new FormData();
 
+    // Only append non-null, non-empty values
     Object.entries(product).forEach(([key, value]) => {
-      if (value !== null) formData.append(key, value);
+      if (
+        value !== null &&
+        value !== "" &&
+        !(typeof value === "string" && value.trim() === "")
+      ) {
+        formData.append(key, value);
+      }
     });
 
     try {
       if (formMode === "edit" && editIndex !== null) {
-        console.log("formData", formData);
         const id = products[editIndex].id;
         await dispatch(
           updateProduct({ id, productData: formData, token }),
         ).unwrap();
         console.log("Product updated successfully");
       } else {
-        console.log("formData", formData);
         await dispatch(
           createProduct({ productData: formData, token }),
         ).unwrap();
         console.log("Product added successfully");
       }
 
-      // Auto refresh after success
+      // Refresh product list after success
       dispatch(fetchProducts(token));
-
       resetForm();
     } catch (err) {
       console.error("Error saving product:", err);
