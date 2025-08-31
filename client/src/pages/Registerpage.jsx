@@ -149,7 +149,12 @@ function Registerpage() {
               <TextField
                 name="username"
                 value={formData.username}
-                onChange={handleChange}
+                onChange={(e) => {
+                  let { value } = e.target;
+                  if (value.length <= 8) {
+                    setFormData((prev) => ({ ...prev, username: value }));
+                  }
+                }}
                 required
                 fullWidth
                 label="Username"
@@ -174,9 +179,14 @@ function Registerpage() {
                 name="phone"
                 value={formData.phone}
                 onChange={(e) => {
-                  const { value } = e.target;
-                  // Allow only digits and max 11 chars
+                  let { value } = e.target;
+
+                  // Allow only digits and max 11 characters
                   if (/^\d*$/.test(value) && value.length <= 11) {
+                    // Auto prepend 0 if first digit is not 0
+                    if (value.length > 0 && value[0] !== "0") {
+                      value = "0" + value;
+                    }
                     setFormData((prev) => ({ ...prev, phone: value }));
                   }
                 }}
@@ -185,7 +195,7 @@ function Registerpage() {
                 variant="outlined"
                 placeholder="Enter your phone number"
                 required
-                inputProps={{ maxLength: 11 }} // ⬅️ Prevents pasting > 11
+                inputProps={{ maxLength: 11 }}
                 sx={commonInputStyle}
               />
             </div>
