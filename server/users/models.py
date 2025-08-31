@@ -52,7 +52,6 @@ class EmailOTP(models.Model):
     def __str__(self):
         return f"{self.user.email} - OTP: {self.otp_code}"
     
-
 # Image size validator
 def validate_image_size(image):
     if not image:
@@ -259,7 +258,6 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.name} ({self.sku})"
 
-
 # Cart model
 class Cart(models.Model):
     user = models.OneToOneField(
@@ -293,7 +291,6 @@ class CartItem(models.Model):
 
     class Meta:
         unique_together = ("cart", "product")  # Prevent duplicate entries of same product
-
 
 # PrescriptionRequest model
 class PrescriptionRequest(models.Model):
@@ -366,7 +363,6 @@ class PrescriptionRequest(models.Model):
 
         # Delete request after action
         self.delete()
-
 
 # Order model
 class Order(models.Model):
