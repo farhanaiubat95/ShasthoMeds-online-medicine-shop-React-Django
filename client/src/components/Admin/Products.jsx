@@ -496,123 +496,165 @@ export default function Products() {
         <DialogContent dividers>
           {viewProduct && (
             <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
-              <Typography>
-                <strong>SKU:</strong> {viewProduct.sku}
-              </Typography>
-              <Typography>
-                <strong>Name:</strong> {viewProduct.name}
-              </Typography>
-              <Typography>
-                <strong>Description:</strong> {viewProduct.description}
-              </Typography>
-              <Typography>
-                <strong>Generic Name:</strong> {viewProduct.generic_name}
-              </Typography>
-              <Typography>
-                <strong>Indication:</strong> {viewProduct.indication}
-              </Typography>
-              <Typography>
-                <strong>Adult Dose:</strong> {viewProduct.adult_dose}
-              </Typography>
-              <Typography>
-                <strong>Child Dose:</strong> {viewProduct.child_dose}
-              </Typography>
-              <Typography>
-                <strong>Contraindication:</strong>{" "}
-                {viewProduct.contraindication}
-              </Typography>
-              <Typography>
-                <strong>Precaution:</strong> {viewProduct.precaution}
-              </Typography>
-              <Typography>
-                <strong>Side Effect:</strong> {viewProduct.side_effect}
-              </Typography>
-              <Typography>
-                <strong>Category:</strong>{" "}
-                {categories.find((c) => c.id === viewProduct.category)?.name ||
-                  "-"}
-              </Typography>
-              <Typography>
-                <strong>Brand:</strong>{" "}
-                {brands.find((b) => b.id === viewProduct.brand)?.name || "-"}
-              </Typography>
-              <Typography>
-                <strong>Price:</strong> {viewProduct.price}
-              </Typography>
-              <Typography>
-                <strong>Offer:</strong> {viewProduct.offer_price}
-              </Typography>
-              <Typography>
-                <strong>Stock:</strong> {viewProduct.stock}
-              </Typography>
-              <Typography>
-                <strong>Unit:</strong> {viewProduct.unit_value}{" "}
-                {viewProduct.unit}
-              </Typography>
-              <Typography>
-                <strong>Weight:</strong> {viewProduct.weight_value}{" "}
-                {viewProduct.weight_unit}
-              </Typography>
-              <Typography>
-                <strong>Package Quantity:</strong>{" "}
-                {viewProduct.package_quantity}
-              </Typography>
-              <Typography>
-                <strong>Prescription Required:</strong>{" "}
-                {viewProduct.prescription_required ? "Yes" : "No"}
-              </Typography>
-              <Typography>
-                <strong>Active:</strong> {viewProduct.is_active ? "Yes" : "No"}
-              </Typography>
+              {viewProduct.sku && (
+                <Typography>
+                  <strong>SKU:</strong> {viewProduct.sku}
+                </Typography>
+              )}
+              {viewProduct.name && (
+                <Typography>
+                  <strong>Name:</strong> {viewProduct.name}
+                </Typography>
+              )}
+              {viewProduct.description && (
+                <Typography>
+                  <strong>Description:</strong> {viewProduct.description}
+                </Typography>
+              )}
+              {viewProduct.generic_name && (
+                <Typography>
+                  <strong>Generic Name:</strong> {viewProduct.generic_name}
+                </Typography>
+              )}
+              {viewProduct.category && (
+                <Typography>
+                  <strong>Category:</strong>{" "}
+                  {categories.find((c) => c.id === viewProduct.category)
+                    ?.name || "-"}
+                </Typography>
+              )}
+              {viewProduct.brand && (
+                <Typography>
+                  <strong>Brand:</strong>{" "}
+                  {brands.find((b) => b.id === viewProduct.brand)?.name || "-"}
+                </Typography>
+              )}
+              {viewProduct.price && (
+                <Typography>
+                  <strong>Price:</strong> {viewProduct.price}
+                </Typography>
+              )}
+              {viewProduct.offer_price && (
+                <Typography>
+                  <strong>Offer:</strong> {viewProduct.offer_price}
+                </Typography>
+              )}
+              {viewProduct.stock && (
+                <Typography>
+                  <strong>Stock:</strong> {viewProduct.stock}
+                </Typography>
+              )}
+              {(viewProduct.unit_value || viewProduct.unit) && (
+                <Typography>
+                  <strong>Unit:</strong> {viewProduct.unit_value}{" "}
+                  {viewProduct.unit}
+                </Typography>
+              )}
+              {(viewProduct.weight_value || viewProduct.weight_unit) && (
+                <Typography>
+                  <strong>Weight:</strong> {viewProduct.weight_value}{" "}
+                  {viewProduct.weight_unit}
+                </Typography>
+              )}
+              {viewProduct.package_quantity && (
+                <Typography>
+                  <strong>Package Quantity:</strong>{" "}
+                  {viewProduct.package_quantity}
+                </Typography>
+              )}
+              {"prescription_required" in viewProduct && (
+                <Typography>
+                  <strong>Prescription Required:</strong>{" "}
+                  {viewProduct.prescription_required ? "Yes" : "No"}
+                </Typography>
+              )}
+              {"is_active" in viewProduct && (
+                <Typography>
+                  <strong>Active:</strong>{" "}
+                  {viewProduct.is_active ? "Yes" : "No"}
+                </Typography>
+              )}
 
-              {viewProduct.image1 && (
-                <img
-                  src={
-                    product.image1 instanceof File ||
-                    product.image1 instanceof Blob
-                      ? URL.createObjectURL(product.image1)
-                      : product.image1
-                  }
-                  alt={product.name}
-                  style={{
-                    maxWidth: "100%",
-                    borderRadius: 4,
-                    objectFit: "cover",
-                  }}
-                />
+              {viewProduct.indication && (
+                <Box width={"100%"}>
+                  <Typography>
+                    <strong>Indication:</strong> {viewProduct.indication}
+                  </Typography>
+                </Box>
               )}
-              {viewProduct.image2 && (
-                <img
-                  src={
-                    product.image2 instanceof File ||
-                    product.image2 instanceof Blob
-                      ? URL.createObjectURL(product.image2)
-                      : product.image2
-                  }
-                  alt={product.name}
-                  style={{
-                    maxWidth: "100%",
-                    borderRadius: 4,
-                    objectFit: "cover",
-                  }}
-                />
+              {viewProduct.adult_dose && (
+                <Box width={"100%"}>
+                  <Typography>
+                    <strong>Adult Dose:</strong> {viewProduct.adult_dose}
+                  </Typography>
+                </Box>
               )}
-              {viewProduct.image3 && (
-                <img
-                  src={
-                    product.image3 instanceof File ||
-                    product.image3 instanceof Blob
-                      ? URL.createObjectURL(product.image3)
-                      : product.image3
-                  }
-                  alt={product.name}
-                  style={{
-                    maxWidth: "100%",
-                    borderRadius: 4,
-                    objectFit: "cover",
-                  }}
-                />
+              {viewProduct.child_dose && (
+                <Box width={"100%"}>
+                  <Typography>
+                    <strong>Child Dose:</strong> {viewProduct.child_dose}
+                  </Typography>
+                </Box>
               )}
+              {viewProduct.contraindication && (
+                <Box width={"100%"}>
+                  <Typography>
+                    <strong>Contraindication:</strong>{" "}
+                    {viewProduct.contraindication}
+                  </Typography>
+                </Box>
+              )}
+              {viewProduct.precaution && (
+                <Box width={"100%"}>
+                  <Typography>
+                    <strong>Precaution:</strong> {viewProduct.precaution}
+                  </Typography>
+                </Box>
+              )}
+              {viewProduct.side_effect && (
+                <Box width={"100%"}>
+                  <Typography>
+                    <strong>Side Effect:</strong> {viewProduct.side_effect}
+                  </Typography>
+                </Box>
+              )}
+
+              {/* Images with correct condition + fixed variable */}
+              <Box display="flex" gap={2}>
+                {viewProduct.image1 && (
+                  <img
+                    src={viewProduct.image1}
+                    alt={viewProduct.image1}
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                )}
+                {viewProduct.image2 && (
+                  <img
+                    src={viewProduct.image2}
+                    alt={viewProduct.image2}
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                )}
+                {viewProduct.image3 && (
+                  <img
+                    src={viewProduct.image3}
+                    alt={viewProduct.image3}
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                )}
+              </Box>
             </Box>
           )}
         </DialogContent>
