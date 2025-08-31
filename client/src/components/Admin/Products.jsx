@@ -140,12 +140,14 @@ export default function Products() {
 
     try {
       if (formMode === "edit" && editIndex !== null) {
+        console.log("formData", formData);
         const id = products[editIndex].id;
         await dispatch(
           updateProduct({ id, productData: formData, token }),
         ).unwrap();
         console.log("Product updated successfully");
       } else {
+        console.log("formData", formData);
         await dispatch(
           createProduct({ productData: formData, token }),
         ).unwrap();

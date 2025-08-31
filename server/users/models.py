@@ -218,12 +218,13 @@ class Product(models.Model):
             self.discount_price = 0
 
         # Determine package_quantity automatically
-        if self.unit == 'tablet' or self.unit == 'capsule':
-            self.package_quantity = 'strip'
+        if self.unit in ['tablet', 'capsule']:
+            self.package_quantity = '1 strip'
         elif self.unit == 'bottle':
-            self.package_quantity = 'box'
+            self.package_quantity = '1 box'
         else:
             self.package_quantity = None
+
         
         # auto-generate display fields before saving
         if self.weight_value and self.weight_unit:
