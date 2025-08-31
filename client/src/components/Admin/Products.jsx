@@ -142,10 +142,9 @@ export default function Products() {
     if (!brandId) return alert("Brand is required");
 
     const formData = new FormData();
-
     Object.entries(product).forEach(([key, value]) => {
-      if (key === "category") formData.append("category", categoryId);
-      else if (key === "brand") formData.append("brand", brandId);
+      if (key === "category") formData.append("category", parseInt(categoryId));
+      else if (key === "brand") formData.append("brand", parseInt(brandId));
       else if (value !== null && value !== "") formData.append(key, value);
     });
 

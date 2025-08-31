@@ -1,49 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchOrders } from "../../redux/orderSlice";
 
 const AllOrders = () => {
-  const [users, setUsers] = useState([]);
+  const dispatch = useDispatch();
+  const token = localStorage.getItem("access_token");
+
+  const { orders, loading, error } = useSelector((state) => state.order);
 
   useEffect(() => {
-    // Simulate fetching users from a backend
-    const mockUsers = [
-      {
-        _id: "1",
-        firstname: "John",
-        lastname: "Doe",
-        username: "johndoe",
-        email: "john@example.com",
-        phone: "123-456-7890",
-        address: "123 Main St",
-        role: "Customer",
-        activity: true
-      },
-      {
-        _id: "2",
-        firstname: "Jane",
-        lastname: "Smith",
-        username: "janesmith",
-        email: "jane@example.com",
-        phone: "987-654-3210",
-        address: "456 Oak Ave",
-        role: "Customer",
-        activity: false
-      }
-    ];
+    if (token) dispatch(fetchOrders(token));
+  }, [dispatch, token]);
 
-    setUsers(mockUsers);
-  }, []);
-
-  const handleToggleActivity = (userId, currentStatus) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user._id === userId ? { ...user, activity: !currentStatus } : user
-      )
-    );
+  // Print a single order
+  const handlePrint = (order) => {
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`<h1>Order #${order.id}</h1>`);
+    printWindow.document.write(`<p>Name: ${order.name}</p>`);
+    printWindow.document.write(`<p>Email: ${order.email}</p>`);
+    printWindow.document.write(`<p>Phone: ${order.phone}</p>`);
+    printWindow.document.write(`<p>City: ${order.city}</p>`);
+    printWindow.document.write("<h3>Items:</h3>");
+    printWindow.document.write("<ul>");
+    order.items.forEach((item) => {
+      printWindow.document.write(
+        `<li>${item.product_name} - ${item.quantity} x ${item.price} = ${item.subtotal}</li>`
+      );
+    });
+    printWindow.document.write("</ul>");
+    printWindow.document.write(`<p>Total Amount: ${order.total_amount}</p>`);
+    printWindow.document.close();
+    printWindow.print();
   };
 
-  const handleDelete = (userId) => {
-    setUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
-  };
+  if (loading) return <p>Loading orders...</p>;
+  if (error) return <p className="text-red-600">Error: {JSON.stringify(error)}</p>;
 
   return (
     <div className="bg-white rounded-xl shadow p-6 text-black overflow-x-auto">
@@ -52,45 +43,36 @@ const AllOrders = () => {
         <thead className="bg-gray-100">
           <tr>
             <th className="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Name</th>
-            <th className="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Username</th>
             <th className="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Email</th>
             <th className="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Phone</th>
-            <th className="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Address</th>
-            <th className="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Role</th>
+            <th className="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">City</th>
+            <th className="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Total Amount</th>
             <th className="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {users.length > 0 ? (
-            users.map((user) => (
-              <tr key={user._id}>
-                <td className="px-6 py-4 text-center whitespace-nowrap">{user.firstname} {user.lastname}</td>
-                <td className="px-6 py-4 text-center whitespace-nowrap">{user.username}</td>
-                <td className="px-6 py-4 text-center whitespace-nowrap">{user.email}</td>
-                <td className="px-6 py-4 text-center whitespace-nowrap">{user.phone}</td>
-                <td className="px-6 py-4 text-center whitespace-nowrap">{user.address}</td>
-                <td className="px-6 py-4 text-center whitespace-nowrap">{user.role}</td>
-                <td className="px-6 py-4 text-center whitespace-nowrap space-x-2">
+          {orders.length > 0 ? (
+            orders.map((order) => (
+              <tr key={order.id}>
+                <td className="px-6 py-4 text-center">{order.name}</td>
+                <td className="px-6 py-4 text-center">{order.email}</td>
+                <td className="px-6 py-4 text-center">{order.phone}</td>
+                <td className="px-6 py-4 text-center">{order.city}</td>
+                <td className="px-6 py-4 text-center">{order.total_amount}</td>
+                <td className="px-6 py-4 text-center space-x-2">
                   <button
-                    onClick={() => handleToggleActivity(user._id, user.activity)}
-                    className={`${user.activity ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-700 hover:bg-green-800'} text-white px-4 py-1 rounded cursor-pointer`}
+                    onClick={() => handlePrint(order)}
+                    className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
                   >
-                    {user.activity ? 'Disable' : 'Enable'}
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(user._id)}
-                    className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 cursor-pointer"
-                  >
-                    Delete
+                    Print
                   </button>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="7" className="text-center px-6 py-4">
-                No users found.
+              <td colSpan="6" className="text-center px-6 py-4">
+                No orders found.
               </td>
             </tr>
           )}
@@ -100,5 +82,4 @@ const AllOrders = () => {
   );
 };
 
-
-export default AllOrders
+export default AllOrders;
