@@ -135,26 +135,30 @@ export default function Products() {
 
     // convert empty string to null
     const category_id = product.category ? product.category : null;
-    const brandId = product.brand ? product.brand : null;
+    const brand_id = product.brand ? product.brand : null;
+
+    if (!category_id) return alert("Category is required");
+    if (!brand_id) return alert("Brand is required");
+
     console.log("Category ID:", category_id);
-    console.log("Brand ID:", brandId);
+    console.log("Brand ID:", brand_id);
 
-    if (!category_id) return alert("Category is required");
-    if (!brandId) return alert("Brand is required");
-
-    if (!category_id) return alert("Category is required");
-    if (!brandId) return alert("Brand is required");
-
-    // Explicitly append foreign keys first
+    // Append both foreign keys
     formData.append("category_id", category_id);
+    formData.append("brand_id", brand_id);
 
-    // Append the rest of the fields (skip category & brand)
+    // Append the rest of the fields (skip category & brand to avoid conflicts)
     Object.entries(product).forEach(([key, value]) => {
-      if (key === "category") return;
+      if (key === "category" || key === "brand") return;
       if (value !== null && value !== "") {
         formData.append(key, value);
       }
     });
+
+    // Debug: log FormData contents
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ": " + pair[1]);
+    }
 
     try {
       if (formMode === "edit" && editIndex !== null) {
