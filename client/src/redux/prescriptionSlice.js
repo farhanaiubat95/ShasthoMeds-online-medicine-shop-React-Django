@@ -6,7 +6,7 @@ const API_URL = "https://shasthomeds-backend.onrender.com/prescriptions/";
 // Fetch all prescriptions
 export const fetchPrescriptions = createAsyncThunk(
   "prescriptions/fetchPrescriptions",
-  async ({ token }, { rejectWithValue }) => {
+  async (token, { rejectWithValue }) => {
     try {
       const res = await axios.get(API_URL, {
         headers: { Authorization: `Bearer ${token}` },
