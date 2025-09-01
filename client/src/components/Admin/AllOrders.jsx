@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState ,useRef} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders, updateOrderStatus } from "../../redux/orderSlice";
+import { useReactToPrint } from "react-to-print";
 import {
   Box,
   Typography,
@@ -20,6 +21,7 @@ import PreviewIcon from "@mui/icons-material/Preview";
 
 const AllOrders = () => {
   const dispatch = useDispatch();
+  const invoiceRef = useRef();
   const token = localStorage.getItem("access_token");
 
   const ordersState = useSelector((state) => state.orders) || {};
