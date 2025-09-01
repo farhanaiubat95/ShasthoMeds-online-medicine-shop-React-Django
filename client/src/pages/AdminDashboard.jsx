@@ -23,6 +23,8 @@ import { Link, Outlet } from "react-router-dom";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import WidgetsIcon from "@mui/icons-material/Widgets";
 import { useSelector } from "react-redux";
+import { fetchPrescriptions } from "../redux/prescriptionSlice";
+import { fetchOrders } from "../redux/orderSlice";
 
 const drawerWidth = 240;
 
