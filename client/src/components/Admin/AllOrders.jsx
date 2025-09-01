@@ -1,4 +1,4 @@
-import React, { useState ,useRef} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders, updateOrderStatus } from "../../redux/orderSlice";
 import { useReactToPrint } from "react-to-print";
@@ -16,6 +16,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import PreviewIcon from "@mui/icons-material/Preview";
+import InvoiceTemplate from "./InvoiceTemplate";
 
 // ... imports remain same
 
@@ -34,6 +35,10 @@ const AllOrders = () => {
   const [statusUpdate, setStatusUpdate] = useState("");
   const [paymentUpdate, setPaymentUpdate] = useState("");
 
+  const handlePrint = useReactToPrint({
+    content: () => invoiceRef.current,
+  });
+
   // Open modal
   const handleOpen = (order) => {
     setSelectedOrder(order);
@@ -48,10 +53,21 @@ const AllOrders = () => {
     setOpen(false);
   };
 
-  // For printing
-  const handlePrint = useReactToPrint({
-    content: () => invoiceRef.current,
-  });
+  // inside AllOrders.js
+  const handlePrintClick = (order) => {
+    setSelectedOrder(order);
+
+    // Wait for React to render the InvoiceTemplate, then print
+    setTimeout(() => {
+      handlePrint();
+    }, 300);
+  };
+
+  useEffect(() => {
+    if (selectedOrder) {
+      handlePrint();
+    }
+  }, [selectedOrder, handlePrint]);
 
   const handleStatusUpdate = () => {
     if (!selectedOrder) return;
@@ -234,10 +250,7 @@ const AllOrders = () => {
                       <PreviewIcon />
                     </button>
                     <button
-                      onClick={() => {
-                        setSelectedOrder(order);
-                        setTimeout(handlePrint, 300); // wait for invoice to render
-                      }}
+                      onClick={() => handlePrintClick(order)}
                       className="bg-blue-600 text-white px-3 py-1 rounded"
                     >
                       <LocalPrintshopIcon />
