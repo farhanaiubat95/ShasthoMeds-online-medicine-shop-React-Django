@@ -138,18 +138,18 @@ const AllOrders = () => {
     <div className="bg-white rounded-xl shadow p-6 text-black overflow-x-auto">
       <h1 className="text-2xl font-semibold mb-4">All Orders</h1>
       <table className="min-w-full divide-y divide-gray-200 table-fixed">
-        <thead className="bg-gray-100">
+        <thead className="bg-[#64ae6378]">
           <tr>
-            <th className="px-4 py-3">Name</th>
-            <th className="px-4 py-3">Email</th>
-            <th className="px-4 py-3">Phone</th>
-            <th className="px-4 py-3">City</th>
-            <th className="px-4 py-3">Products</th>
-            <th className="px-4 py-3">Total Amount</th>
-            <th className="px-4 py-3">Total New Price</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3">Payment</th>
-            <th className="px-4 py-3">Actions</th>
+            <th className="px-4 py-3 text-center">Name</th>
+            <th className="px-4 py-3 text-center">Email</th>
+            <th className="px-4 py-3 text-center">Phone</th>
+            <th className="px-4 py-3 text-center">City</th>
+            <th className="px-4 py-3 text-center">Products</th>
+            <th className="px-4 py-3 text-center">Total Amount</th>
+            <th className="px-4 py-3 text-center">Total New Price</th>
+            <th className="px-4 py-3 text-center">Status</th>
+            <th className="px-4 py-3 text-center">Payment</th>
+            <th className="px-4 py-3 text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -161,21 +161,21 @@ const AllOrders = () => {
               );
 
               return (
-                <tr key={order.id}>
-                  <td className="px-4 py-2">{order.name}</td>
-                  <td className="px-4 py-2">{order.email}</td>
-                  <td className="px-4 py-2">{order.phone}</td>
-                  <td className="px-4 py-2">{order.city}</td>
-                  <td className="px-4 py-2">
+                <tr key={order.id} className="bg-[#b2d2ce78] border border-[#80808094]">
+                  <td className="px-4 py-2 text-center">{order.name}</td>
+                  <td className="px-4 py-2 text-center">{order.email}</td>
+                  <td className="px-4 py-2 text-center">{order.phone}</td>
+                  <td className="px-4 py-2 text-center">{order.city}</td>
+                  <td className="px-4 py-2 text-center">
                     {order.items?.map((item, idx) => (
                       <div key={idx}>
                         {item.product_name} × {item.quantity}
                       </div>
                     ))}
                   </td>
-                  <td className="px-4 py-2">{order.total_amount}</td>
-                  <td className="px-4 py-2">{order.total_new_price}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-center">{order.total_amount}</td>
+                  <td className="px-4 py-2 text-center">{order.total_new_price}</td>
+                  <td className="px-4 py-2 text-center">
                     {availableStatus.length > 0 ? (
                       <Select
                         size="small"
@@ -202,7 +202,7 @@ const AllOrders = () => {
                       <Chip label={statusLabels[order.status]} />
                     )}
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-center">
                     {availablePayments.length > 0 ? (
                       <Select
                         size="small"
@@ -229,7 +229,7 @@ const AllOrders = () => {
                       <Chip label={paymentLabels[order.payment_status]} />
                     )}
                   </td>
-                  <td className="px-2 py-2 flex items-center justify-between">
+                  <td className="px-2 py-2 flex items-center justify-between gap-1">
                     <button
                       onClick={() => handleOpen(order)}
                       className="bg-green-600 text-white px-3 py-1 rounded"

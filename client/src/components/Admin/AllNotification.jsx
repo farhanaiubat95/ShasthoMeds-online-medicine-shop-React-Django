@@ -9,7 +9,6 @@ import {
   Select,
   MenuItem,
   Typography,
-  CircularProgress,
   Box,
   Modal,
 } from "@mui/material";
@@ -21,7 +20,7 @@ import {
 
 function AllNotification() {
   const dispatch = useDispatch();
-  const { items, loading, error } = useSelector((state) => state.prescriptions);
+  const { items} = useSelector((state) => state.prescriptions);
   const token = localStorage.getItem("access_token");
 
   const [selectedImage, setSelectedImage] = useState(null);
@@ -48,8 +47,7 @@ function AllNotification() {
     }
   };
 
-  if (loading)
-    return <CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />;
+ 
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
@@ -59,25 +57,25 @@ function AllNotification() {
       </Typography>
 
       <Table sx={{ border: "1px solid #ddd" }}>
-        <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+        <TableHead sx={{ backgroundColor: "#9fced8" }}>
           <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Product</TableCell>
-            <TableCell>Notes</TableCell>
-            <TableCell>Image</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Admin Comment</TableCell>
-            <TableCell>Action</TableCell>
+            <TableCell sx={{textAlign:"center"}}>ID</TableCell>
+            <TableCell sx={{textAlign:"center"}}>Product</TableCell>
+            <TableCell sx={{textAlign:"center"}}>Notes</TableCell>
+            <TableCell sx={{textAlign:"center"}}>Image</TableCell>
+            <TableCell sx={{textAlign:"center"}}>Status</TableCell>
+            <TableCell sx={{textAlign:"center"}}>Admin Comment</TableCell>
+            <TableCell sx={{textAlign:"center"}}>Action</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {items?.results && items.results.length > 0 ? (
             items.results.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell>{p.id}</TableCell>
-                <TableCell>{p.product?.name || "N/A"}</TableCell>
-                <TableCell>{p.notes || "-"}</TableCell>
-                <TableCell>
+              <TableRow key={p.id} sx={{ backgroundColor: "#8cc5a142" }}>
+                <TableCell sx={{textAlign:"center"}}>{p.id}</TableCell>
+                <TableCell sx={{textAlign:"center"}}>{p.product?.name || "N/A"}</TableCell>
+                <TableCell sx={{textAlign:"center"}}>{p.notes || "-"}</TableCell>
+                <TableCell sx={{textAlign:"center"}}>
                   {p.uploaded_image ? (
                     <img
                       src={p.uploaded_image}
@@ -94,7 +92,7 @@ function AllNotification() {
                     "-"
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{textAlign:"center"}}>
                   <Select
                     size="small"
                     value={p.status}
@@ -105,8 +103,8 @@ function AllNotification() {
                     <MenuItem value="rejected">Rejected</MenuItem>
                   </Select>
                 </TableCell>
-                <TableCell>{p.admin_comment || "-"}</TableCell>
-                <TableCell>
+                <TableCell sx={{textAlign:"center"}}>{p.admin_comment || "-"}</TableCell>
+                <TableCell sx={{ display: "flex", justifyContent: "center" }}>
                   <Button
                     variant="outlined"
                     size="small"
@@ -129,7 +127,7 @@ function AllNotification() {
           ) : (
             <TableRow>
               <TableCell colSpan={7} align="center">
-                No prescriptions found.
+                No notifications available.
               </TableCell>
             </TableRow>
           )}
@@ -157,7 +155,8 @@ function AllNotification() {
             <img
               src={selectedImage}
               alt="Prescription"
-              style={{ maxWidth: "100%", maxHeight: "80vh" }}
+              style={{maxHeight: "80vh" }}
+              className="w-[500px] xl:w-[1000px]"
             />
           )}
         </Box>
