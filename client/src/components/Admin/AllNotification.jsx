@@ -37,7 +37,7 @@ function AllNotification() {
       await dispatch(
         updatePrescription({ id, data: { status: newStatus } }),
       ).unwrap();
-      dispatch(fetchPrescriptions(token)); // refresh after update
+      dispatch(fetchPrescriptions()); // refresh after update
     } catch (err) {
       alert("Error updating status: " + (err.message || err));
     }
