@@ -32,36 +32,24 @@ const AllOrders = () => {
   const [statusUpdate, setStatusUpdate] = useState("");
   const [paymentUpdate, setPaymentUpdate] = useState("");
 
+  // Open modal
   const handleOpen = (order) => {
     setSelectedOrder(order);
     setStatusUpdate(order.status);
     setPaymentUpdate(order.payment_status);
     setOpen(true);
   };
+
+  // Close modal
   const handleClose = () => {
     setSelectedOrder(null);
     setOpen(false);
   };
 
-  const handlePrint = (order) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(`<h1>Order #${order.id}</h1>`);
-    printWindow.document.write(`<p>Name: ${order.name}</p>`);
-    printWindow.document.write(`<p>Email: ${order.email}</p>`);
-    printWindow.document.write(`<p>Phone: ${order.phone}</p>`);
-    printWindow.document.write(`<p>City: ${order.city}</p>`);
-    printWindow.document.write("<h3>Items:</h3>");
-    printWindow.document.write("<ul>");
-    order.items.forEach((item) => {
-      printWindow.document.write(
-        `<li>${item.product_name} - ${item.quantity} x ${item.price} = ${item.subtotal}</li>`,
-      );
-    });
-    printWindow.document.write("</ul>");
-    printWindow.document.write(`<p>Total Amount: ${order.total_amount}</p>`);
-    printWindow.document.close();
-    printWindow.print();
-  };
+  // For printing
+  const handlePrint = useReactToPrint({
+    content: () => invoiceRef.current,
+  });
 
   const handleStatusUpdate = () => {
     if (!selectedOrder) return;
@@ -161,7 +149,10 @@ const AllOrders = () => {
               );
 
               return (
-                <tr key={order.id} className="bg-[#b2d2ce78] border border-[#80808094]">
+                <tr
+                  key={order.id}
+                  className="bg-[#b2d2ce78] border border-[#80808094]"
+                >
                   <td className="px-4 py-2 text-center">{order.name}</td>
                   <td className="px-4 py-2 text-center">{order.email}</td>
                   <td className="px-4 py-2 text-center">{order.phone}</td>
@@ -173,8 +164,12 @@ const AllOrders = () => {
                       </div>
                     ))}
                   </td>
-                  <td className="px-4 py-2 text-center">{order.total_amount}</td>
-                  <td className="px-4 py-2 text-center">{order.total_new_price}</td>
+                  <td className="px-4 py-2 text-center">
+                    {order.total_amount}
+                  </td>
+                  <td className="px-4 py-2 text-center">
+                    {order.total_new_price}
+                  </td>
                   <td className="px-4 py-2 text-center">
                     {availableStatus.length > 0 ? (
                       <Select
@@ -237,7 +232,10 @@ const AllOrders = () => {
                       <PreviewIcon />
                     </button>
                     <button
-                      onClick={() => handlePrint(order)}
+                      onClick={() => {
+                        setSelectedOrder(order);
+                        setTimeout(handlePrint, 300); // wait for invoice to render
+                      }}
                       className="bg-blue-600 text-white px-3 py-1 rounded"
                     >
                       <LocalPrintshopIcon />
@@ -422,6 +420,13 @@ const AllOrders = () => {
           )}
         </Box>
       </Modal>
+
+      {/* Hidden Invoice */}
+      <div style={{ display: "none" }}>
+        {selectedOrder && (
+          <InvoiceTemplate ref={invoiceRef} order={selectedOrder} />
+        )}
+      </div>
     </div>
   );
 };
