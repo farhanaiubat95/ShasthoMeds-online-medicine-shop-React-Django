@@ -47,7 +47,7 @@ const sidebarItems = [
   {
     text: "Add Product",
     icon: <AddShoppingCartIcon />,
-    path: "/admin-dashboard/all-product",
+    path: "/admin-dashboard/all-products",
   },
   { text: "Payment", icon: <Payment />, path: "/admin-dashboard/all-payments" },
   {
