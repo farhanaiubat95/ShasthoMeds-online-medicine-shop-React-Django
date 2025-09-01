@@ -21,7 +21,7 @@ export const fetchPrescriptions = createAsyncThunk(
 // Update a prescription (approve/reject)
 export const updatePrescription = createAsyncThunk(
   "prescriptions/updatePrescription",
-  async ({ id, data }, { rejectWithValue }) => {
+  async ({ id, data ,token }, { rejectWithValue }) => {
     try {
       const res = await axios.patch(`${API_URL}${id}/`, data, {
         headers: { Authorization: `Bearer ${token}` },

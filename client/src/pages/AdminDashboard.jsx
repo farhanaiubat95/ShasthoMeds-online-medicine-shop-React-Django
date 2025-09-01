@@ -68,13 +68,6 @@ export default function AdminDashboard() {
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
   const token = localStorage.getItem("access_token");
 
-  const ordersCount = useSelector(
-    (state) => state.orders.orders?.results?.length || 0,
-  );
-  const notificationsCount = useSelector(
-    (state) => state.prescriptions.items?.results?.length || 0,
-  );
-
   useEffect(() => {
     if (token) dispatch(fetchPrescriptions(token));
   }, [dispatch, token]);
@@ -82,6 +75,13 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (token) dispatch(fetchOrders(token));
   }, [dispatch, token]);
+
+  const ordersCount = useSelector(
+    (state) => state.orders.orders?.results?.length || 0,
+  );
+  const notificationsCount = useSelector(
+    (state) => state.prescriptions.items?.results?.length || 0,
+  );
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
