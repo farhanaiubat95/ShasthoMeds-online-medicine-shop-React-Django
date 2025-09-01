@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders, updateOrderStatus } from "../../redux/orderSlice";
-import { useReactToPrint } from "react-to-print";
 import {
   Box,
   Typography,
@@ -16,13 +15,139 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import PreviewIcon from "@mui/icons-material/Preview";
-import InvoiceTemplate from "./InvoiceTemplate";
+import { useReactToPrint } from "react-to-print";
+import Image from "../../assets/images/logo.png";
 
-// ... imports remain same
+// ================= Invoice Component ================= //
+const Invoice = React.forwardRef(({ order }, ref) => {
+  if (!order) return null;
+
+  return (
+    <div ref={ref} style={{ padding: "20px", fontFamily: "Arial" }}>
+      {/* Header */}
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <h2 style={{ margin: 0 }}>ShasthoMeds</h2>
+        <p style={{ margin: 0 }}>Online Medicine Store</p>
+        <p style={{ margin: 0 }}>support@shasthomeds.com | +880 123456789</p>
+      </div>
+      <Divider />
+
+      {/* Invoice Info */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          margin: "20px 0",
+        }}
+      >
+        <div>
+          <h4>Invoice To:</h4>
+          <p>{order.name}</p>
+          <p>{order.email}</p>
+          <p>{order.phone}</p>
+          <p>{order.city}</p>
+          <p>{order.address}</p>
+        </div>
+        <div>
+          <h4>Invoice Details</h4>
+          <p>
+            <b>Invoice #:</b> {order.id}
+          </p>
+          <p>
+            <b>Date:</b> {new Date(order.created_at).toLocaleDateString()}
+          </p>
+          <p>
+            <b>Status:</b> {order.status}
+          </p>
+          <p>
+            <b>Payment:</b> {order.payment_status}
+          </p>
+        </div>
+      </div>
+      <Divider />
+
+      {/* Items */}
+      <table
+        style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}
+      >
+        <thead>
+          <tr style={{ background: "#f2f2f2" }}>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+              Product
+            </th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Qty</th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Price</th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+              Subtotal
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {order.items?.map((item, idx) => (
+            <tr key={idx}>
+              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
+                {item.product_name}
+              </td>
+              <td
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "8px",
+                  textAlign: "center",
+                }}
+              >
+                {item.quantity}
+              </td>
+              <td
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "8px",
+                  textAlign: "right",
+                }}
+              >
+                {item.price}
+              </td>
+              <td
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "8px",
+                  textAlign: "right",
+                }}
+              >
+                {item.subtotal}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Totals */}
+      <div style={{ textAlign: "right", marginTop: "20px" }}>
+        <p>
+          <b>Total Price:</b> {order.total_price}
+        </p>
+        <p>
+          <b>Total Discount:</b> {order.total_discount}
+        </p>
+        <p>
+          <b>Total New Price:</b> {order.total_new_price}
+        </p>
+        <h3>
+          <b>Grand Total:</b> {order.total_amount}
+        </h3>
+      </div>
+
+      <Divider style={{ margin: "20px 0" }} />
+
+      {/* Footer */}
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <p>Thank you for shopping with ShasthoMeds!</p>
+      </div>
+    </div>
+  );
+});
 
 const AllOrders = () => {
   const dispatch = useDispatch();
-  const invoiceRef = useRef();
   const token = localStorage.getItem("access_token");
 
   const ordersState = useSelector((state) => state.orders) || {};
@@ -34,6 +159,11 @@ const AllOrders = () => {
   const [open, setOpen] = useState(false);
   const [statusUpdate, setStatusUpdate] = useState("");
   const [paymentUpdate, setPaymentUpdate] = useState("");
+
+  const invoiceRef = useRef();
+  const handlePrint = useReactToPrint({
+    content: () => invoiceRef.current,
+  });
 
   // Open modal
   const handleOpen = (order) => {
@@ -48,21 +178,6 @@ const AllOrders = () => {
     setSelectedOrder(null);
     setOpen(false);
   };
-
-  const handlePrint = useReactToPrint({
-    content: () => invoiceRef.current,
-  });
-  // inside AllOrders.js
-  const handlePrintClick = (order) => {
-    setSelectedOrder(order);
-  };
-
-  // This will run after selectedOrder changes and the InvoiceTemplate renders
-  useEffect(() => {
-    if (selectedOrder && invoiceRef.current) {
-      handlePrint();
-    }
-  }, [selectedOrder, handlePrint]);
 
   const handleStatusUpdate = () => {
     if (!selectedOrder) return;
@@ -245,7 +360,10 @@ const AllOrders = () => {
                       <PreviewIcon />
                     </button>
                     <button
-                      onClick={() => handlePrintClick(order)}
+                      onClick={() => {
+                        setSelectedOrder(order);
+                        setTimeout(() => handlePrint(), 100); // Ensure ref updates
+                      }}
                       className="bg-blue-600 text-white px-3 py-1 rounded"
                     >
                       <LocalPrintshopIcon />
@@ -430,13 +548,6 @@ const AllOrders = () => {
           )}
         </Box>
       </Modal>
-
-      {/* Hidden Invoice */}
-      <div style={{ display: "none" }}>
-        {selectedOrder && (
-          <InvoiceTemplate ref={invoiceRef} order={selectedOrder} />
-        )}
-      </div>
     </div>
   );
 };
