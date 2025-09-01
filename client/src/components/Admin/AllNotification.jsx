@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPrescriptions, updatePrescription } from "../../redux/prescriptionSlice.js";
+import {
+  fetchPrescriptions,
+  updatePrescription,
+} from "../../redux/prescriptionSlice.js";
 
 function AllNotification() {
   const dispatch = useDispatch();
@@ -10,17 +13,33 @@ function AllNotification() {
     dispatch(fetchPrescriptions());
   }, [dispatch]);
 
-  const handleApprove = (id) => {
-    dispatch(updatePrescription({ id, data: { status: "approved" } }));
+  const handleApprove = async (id) => {
+    try {
+      alert("Are you sure you want to approve this prescription?");
+      await dispatch(
+        updatePrescription({ id, data: { status: "approved" } }),
+      ).unwrap();
+      // Refetch list after successful update
+      dispatch(fetchPrescriptions());
+    } catch (err) {
+      alert("Error approving prescription: " + (err.message || err));
+    }
   };
 
-  const handleReject = (id) => {
-    dispatch(
-      updatePrescription({
-        id,
-        data: { status: "rejected", admin_comment: "Invalid prescription" },
-      })
-    );
+  const handleReject = async (id) => {
+    try {
+      alert("Are you sure you want to reject this prescription?");
+      await dispatch(
+        updatePrescription({
+          id,
+          data: { status: "rejected", admin_comment: "Invalid prescription" },
+        }),
+      ).unwrap();
+      // Refetch list after successful update
+      dispatch(fetchPrescriptions());
+    } catch (err) {
+      alert("Error rejecting prescription: " + (err.message || err));
+    }
   };
 
   if (loading) return <p>Loading...</p>;
@@ -29,7 +48,12 @@ function AllNotification() {
   return (
     <div style={{ padding: "20px" }}>
       <h2>Prescription Requests</h2>
-      <table border="1" cellPadding="10" cellSpacing="0" style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table
+        border="1"
+        cellPadding="10"
+        cellSpacing="0"
+        style={{ width: "100%", borderCollapse: "collapse" }}
+      >
         <thead>
           <tr style={{ backgroundColor: "#f0f0f0" }}>
             <th>ID</th>
@@ -47,7 +71,10 @@ function AllNotification() {
               <td>{p.status}</td>
               <td>{p.admin_comment || "-"}</td>
               <td>
-                <button onClick={() => handleApprove(p.id)} style={{ marginRight: "8px" }}>
+                <button
+                  onClick={() => handleApprove(p.id)}
+                  style={{ marginRight: "8px" }}
+                >
                   Approve
                 </button>
                 <button onClick={() => handleReject(p.id)}>Reject</button>
@@ -60,4 +87,4 @@ function AllNotification() {
   );
 }
 
-export default AllNotification
+export default AllNotification;

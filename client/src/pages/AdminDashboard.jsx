@@ -13,11 +13,7 @@ import {
   Badge,
 } from "@mui/material";
 
-import {
-  Category,
-  Payment,
-  Notifications,
-} from "@mui/icons-material";
+import { Category, Payment, Notifications } from "@mui/icons-material";
 
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
@@ -30,21 +26,49 @@ import { useSelector } from "react-redux";
 const drawerWidth = 240;
 
 const sidebarItems = [
-  { text: "All User", icon: <PeopleOutlineIcon />, path: "/admin-dashboard/all-users" },
-  { text: "Add Categories", icon: <Category />, path: "/admin-dashboard/all-categories" },
-  { text: "Add Brands", icon: <LibraryBooksIcon />, path: "/admin-dashboard/all-brands" },
-  { text: "Add Product", icon: <AddShoppingCartIcon />, path: "/admin-dashboard/all-product" },
+  {
+    text: "All User",
+    icon: <PeopleOutlineIcon />,
+    path: "/admin-dashboard/all-users",
+  },
+  {
+    text: "Add Categories",
+    icon: <Category />,
+    path: "/admin-dashboard/all-categories",
+  },
+  {
+    text: "Add Brands",
+    icon: <LibraryBooksIcon />,
+    path: "/admin-dashboard/all-brands",
+  },
+  {
+    text: "Add Product",
+    icon: <AddShoppingCartIcon />,
+    path: "/admin-dashboard/all-product",
+  },
   { text: "Payment", icon: <Payment />, path: "/admin-dashboard/all-payments" },
-  { text: "All Orders", icon: <WidgetsIcon />, path: "/admin-dashboard/all-orders" },
-  { text: "Notification", icon: <Notifications />, path: "/admin-dashboard/all-notifications" },
+  {
+    text: "All Orders",
+    icon: <WidgetsIcon />,
+    path: "/admin-dashboard/all-orders",
+  },
+  {
+    text: "Notification",
+    icon: <Notifications />,
+    path: "/admin-dashboard/all-notifications",
+  },
 ];
 
 export default function AdminDashboard() {
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
 
-  const ordersCount = useSelector((state) => state.orders.length);
-  const notificationsCount = useSelector((state) => state.prescriptions.items.length);
+  const ordersCount = useSelector(
+    (state) => state.orders.orders?.results?.length || 0,
+  );
+  const notificationsCount = useSelector(
+    (state) => state.prescriptions.items?.length || 0,
+  );
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -139,7 +163,10 @@ export default function AdminDashboard() {
         }}
       >
         <div className="bg-[#0F918F] h-[40px] p-2">
-          <Link to="/" className="text-white hover:underline text-md lg:text-xl">
+          <Link
+            to="/"
+            className="text-white hover:underline text-md lg:text-xl"
+          >
             Home
           </Link>
         </div>

@@ -38,6 +38,24 @@ export const fetchOrders = createAsyncThunk(
   },
 );
 
+// ===== Add this in src/redux/orderSlice.js =====
+
+// Update order status
+export const updateOrderStatus = createAsyncThunk(
+  "order/updateOrderStatus",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await axiosInstance.patch(`/orders/${id}/`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
 const orderSlice = createSlice({
   name: "order",
   initialState: {
@@ -87,6 +105,25 @@ const orderSlice = createSlice({
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to fetch orders";
+      })
+
+      .addCase(updateOrderStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        // update the order in the list
+        const index = state.orders.results?.findIndex(
+          (o) => o.id === action.payload.id,
+        );
+        if (index !== -1 && index !== undefined) {
+          state.orders.results[index] = action.payload;
+        }
+      })
+      .addCase(updateOrderStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to update order status";
       });
   },
 });
