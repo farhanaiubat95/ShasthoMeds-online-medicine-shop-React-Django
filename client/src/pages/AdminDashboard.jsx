@@ -70,6 +70,14 @@ export default function AdminDashboard() {
     (state) => state.prescriptions.items?.length || 0,
   );
 
+  useEffect(() => {
+    if (token) dispatch(fetchPrescriptions(token));
+  }, [dispatch, token]);
+
+  useEffect(() => {
+    if (token) dispatch(fetchOrders(token));
+  }, [dispatch, token]);
+
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {

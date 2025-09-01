@@ -10,17 +10,19 @@ function AllNotification() {
   const { items, loading, error } = useSelector((state) => state.prescriptions);
 
   useEffect(() => {
-    dispatch(fetchPrescriptions());
-  }, [dispatch]);
+    if (token) dispatch(fetchPrescriptions(token));
+  }, [dispatch, token]);
 
   const handleApprove = async (id) => {
     try {
-      alert("Are you sure you want to approve this prescription?");
-      await dispatch(
-        updatePrescription({ id, data: { status: "approved" } }),
-      ).unwrap();
-      // Refetch list after successful update
-      dispatch(fetchPrescriptions());
+      if (
+        window.confirm("Are you sure you want to approve this prescription?")
+      ) {
+        await dispatch(
+          updatePrescription({ id, data: { status: "approved" } }),
+        ).unwrap();
+        dispatch(fetchPrescriptions()); // refresh list
+      }
     } catch (err) {
       alert("Error approving prescription: " + (err.message || err));
     }
@@ -28,15 +30,17 @@ function AllNotification() {
 
   const handleReject = async (id) => {
     try {
-      alert("Are you sure you want to reject this prescription?");
-      await dispatch(
-        updatePrescription({
-          id,
-          data: { status: "rejected", admin_comment: "Invalid prescription" },
-        }),
-      ).unwrap();
-      // Refetch list after successful update
-      dispatch(fetchPrescriptions());
+      if (
+        window.confirm("Are you sure you want to reject this prescription?")
+      ) {
+        await dispatch(
+          updatePrescription({
+            id,
+            data: { status: "rejected", admin_comment: "Invalid prescription" },
+          }),
+        ).unwrap();
+        dispatch(fetchPrescriptions()); // refresh list
+      }
     } catch (err) {
       alert("Error rejecting prescription: " + (err.message || err));
     }
@@ -58,29 +62,44 @@ function AllNotification() {
           <tr style={{ backgroundColor: "#f0f0f0" }}>
             <th>ID</th>
             <th>Product</th>
+            <th>Notes</th>
             <th>Status</th>
             <th>Admin Comment</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {items.map((p) => (
-            <tr key={p.id}>
-              <td>{p.id}</td>
-              <td>{p.product?.name || "N/A"}</td>
-              <td>{p.status}</td>
-              <td>{p.admin_comment || "-"}</td>
-              <td>
-                <button
-                  onClick={() => handleApprove(p.id)}
-                  style={{ marginRight: "8px" }}
-                >
-                  Approve
-                </button>
-                <button onClick={() => handleReject(p.id)}>Reject</button>
+          {items?.results && items?.results?.length > 0 ? (
+            items.results.map((p) => (
+              <tr key={p.id}>
+                <td>{p.id}</td>
+                <td>{p.product?.name || "N/A"}</td>
+                <td>{p.notes || "-"}</td>
+                <td>{p.status}</td>
+                <td>{p.admin_comment || "-"}</td>
+                <td>
+                  {p.status === "pending" && (
+                    <>
+                      <button
+                        onClick={() => handleApprove(p.id)}
+                        style={{ marginRight: "8px" }}
+                      >
+                        Approve
+                      </button>
+                      <button onClick={() => handleReject(p.id)}>Reject</button>
+                    </>
+                  )}
+                  {p.status !== "pending" && <span>No Actions</span>}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6" style={{ textAlign: "center" }}>
+                No prescriptions found.
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
