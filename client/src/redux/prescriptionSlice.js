@@ -1,13 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const token = localStorage.getItem("access_token");
 
 const API_URL = "https://shasthomeds-backend.onrender.com/prescriptions/";
 
 // Fetch all prescriptions
 export const fetchPrescriptions = createAsyncThunk(
   "prescriptions/fetchPrescriptions",
-  async (_, { rejectWithValue }) => {
+  async ({ token }, { rejectWithValue }) => {
     try {
       const res = await axios.get(API_URL, {
         headers: { Authorization: `Bearer ${token}` },

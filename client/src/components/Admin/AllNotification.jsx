@@ -33,11 +33,16 @@ function AllNotification() {
   // 🔹 Handle status update
   const handleStatusChange = async (id, newStatus) => {
     try {
-      alert("Are you sure you want to " + newStatus + " this prescription?");
-      await dispatch(
-        updatePrescription({ id, data: { status: newStatus } }),
-      ).unwrap();
-      dispatch(fetchPrescriptions()); // refresh after update
+      if (
+        window.confirm(
+          `Are you sure you want to ${newStatus} this prescription?`,
+        )
+      ) {
+        await dispatch(
+          updatePrescription({ id, data: { status: newStatus } , token }),
+        ).unwrap();
+        dispatch(fetchPrescriptions(token)); // refresh after update
+      }
     } catch (err) {
       alert("Error updating status: " + (err.message || err));
     }

@@ -93,7 +93,6 @@ const AllOrders = () => {
   //   if (token) dispatch(fetchOrders(token));
   // }, [dispatch, token]);
 
-  if (loading) return <p>Loading orders...</p>;
   if (error)
     return <p className="text-red-600">Error: {JSON.stringify(error)}</p>;
 
