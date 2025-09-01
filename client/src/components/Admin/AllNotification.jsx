@@ -20,7 +20,7 @@ import {
 
 function AllNotification() {
   const dispatch = useDispatch();
-  const { items} = useSelector((state) => state.prescriptions);
+  const { items, error } = useSelector((state) => state.prescriptions);
   const token = localStorage.getItem("access_token");
 
   const [selectedImage, setSelectedImage] = useState(null);
