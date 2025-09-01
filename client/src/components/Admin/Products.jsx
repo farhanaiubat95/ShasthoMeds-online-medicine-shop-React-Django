@@ -140,9 +140,6 @@ export default function Products() {
     if (!category_id) return alert("Category is required");
     if (!brand_id) return alert("Brand is required");
 
-    console.log("Category ID:", category_id);
-    console.log("Brand ID:", brand_id);
-
     // Append both foreign keys
     formData.append("category_id", category_id);
     formData.append("brand_id", brand_id);
@@ -155,11 +152,6 @@ export default function Products() {
       }
     });
 
-    // Debug: log FormData contents
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
-
     try {
       if (formMode === "edit" && editIndex !== null) {
         const id = products[editIndex].id;
@@ -167,12 +159,12 @@ export default function Products() {
         await dispatch(
           updateProduct({ id, productData: formData, token }),
         ).unwrap();
-        console.log("Product updated successfully");
+        alert("Product updated successfully");
       } else {
         await dispatch(
           createProduct({ productData: formData, token }),
         ).unwrap();
-        console.log("Product added successfully");
+        alert("Product added successfully");
       }
 
       dispatch(fetchProducts(token));
@@ -221,7 +213,7 @@ export default function Products() {
 
     try {
       await dispatch(removeProductApi({ id, token })).unwrap();
-      console.log("Product deleted successfully");
+      alert("Product deleted successfully");
 
       // Auto refresh
       dispatch(fetchProducts(token));
