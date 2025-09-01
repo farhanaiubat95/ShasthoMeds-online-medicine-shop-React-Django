@@ -1,4 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Button,
+  Select,
+  MenuItem,
+  Typography,
+  CircularProgress,
+  Box,
+  Modal,
+} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchPrescriptions,
@@ -8,102 +22,142 @@ import {
 function AllNotification() {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.prescriptions);
-   const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("access_token");
 
-  useEffect(() => {
-    if (token) dispatch(fetchPrescriptions(token));
-  }, [dispatch, token]);
+  const [selectedImage, setSelectedImage] = useState(null);
 
-  const handleApprove = async (id) => {
+  // useEffect(() => {
+  //   if (token) dispatch(fetchPrescriptions(token));
+  // }, [dispatch, token]);
+
+  // 🔹 Handle status update
+  const handleStatusChange = async (id, newStatus) => {
     try {
-      if (
-        window.confirm("Are you sure you want to approve this prescription?")
-      ) {
-        await dispatch(
-          updatePrescription({ id, data: { status: "approved" } }),
-        ).unwrap();
-        dispatch(fetchPrescriptions()); // refresh list
-      }
+      alert("Are you sure you want to " + newStatus + " this prescription?");
+      await dispatch(
+        updatePrescription({ id, data: { status: newStatus } }),
+      ).unwrap();
+      dispatch(fetchPrescriptions(token)); // refresh after update
     } catch (err) {
-      alert("Error approving prescription: " + (err.message || err));
+      alert("Error updating status: " + (err.message || err));
     }
   };
 
-  const handleReject = async (id) => {
-    try {
-      if (
-        window.confirm("Are you sure you want to reject this prescription?")
-      ) {
-        await dispatch(
-          updatePrescription({
-            id,
-            data: { status: "rejected", admin_comment: "Invalid prescription" },
-          }),
-        ).unwrap();
-        dispatch(fetchPrescriptions()); // refresh list
-      }
-    } catch (err) {
-      alert("Error rejecting prescription: " + (err.message || err));
-    }
-  };
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading)
+    return <CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />;
+  if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Prescription Requests</h2>
-      <table
-        border="1"
-        cellPadding="10"
-        cellSpacing="0"
-        style={{ width: "100%", borderCollapse: "collapse" }}
-      >
-        <thead>
-          <tr style={{ backgroundColor: "#f0f0f0" }}>
-            <th>ID</th>
-            <th>Product</th>
-            <th>Notes</th>
-            <th>Status</th>
-            <th>Admin Comment</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items?.results && items?.results?.length > 0 ? (
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Prescription Requests
+      </Typography>
+
+      <Table sx={{ border: "1px solid #ddd" }}>
+        <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+          <TableRow>
+            <TableCell>ID</TableCell>
+            <TableCell>Product</TableCell>
+            <TableCell>Notes</TableCell>
+            <TableCell>Image</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell>Admin Comment</TableCell>
+            <TableCell>Action</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {items?.results && items.results.length > 0 ? (
             items.results.map((p) => (
-              <tr key={p.id}>
-                <td>{p.id}</td>
-                <td>{p.product?.name || "N/A"}</td>
-                <td>{p.notes || "-"}</td>
-                <td>{p.status}</td>
-                <td>{p.admin_comment || "-"}</td>
-                <td>
-                  {p.status === "pending" && (
-                    <>
-                      <button
-                        onClick={() => handleApprove(p.id)}
-                        style={{ marginRight: "8px" }}
-                      >
-                        Approve
-                      </button>
-                      <button onClick={() => handleReject(p.id)}>Reject</button>
-                    </>
+              <TableRow key={p.id}>
+                <TableCell>{p.id}</TableCell>
+                <TableCell>{p.product?.name || "N/A"}</TableCell>
+                <TableCell>{p.notes || "-"}</TableCell>
+                <TableCell>
+                  {p.uploaded_image ? (
+                    <img
+                      src={p.uploaded_image}
+                      alt="Prescription"
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        objectFit: "cover",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setSelectedImage(p.uploaded_image)}
+                    />
+                  ) : (
+                    "-"
                   )}
-                  {p.status !== "pending" && <span>No Actions</span>}
-                </td>
-              </tr>
+                </TableCell>
+                <TableCell>
+                  <Select
+                    size="small"
+                    value={p.status}
+                    onChange={(e) => handleStatusChange(p.id, e.target.value)}
+                  >
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="approved">Approved</MenuItem>
+                    <MenuItem value="rejected">Rejected</MenuItem>
+                  </Select>
+                </TableCell>
+                <TableCell>{p.admin_comment || "-"}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => handleStatusChange(p.id, "approved")}
+                    sx={{ mr: 1 }}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    onClick={() => handleStatusChange(p.id, "rejected")}
+                  >
+                    Reject
+                  </Button>
+                </TableCell>
+              </TableRow>
             ))
           ) : (
-            <tr>
-              <td colSpan="6" style={{ textAlign: "center" }}>
+            <TableRow>
+              <TableCell colSpan={7} align="center">
                 No prescriptions found.
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           )}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </Table>
+
+      {/* 🔹 Image Modal */}
+      <Modal open={!!selectedImage} onClose={() => setSelectedImage(null)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "white",
+            p: 2,
+            borderRadius: 2,
+            boxShadow: 24,
+            maxWidth: "80%",
+            maxHeight: "80%",
+            overflow: "auto",
+          }}
+        >
+          {selectedImage && (
+            <img
+              src={selectedImage}
+              alt="Prescription"
+              style={{ maxWidth: "100%", maxHeight: "80vh" }}
+            />
+          )}
+        </Box>
+      </Modal>
+    </Box>
   );
 }
 

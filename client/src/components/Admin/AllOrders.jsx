@@ -89,9 +89,9 @@ const AllOrders = () => {
     });
   };
 
-  useEffect(() => {
-    if (token) dispatch(fetchOrders(token));
-  }, [dispatch, token]);
+  // useEffect(() => {
+  //   if (token) dispatch(fetchOrders(token));
+  // }, [dispatch, token]);
 
   if (loading) return <p>Loading orders...</p>;
   if (error)
@@ -259,7 +259,14 @@ const AllOrders = () => {
 
       {/* Modal */}
       <Modal open={open} onClose={handleClose}>
-        <Box className="bg-white p-6 rounded-xl shadow-xl max-w-3xl mx-auto mt-24 relative outline-none">
+        <Box
+          className="bg-white p-6 rounded-xl shadow-xl max-w-3xl mx-auto relative outline-none"
+          sx={{
+            mt: "5%",
+            maxHeight: "90vh", // max height relative to viewport
+            overflowY: "auto", // enable vertical scroll
+          }}
+        >
           <IconButton className="absolute top-3 right-3" onClick={handleClose}>
             <CloseIcon />
           </IconButton>
