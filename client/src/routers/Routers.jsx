@@ -14,19 +14,23 @@ import AuthProtectedRoute from "./AuthProtectedRoute";
 import CustomerLayout from "../Layout/CustomerLayout";
 import ProductDetail from "../components/product/ProductDetail";
 import HomeMain from "../components/Home/HomeMain";
-import AdminDashboard from "../pages/AdminDashboard";
+
 // import AdminLayout from "../Layout/AdminLayout";
+import AdminDashboard from "../pages/AdminDashboard";
 import Main from "../components/Admin/Main";
 import AllCategories from "../components/Admin/AllCategories";
-import Products from "../components/Admin/Products";
 import AllCustomer from "../components/Admin/AllCustomer";
-import Notification from "../components/Admin/Notification";
-import Payment from "../components/Admin/Payment";
+import AllBrand from "../components/Admin/AllBrand";
+import AllOrders from "../components/Admin/AllOrders";
+import AllProducts from "../components/Admin/AllProducts";
+import AllNotification from "../components/Admin/AllNotification";
+import AllPayment from "../components/Admin/AllPayment.jsx";
+
 import Findpagecheck from "../components/product/Findpagecheck";
 import Checkout from "../pages/CheckOut";
 import Paymen_succesfull from "../pages/PaymenSuccesfull";
 import Orders from "../pages/Orders";
-import AllBrand from "../components/Admin/AllBrand";
+
 
 const Routers = () => {
   return (
@@ -62,12 +66,12 @@ const Routers = () => {
             <Route index element={<Main />} />
             <Route path="all-categories" element={<AllCategories />} />
             <Route path="all-brands" element={<AllBrand />} />
-            <Route path="all-orders" element={<Orders />} />
-            <Route path="product" element={<Products />} />
+            <Route path="all-orders" element={<AllOrders />} />
+            <Route path="all-products" element={<AllProducts/>} />
             <Route path="profile" element={<Profile />} />
-            <Route path="all-user" element={<AllCustomer />} />
-            <Route path="payment" element={<Payment />} />
-            <Route path="notification" element={<Notification />} />
+            <Route path="all-users" element={<AllCustomer />} />
+            <Route path="all-payments" element={<AllPayment />} />
+            <Route path="all-notifications" element={<AllNotification />} />
           </Route>
         </Route>
 

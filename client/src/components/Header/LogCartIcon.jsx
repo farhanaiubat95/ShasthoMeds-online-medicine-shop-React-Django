@@ -153,44 +153,6 @@ const LogCartIcon = () => {
               )}
             </Menu>
           </div>
-          {user?.role === "user" && (
-            <>
-              <Link to="/myaccount/orders" className="cursor-pointer">
-                <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
-                  <IconButton>
-                    <ArchiveIcon
-                      sx={{
-                        color: "#0F918F",
-                        fontSize: { xs: "25px", lg: "30px" },
-                      }}
-                    />
-                  </IconButton>
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      color: "#0F918F",
-                      fontSize: "18px",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      maxWidth: {
-                        sm: "40px", // small screen
-                        md: "50px", // medium screen
-                        lg: "100px", // large screen
-                      },
-                      display: {
-                        xs: "none",
-                        sm: "block",
-                      },
-                    }}
-                  >
-                    Order Details
-                  </Typography>
-                </div>
-              </Link>
-            </>
-          )}
-
 
           {/* Cart / Dashboard Button */}
           {user?.role === "user" ? (
@@ -249,6 +211,44 @@ const LogCartIcon = () => {
             </Link>
           ) : null}
         </div>
+
+        {user?.role === "user" && (
+          <>
+            <Link to="/myaccount/orders" className="cursor-pointer">
+              <div className="border-2 border-[#30C2C0] rounded md:p-3 ml-2 h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
+                <IconButton>
+                  <ArchiveIcon
+                    sx={{
+                      color: "#0F918F",
+                      fontSize: { xs: "25px", lg: "30px" },
+                    }}
+                  />
+                </IconButton>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "#0F918F",
+                    fontSize: "18px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    maxWidth: {
+                      sm: "40px", // small screen
+                      md: "50px", // medium screen
+                      lg: "100px", // large screen
+                    },
+                    display: {
+                      xs: "none",
+                      sm: "block",
+                    },
+                  }}
+                >
+                  Order Details
+                </Typography>
+              </div>
+            </Link>
+          </>
+        )}
 
         <div className="flex items-center justify-end">
           <Link to="/doctor-appointment" className="cursor-pointer">

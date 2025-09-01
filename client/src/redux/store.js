@@ -5,6 +5,7 @@ import brandReducer from './brandSlice';
 import categoryReducer from './categorySlice';
 import cartReducer from './cartSlice';
 import orderReducer from './orderSlice';
+import prescriptionReducer from './prescriptionSlice';
 
 // Configure Redux store with both reducers
 export const store = configureStore({
@@ -15,6 +16,6 @@ export const store = configureStore({
     categories: categoryReducer,
     carts: cartReducer,
     orders: orderReducer,
-
+    prescriptions:prescriptionReducer
   },
 });

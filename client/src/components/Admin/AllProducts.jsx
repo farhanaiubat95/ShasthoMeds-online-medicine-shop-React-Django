@@ -29,7 +29,11 @@ import { fetchCategories } from "../../redux/categorySlice.js";
 import { fetchBrands } from "../../redux/brandSlice.js";
 import { Tooltip } from "@mui/material";
 
-export default function Products() {
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import PreviewIcon from '@mui/icons-material/Preview';
+import EditSquareIcon from '@mui/icons-material/EditSquare';
+
+export default function AllProducts() {
   const dispatch = useDispatch();
   const formRef = useRef(null);
 
@@ -551,32 +555,34 @@ export default function Products() {
                     {p.prescription_required ? "Yes" : "No"}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="success"
-                      size="small"
-                      sx={{ mr: 1 }}
-                      onClick={() => handleView(i)}
-                    >
-                      View
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="secondary"
-                      size="small"
-                      sx={{ mr: 1 }}
-                      onClick={() => handleEdit(i)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => handleDelete(products[i].id)}
-                    >
-                      Delete
-                    </Button>
+                    <Box display="flex" gap={1} justifyContent="center">
+                      <Button
+                        variant="outlined"
+                        color="success"
+                        size="small"
+                        sx={{ mr: 1 }}
+                        onClick={() => handleView(i)}
+                      >
+                        <PreviewIcon />
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="secondary"
+                        size="small"
+                        sx={{ mr: 1 }}
+                        onClick={() => handleEdit(i)}
+                      >
+                        <EditSquareIcon />
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={() => handleDelete(products[i].id)}
+                      >
+                        <DeleteForeverIcon />
+                      </Button>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}

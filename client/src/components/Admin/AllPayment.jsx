@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const Notification = () => {
+const AllPayment = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const Notification = () => {
 
   return (
     <div className="bg-white rounded-xl shadow p-6 text-black overflow-x-auto">
-      <h1 className="text-2xl font-semibold mb-4">Notification</h1>
+      <h1 className="text-2xl font-semibold mb-4">Payments</h1>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-100">
           <tr>
@@ -101,6 +101,4 @@ const Notification = () => {
 };
 
 
-
-
-export default Notification
+export default AllPayment
