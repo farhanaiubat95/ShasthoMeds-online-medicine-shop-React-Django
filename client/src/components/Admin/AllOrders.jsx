@@ -35,10 +35,6 @@ const AllOrders = () => {
   const [statusUpdate, setStatusUpdate] = useState("");
   const [paymentUpdate, setPaymentUpdate] = useState("");
 
-  const handlePrint = useReactToPrint({
-    content: () => invoiceRef.current,
-  });
-
   // Open modal
   const handleOpen = (order) => {
     setSelectedOrder(order);
@@ -53,21 +49,17 @@ const AllOrders = () => {
     setOpen(false);
   };
 
+  const handlePrint = useReactToPrint({
+    content: () => invoiceRef.current,
+  });
   // inside AllOrders.js
   const handlePrintClick = (order) => {
     setSelectedOrder(order);
-
-    // Let React render InvoiceTemplate first
-    setTimeout(() => {
-      if (invoiceRef.current) {
-        handlePrint();
-      }
-    }, 300);
   };
 
-  
+  // This will run after selectedOrder changes and the InvoiceTemplate renders
   useEffect(() => {
-    if (selectedOrder) {
+    if (selectedOrder && invoiceRef.current) {
       handlePrint();
     }
   }, [selectedOrder, handlePrint]);
