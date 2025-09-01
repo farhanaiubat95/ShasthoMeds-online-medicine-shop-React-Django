@@ -72,7 +72,7 @@ export default function AdminDashboard() {
     (state) => state.orders.orders?.results?.length || 0,
   );
   const notificationsCount = useSelector(
-    (state) => state.prescriptions.items?.length || 0,
+    (state) => state.prescriptions.items?.results?.length || 0,
   );
 
   useEffect(() => {

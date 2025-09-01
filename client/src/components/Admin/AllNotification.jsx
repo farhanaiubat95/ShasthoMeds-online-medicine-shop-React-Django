@@ -8,6 +8,7 @@ import {
 function AllNotification() {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.prescriptions);
+   const token = localStorage.getItem("access_token");
 
   useEffect(() => {
     if (token) dispatch(fetchPrescriptions(token));

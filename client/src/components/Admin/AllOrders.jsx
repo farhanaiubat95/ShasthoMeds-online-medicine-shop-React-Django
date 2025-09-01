@@ -230,7 +230,7 @@ const AllOrders = () => {
                       <Chip label={paymentLabels[order.payment_status]} />
                     )}
                   </td>
-                  <td className="px-4 py-2 space-x-2">
+                  <td className="px-2 py-2 flex items-center justify-between">
                     <button
                       onClick={() => handleOpen(order)}
                       className="bg-green-600 text-white px-3 py-1 rounded"
@@ -259,18 +259,83 @@ const AllOrders = () => {
 
       {/* Modal */}
       <Modal open={open} onClose={handleClose}>
-        <Box className="bg-white p-6 rounded-xl shadow-xl max-w-2xl mx-auto mt-24 relative outline-none">
+        <Box className="bg-white p-6 rounded-xl shadow-xl max-w-3xl mx-auto mt-24 relative outline-none">
           <IconButton className="absolute top-3 right-3" onClick={handleClose}>
             <CloseIcon />
           </IconButton>
+
           {selectedOrder && (
             <>
               <Typography variant="h5" className="font-bold mb-2">
                 Order #{selectedOrder.id}
               </Typography>
-              {/* ... user info ... */}
 
-              <Divider className="my-2" />
+              {/* Customer Info */}
+              <Box className="mb-4">
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Customer Info
+                </Typography>
+                <Typography>Name: {selectedOrder.name}</Typography>
+                <Typography>Email: {selectedOrder.email}</Typography>
+                <Typography>Phone: {selectedOrder.phone}</Typography>
+                <Typography>City: {selectedOrder.city}</Typography>
+                <Typography>
+                  Postal Code: {selectedOrder.postal_code}
+                </Typography>
+                <Typography>Address: {selectedOrder.address}</Typography>
+              </Box>
+
+              {/* Payment Info */}
+              <Box className="mb-4">
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Payment Info
+                </Typography>
+                <Typography>
+                  Payment Method: {selectedOrder.payment_method}
+                </Typography>
+                <Typography>
+                  Payment Status: {selectedOrder.payment_status}
+                </Typography>
+                <Typography>Transaction ID: {selectedOrder.tran_id}</Typography>
+              </Box>
+
+              {/* Order Items */}
+              <Box className="mb-4">
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Products
+                </Typography>
+                {selectedOrder.items?.map((item, idx) => (
+                  <Box key={idx} className="mb-1">
+                    <Typography>Product ID: {item.product_id}</Typography>
+                    <Typography>Product Name: {item.product_name}</Typography>
+                    <Typography>Quantity: {item.quantity}</Typography>
+                    <Typography>Price: {item.price}</Typography>
+                    <Typography>Subtotal: {item.subtotal}</Typography>
+                    <Divider className="my-1" />
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Totals */}
+              <Box className="mb-4">
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Totals
+                </Typography>
+                <Typography>
+                  Total Price: {selectedOrder.total_price}
+                </Typography>
+                <Typography>
+                  Total Discount: {selectedOrder.total_discount}
+                </Typography>
+                <Typography>
+                  Total New Price: {selectedOrder.total_new_price}
+                </Typography>
+                <Typography>
+                  Total Amount: {selectedOrder.total_amount}
+                </Typography>
+              </Box>
+
+              {/* Status Update */}
               <Box className="flex items-center gap-2 mt-2">
                 <Typography>Status:</Typography>
                 {["cancelled", "delivered"].includes(selectedOrder.status) ? (
@@ -304,6 +369,7 @@ const AllOrders = () => {
                 )}
               </Box>
 
+              {/* Payment Update */}
               <Box className="flex items-center gap-2 mt-2">
                 <Typography>Payment:</Typography>
                 {["paid", "refunded"].includes(selectedOrder.payment_status) ? (
@@ -335,6 +401,16 @@ const AllOrders = () => {
                     </Button>
                   </>
                 )}
+              </Box>
+
+              {/* Created / Updated */}
+              <Box className="mt-4">
+                <Typography variant="caption">
+                  Created At: {selectedOrder.created_at}
+                </Typography>
+                <Typography variant="caption">
+                  Updated At: {selectedOrder.updated_at}
+                </Typography>
               </Box>
             </>
           )}
