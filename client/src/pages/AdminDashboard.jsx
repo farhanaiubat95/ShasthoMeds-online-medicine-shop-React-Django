@@ -1,5 +1,5 @@
 // AdminDashboard.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Drawer,
@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 
 import { Category, Payment, Notifications } from "@mui/icons-material";
+import { useDispatch } from "react-redux";
 
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
@@ -60,6 +61,7 @@ const sidebarItems = [
 ];
 
 export default function AdminDashboard() {
+  const dispatch = useDispatch();
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
 
