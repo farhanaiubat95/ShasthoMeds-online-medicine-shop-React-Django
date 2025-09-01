@@ -57,12 +57,15 @@ const AllOrders = () => {
   const handlePrintClick = (order) => {
     setSelectedOrder(order);
 
-    // Wait for React to render the InvoiceTemplate, then print
+    // Let React render InvoiceTemplate first
     setTimeout(() => {
-      handlePrint();
+      if (invoiceRef.current) {
+        handlePrint();
+      }
     }, 300);
   };
 
+  
   useEffect(() => {
     if (selectedOrder) {
       handlePrint();
