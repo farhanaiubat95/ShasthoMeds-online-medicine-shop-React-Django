@@ -66,6 +66,7 @@ export default function AdminDashboard() {
   const dispatch = useDispatch();
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
+  const token = localStorage.getItem("access_token");
 
   const ordersCount = useSelector(
     (state) => state.orders.orders?.results?.length || 0,
