@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+const token = localStorage.getItem("access_token");
 
 const API_URL = "https://shasthomeds-backend.onrender.com/prescriptions/";
 
@@ -8,7 +9,6 @@ export const fetchPrescriptions = createAsyncThunk(
   "prescriptions/fetchPrescriptions",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("access");
       const res = await axios.get(API_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -24,7 +24,6 @@ export const updatePrescription = createAsyncThunk(
   "prescriptions/updatePrescription",
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("access");
       const res = await axios.patch(`${API_URL}${id}/`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
