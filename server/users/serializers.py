@@ -174,15 +174,14 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = [
-        "id", "name", "sku", "description", "price", "discount_percentage",
-        "quantity", "weight", "weight_unit", "package_size", "unit",
-        "is_prescription_required", "brand", "category",
-        "brand_id", "category_id",
-        "image1", "image2", "image3",
-        "display_unit",
-        "created_at", "updated_at", "slug", "new_price", "discount_price",
-        ]
+        # fields = [
+        # "id", "name", "sku", "description", "price","generic_name", "indication", "adult_dose", "child_dose", "contraindication", "precaution", "side_effect",
+        # "quantity", "weight", "weight_unit", "package_quantity", "unit","unit_value",
+        # "prescription_required", "brand", "category",
+        # "brand_id", "category_id","is_active",
+        # "image1", "image2", "image3","created_at", "updated_at",
+        # ]
+        fields = "__all__"
         read_only_fields = ["id", "created_at", "updated_at", "slug", "new_price", "discount_price"]
 
     def to_representation(self, instance):
