@@ -157,6 +157,15 @@ class ProductSerializer(serializers.ModelSerializer):
     brand = BrandSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
 
+    # Accept IDs for writing
+    brand_id = serializers.PrimaryKeyRelatedField(
+        queryset=Brand.objects.all(), write_only=True, source="brand"
+    )
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), write_only=True, source="category"
+    )
+
+
     # Return full Cloudinary URLs
     image1 = serializers.ImageField(required=False, allow_null=True) # write_only field
     image2 = serializers.ImageField(required=False, allow_null=True)
@@ -165,7 +174,15 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = "__all__"
+        fields = [
+        "id", "name", "sku", "description", "price", "discount_percentage",
+        "quantity", "weight", "weight_unit", "package_size", "unit",
+        "is_prescription_required", "brand", "category",
+        "brand_id", "category_id",
+        "image1", "image2", "image3",
+        "display_unit",
+        "created_at", "updated_at", "slug", "new_price", "discount_price",
+        ]
         read_only_fields = ["id", "created_at", "updated_at", "slug", "new_price", "discount_price"]
 
     def to_representation(self, instance):
