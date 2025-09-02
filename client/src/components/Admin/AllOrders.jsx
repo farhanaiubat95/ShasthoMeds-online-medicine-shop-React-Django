@@ -16,7 +16,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import PreviewIcon from "@mui/icons-material/Preview";
 import { useReactToPrint } from "react-to-print";
-import Image from "../../assets/images/logo.png";
+
+// import Image from "../../assets/images/logo.png";
 
 // ================= Invoice Component ================= //
 const Invoice = React.forwardRef(({ order }, ref) => {
