@@ -286,12 +286,13 @@ Please change the parent <Route path="${T}"> to <Route path="${T==="/"?"*":`${T}
           th { background-color: #f2f2f2; }
           .total-section { margin-top: 20px; text-align: right; }
           .total-box { display: inline-block; padding: 10px 20px; border: 2px solid #444; font-weight: bold; font-size: 14px; }
+          .total-discount { margin-top: 5px; margin-bottom: 5px; font-size: 12px; color: #666; }
           .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #555; border-top: 1px solid #ccc; padding-top: 10px; }
         </style>
       </head>
       <body>
         <div class="header">
-          <div class="logo"><img src="../../assets/images/logo.png" alt="Shasthomeds" /></div>
+          <div class="logo">Shasthomends-online medicine store</div>
           <div class="invoice-details">
             <p><strong>Invoice No.:</strong> ${M.id}</p>
             <p><strong>Issue Date:</strong> ${D.toLocaleDateString()}</p>
@@ -341,11 +342,11 @@ Please change the parent <Route path="${T}"> to <Route path="${T==="/"?"*":`${T}
           <div >
             Delivery Charge: TK 40
           </div>
+           <div class="total-discount">
+              You will save Tk ${M.total_discount} on this order
+          </div>
           <div class="total-box">
             Total: TK ${M.total_amount}
-          </div>
-          <div>
-              You will save Tk ${M.total_discount} on this order
           </div>
         </div>
 
