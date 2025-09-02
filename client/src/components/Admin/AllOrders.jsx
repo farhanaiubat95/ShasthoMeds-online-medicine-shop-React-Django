@@ -15,7 +15,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import PreviewIcon from "@mui/icons-material/Preview";
-// import Image from "../../assets/images/logo.png";
+import Image from "../../assets/images/logo.png";
 
 const AllOrders = () => {
   const dispatch = useDispatch();
@@ -118,107 +118,130 @@ const AllOrders = () => {
 
   // Print function
   const handlePrint = (order) => {
-    const today = new Date();
-    const dueDate = new Date(today);
-    dueDate.setDate(today.getDate() + 14);
-
     const htmlContent = `
     <html>
       <head>
-        <title>Invoice</title>
+        <title>Invoice - ${order.id}</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-          .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #444; padding-bottom: 10px; }
-          .logo { font-size: 22px; font-weight: bold; color: #444; }
-          .invoice-details { text-align: right; font-size: 13px; }
-          .bill-section { display: flex; justify-content: space-between; margin-top: 20px; }
-          .bill-to, .paid-status { width: 48%; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-          th, td { border: 1px solid #333; padding: 8px; text-align: left; }
-          th { background-color: #f2f2f2; }
-          .total-section { margin-top: 20px; text-align: right; }
-          .total-box { display: inline-block; padding: 10px 20px; border: 2px solid #444; font-weight: bold; font-size: 14px; }
-          .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #555; border-top: 1px solid #ccc; padding-top: 10px; }
+          body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+          }
+          .header {
+            text-align: center;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+          }
+          .header img {
+            max-height: 60px;
+            margin-bottom: 8px;
+          }
+          .title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 5px;
+          }
+          .details {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+          }
+          .details div {
+            width: 48%;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          table, th, td {
+            border: 1px solid #ccc;
+          }
+          th, td {
+            padding: 10px;
+            text-align: left;
+          }
+          th {
+            background: #f4f4f4;
+          }
+          .total {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 10px;
+          }
+          .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 30px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+          }
         </style>
       </head>
       <body>
         <div class="header">
-          <div class="logo">Shasthomeds-Online Shopping</div>
-          <div class="invoice-details">
-            <p><strong>Invoice No.:</strong> ${order.id}</p>
-            <p><strong>Issue Date:</strong> ${today.toLocaleDateString()}</p>
-            <p><strong>Due Date:</strong> ${dueDate.toLocaleDateString()}</p>
-          </div>
+          <img src={Image} alt="Company Logo" />
+          <div class="title">INVOICE</div>
         </div>
 
-        <div class="bill-section">
-          <div class="bill-to">
-            <h3>Bill To</h3>
-            <p><strong>${order.name}</strong></p>
-            <p>${order.address}</p>
-            <p>${order.city} - ${order.postal_code}</p>
-            <p>${order.phone}</p>
+        <div class="details">
+          <div>
+            <strong>Invoice Date:</strong> ${new Date().toLocaleDateString()}<br/>
+            <strong>Invoice ID:</strong> ${order.id}<br/>
+            <strong>Status:</strong> ${order.status}
           </div>
-          <div class="paid-status">
-            <h3>Payment Status</h3>
-            <p><strong>${order.payment_status}</strong></p>
-            <p><strong>Method:</strong> ${order.payment_method}</p>
-            <p><strong>Transaction ID:</strong> ${order.tran_id || "N/A"}</p>
+          <div>
+            <strong>Customer:</strong> ${order.name}<br/>
+            <strong>Email:</strong> ${order.email}<br/>
+            <strong>Phone:</strong> ${order.phone}<br/>
+            <strong>City:</strong> ${order.city}
           </div>
         </div>
 
         <table>
           <thead>
             <tr>
-              <th>Description</th>
-              <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Amount</th>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Subtotal</th>
             </tr>
           </thead>
           <tbody>
             ${order.items
-              ?.map(
+              .map(
                 (item) => `
-              <tr>
-                <td>${item.product_name}</td>
-                <td>${item.quantity}</td>
-                <td>${item.price}</td>
-                <td>${item.subtotal}</td>
-              </tr>
-            `,
+                  <tr>
+                    <td>${item.product_name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.price}</td>
+                    <td>${item.subtotal}</td>
+                  </tr>
+                `,
               )
               .join("")}
           </tbody>
         </table>
 
-        <div class="total-section">
-          <div class="total-box">
-            Total: ${order.total_amount}
-          </div>
+        <div class="total">
+          Grand Total: ${order.total_amount || order.items.reduce((acc, item) => acc + parseFloat(item.subtotal), 0)}
         </div>
 
         <div class="footer">
-          <p>Thank you for shopping with us!</p>
+          Payment Method: ${order.payment_method}<br/>
+          Thank you for shopping with Shasthomeds!
         </div>
       </body>
     </html>
   `;
 
-    const printWindow = window.open("", "", "width=900,height=650");
-    if (!printWindow) {
-      alert("Popup blocked! Please allow popups for this site.");
-      return;
-    }
-
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-
-    setTimeout(() => {
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    }, 500);
+    const newWindow = window.open("", "_blank");
+    newWindow.document.write(htmlContent);
+    newWindow.document.close();
+    newWindow.print();
   };
 
   return (
