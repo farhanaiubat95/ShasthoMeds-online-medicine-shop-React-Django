@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef  } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders, updateOrderStatus } from "../../redux/orderSlice";
 import {
@@ -15,137 +15,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import PreviewIcon from "@mui/icons-material/Preview";
-import { useReactToPrint } from "react-to-print";
-
 // import Image from "../../assets/images/logo.png";
-
-// ================= Invoice Component ================= //
-const Invoice = React.forwardRef(({ order }, ref) => {
-  if (!order) return null;
-
-  return (
-    <div ref={ref} style={{ padding: "20px", fontFamily: "Arial" }}>
-      {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <h2 style={{ margin: 0 }}>ShasthoMeds</h2>
-        <p style={{ margin: 0 }}>Online Medicine Store</p>
-        <p style={{ margin: 0 }}>support@shasthomeds.com | +880 123456789</p>
-      </div>
-      <Divider />
-
-      {/* Invoice Info */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          margin: "20px 0",
-        }}
-      >
-        <div>
-          <h4>Invoice To:</h4>
-          <p>{order.name}</p>
-          <p>{order.email}</p>
-          <p>{order.phone}</p>
-          <p>{order.city}</p>
-          <p>{order.address}</p>
-        </div>
-        <div>
-          <h4>Invoice Details</h4>
-          <p>
-            <b>Invoice #:</b> {order.id}
-          </p>
-          <p>
-            <b>Date:</b> {new Date(order.created_at).toLocaleDateString()}
-          </p>
-          <p>
-            <b>Status:</b> {order.status}
-          </p>
-          <p>
-            <b>Payment:</b> {order.payment_status}
-          </p>
-        </div>
-      </div>
-      <Divider />
-
-      {/* Items */}
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}
-      >
-        <thead>
-          <tr style={{ background: "#f2f2f2" }}>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>
-              Product
-            </th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Qty</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Price</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>
-              Subtotal
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {order.items?.map((item, idx) => (
-            <tr key={idx}>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                {item.product_name}
-              </td>
-              <td
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "8px",
-                  textAlign: "center",
-                }}
-              >
-                {item.quantity}
-              </td>
-              <td
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "8px",
-                  textAlign: "right",
-                }}
-              >
-                {item.price}
-              </td>
-              <td
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "8px",
-                  textAlign: "right",
-                }}
-              >
-                {item.subtotal}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Totals */}
-      <div style={{ textAlign: "right", marginTop: "20px" }}>
-        <p>
-          <b>Total Price:</b> {order.total_price}
-        </p>
-        <p>
-          <b>Total Discount:</b> {order.total_discount}
-        </p>
-        <p>
-          <b>Total New Price:</b> {order.total_new_price}
-        </p>
-        <h3>
-          <b>Grand Total:</b> {order.total_amount}
-        </h3>
-      </div>
-
-      <Divider style={{ margin: "20px 0" }} />
-
-      {/* Footer */}
-      <div style={{ textAlign: "center", marginTop: "20px" }}>
-        <p>Thank you for shopping with ShasthoMeds!</p>
-      </div>
-    </div>
-  );
-});
 
 const AllOrders = () => {
   const dispatch = useDispatch();
@@ -160,11 +30,6 @@ const AllOrders = () => {
   const [open, setOpen] = useState(false);
   const [statusUpdate, setStatusUpdate] = useState("");
   const [paymentUpdate, setPaymentUpdate] = useState("");
-
-  const invoiceRef = useRef();
-  const handlePrint = useReactToPrint({
-    content: () => invoiceRef.current,
-  });
 
   // Open modal
   const handleOpen = (order) => {
@@ -249,6 +114,111 @@ const AllOrders = () => {
     paid: "Paid",
     failed: "Failed",
     refunded: "Refunded",
+  };
+
+  // Print function
+  const handlePrint = (order) => {
+    const today = new Date();
+    const dueDate = new Date(today);
+    dueDate.setDate(today.getDate() + 14);
+
+    const htmlContent = `
+    <html>
+      <head>
+        <title>Invoice</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
+          .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #444; padding-bottom: 10px; }
+          .logo { font-size: 22px; font-weight: bold; color: #444; }
+          .invoice-details { text-align: right; font-size: 13px; }
+          .bill-section { display: flex; justify-content: space-between; margin-top: 20px; }
+          .bill-to, .paid-status { width: 48%; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+          th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+          .total-section { margin-top: 20px; text-align: right; }
+          .total-box { display: inline-block; padding: 10px 20px; border: 2px solid #444; font-weight: bold; font-size: 14px; }
+          .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #555; border-top: 1px solid #ccc; padding-top: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="logo">Shasthomeds-Online Shopping</div>
+          <div class="invoice-details">
+            <p><strong>Invoice No.:</strong> ${order.id}</p>
+            <p><strong>Issue Date:</strong> ${today.toLocaleDateString()}</p>
+            <p><strong>Due Date:</strong> ${dueDate.toLocaleDateString()}</p>
+          </div>
+        </div>
+
+        <div class="bill-section">
+          <div class="bill-to">
+            <h3>Bill To</h3>
+            <p><strong>${order.name}</strong></p>
+            <p>${order.address}</p>
+            <p>${order.city} - ${order.postal_code}</p>
+            <p>${order.phone}</p>
+          </div>
+          <div class="paid-status">
+            <h3>Payment Status</h3>
+            <p><strong>${order.payment_status}</strong></p>
+            <p><strong>Method:</strong> ${order.payment_method}</p>
+            <p><strong>Transaction ID:</strong> ${order.tran_id || "N/A"}</p>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${order.items
+              ?.map(
+                (item) => `
+              <tr>
+                <td>${item.product_name}</td>
+                <td>${item.quantity}</td>
+                <td>${item.price}</td>
+                <td>${item.subtotal}</td>
+              </tr>
+            `,
+              )
+              .join("")}
+          </tbody>
+        </table>
+
+        <div class="total-section">
+          <div class="total-box">
+            Total: ${order.total_amount}
+          </div>
+        </div>
+
+        <div class="footer">
+          <p>Thank you for shopping with us!</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+    const printWindow = window.open("", "", "width=900,height=650");
+    if (!printWindow) {
+      alert("Popup blocked! Please allow popups for this site.");
+      return;
+    }
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }, 500);
   };
 
   return (
@@ -361,10 +331,7 @@ const AllOrders = () => {
                       <PreviewIcon />
                     </button>
                     <button
-                      onClick={() => {
-                        setSelectedOrder(order);
-                        setTimeout(() => handlePrint(), 100); // Ensure ref updates
-                      }}
+                      onClick={() => handlePrint(order)}
                       className="bg-blue-600 text-white px-3 py-1 rounded"
                     >
                       <LocalPrintshopIcon />
