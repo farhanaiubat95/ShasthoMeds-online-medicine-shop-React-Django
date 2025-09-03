@@ -103,7 +103,19 @@ const orderSlice = createSlice({
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload.results; // always array
+
+        if (Array.isArray(action.payload.results)) {
+          // paginated API
+          state.orders = action.payload.results;
+        } else if (Array.isArray(action.payload.orders)) {
+          // non-paginated API
+          state.orders = action.payload.orders;
+        } else if (Array.isArray(action.payload)) {
+          // plain array
+          state.orders = action.payload;
+        } else {
+          state.orders = [];
+        }
       })
 
       .addCase(fetchOrders.rejected, (state, action) => {

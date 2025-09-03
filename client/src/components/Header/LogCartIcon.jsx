@@ -41,14 +41,13 @@ const LogCartIcon = () => {
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.user);
-  const token = useSelector((state) => state.auth.access_token);
   const cartitems = useSelector((state) => state.carts.items);
+  const token = localStorage.getItem("access_token");
 
   // Fetch cart after login or page reload if token exists
   useEffect(() => {
-    const savedToken = token || localStorage.getItem("access_token");
-    if (savedToken) {
-      dispatch(fetchCart(savedToken));
+    if (token) {
+      dispatch(fetchCart(token));
     }
   }, [token, dispatch]);
 

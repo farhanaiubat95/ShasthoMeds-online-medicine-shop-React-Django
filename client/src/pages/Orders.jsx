@@ -16,23 +16,15 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import LoopIcon from "@mui/icons-material/Loop";
 
 import { useSelector, useDispatch } from "react-redux";
-import { fetchOrders } from "../redux/orderSlice";
 
 const Orders = () => {
-  const token = localStorage.getItem("access_token");
-  const dispatch = useDispatch();
-  const { orders, loading } = useSelector((state) => state.orders);
 
   // unwrap results array from API
-  const orderList = orders?.results || [];
-  console.log("orderList", orderList);
-  console.log("orderitems", orderList.items);
+  const { orders, loading } = useSelector((state) => state.orders);
+  const orderList = orders || []; // orders is always array now
 
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchOrders(token)); // correct function
-    }
-  }, [dispatch, token]);
+  orderList.forEach(order => console.log("order items", order.items));
+
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
