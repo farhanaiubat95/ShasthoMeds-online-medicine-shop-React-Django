@@ -19,16 +19,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders } from "../redux/orderSlice";
 
 const Orders = () => {
-  
   const dispatch = useDispatch();
-  
+  const token = localStorage.getItem("access_token");
   // unwrap results array from API
   const { orders, loading } = useSelector((state) => state.orders);
   const orderList = orders || []; // orders is always array now
 
-  orderList.forEach(order => console.log("order items", order.items));
+  orderList.forEach((order) => console.log("order items", order.items));
 
-
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchOrders(token)); // correct function
+    }
+  }, [dispatch, token]);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);

@@ -13,7 +13,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCart, removeFromCart, addToCart } from "../redux/cartSlice.js";
 import { useNavigate } from "react-router-dom";
-import { fetchOrders } from "../redux/orderSlice.js";
+
 
 const ContainerLeft = styled(Box)({
   flex: 2,
@@ -80,7 +80,6 @@ export default function Cart() {
   useEffect(() => {
     if (token) {
       dispatch(fetchCart(token)); // correct function
-      dispatch(fetchOrders(token)); // correct function
     }
   }, [dispatch, token]);
 
