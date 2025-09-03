@@ -85,7 +85,10 @@ const orderSlice = createSlice({
       .addCase(createOrder.fulfilled, (state, action) => {
         state.loading = false;
         state.order = action.payload;
-        state.orders.push(action.payload); // add created order to orders list
+
+        // now orders is always an array
+        state.orders.push(action.payload);
+
         state.success = true;
       })
       .addCase(createOrder.rejected, (state, action) => {
@@ -100,8 +103,9 @@ const orderSlice = createSlice({
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload; // store fetched orders
+        state.orders = action.payload.results; // always array
       })
+
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to fetch orders";
@@ -113,12 +117,9 @@ const orderSlice = createSlice({
       })
       .addCase(updateOrderStatus.fulfilled, (state, action) => {
         state.loading = false;
-        // update the order in the list
-        const index = state.orders.results?.findIndex(
-          (o) => o.id === action.payload.id,
-        );
-        if (index !== -1 && index !== undefined) {
-          state.orders.results[index] = action.payload;
+        const index = state.orders.findIndex((o) => o.id === action.payload.id);
+        if (index !== -1) {
+          state.orders[index] = action.payload;
         }
       })
       .addCase(updateOrderStatus.rejected, (state, action) => {

@@ -3,10 +3,13 @@ import Routers from "./routers/Routers.jsx";
 import "./App.css";
 import Footer from "./components/Footer.jsx";
 import ScrollToTop from "./routers/ScrollToTop.jsx";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { setUserData } from "./redux/userSlice.js";
 import { useLocation } from "react-router-dom";
+import { fetchProducts } from "./redux/productSlice.js";
+import { fetchCategories } from "./redux/categorySlice.js";
+import { fetchBrands } from "./redux/brandSlice.js";
 
 function App() {
   const dispatch = useDispatch();
@@ -19,6 +22,13 @@ function App() {
     if (access_token && refresh_token && user) {
       dispatch(setUserData({ user, access_token, refresh_token }));
     }
+  }, [dispatch]);
+
+  // Fetch products
+  useEffect(() => {
+    dispatch(fetchProducts());
+    dispatch(fetchCategories());
+    dispatch(fetchBrands());
   }, [dispatch]);
 
 

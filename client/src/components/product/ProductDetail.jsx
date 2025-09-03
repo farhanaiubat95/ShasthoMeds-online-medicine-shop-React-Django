@@ -5,7 +5,7 @@ import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import GpsFixedIcon from "@mui/icons-material/GpsFixed";
 import CommonProductInfo from "./CommonProductInfo";
 import Features from "./Features";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import PrescriptionUpload from "./PrescriptionUpload"; // Prescription modal
 import { addToCart } from "../../redux/cartSlice.js";
@@ -18,8 +18,10 @@ export default function ProductDetail() {
   const navigate = useNavigate();
 
   const { id } = useParams(); // get product id from URL
-  const [product, setProduct] = useState(null);
-  const [mainImage, setMainImage] = useState("");
+  const location = useLocation();
+  const [product, setProduct] = useState(location.state?.product || null);
+  const [mainImage, setMainImage] = useState(location.state?.product?.image1 || "");
+
 
   // Prescription dialog state
   const [openPrescription, setOpenPrescription] = useState(false);

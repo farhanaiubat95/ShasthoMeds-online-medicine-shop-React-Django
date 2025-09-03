@@ -1,3 +1,4 @@
+import uuid
 from django.utils import timezone
 import random
 from django.core.mail import send_mail
@@ -328,16 +329,8 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         # Card Payment: Generate tran_id + call SSLCOMMERZ
         elif payment_method == "card":
-            # Generate tran_id
-            last_order = Order.objects.order_by("-id").first()
-            if last_order and last_order.tran_id and last_order.tran_id.startswith("TRANS"):
-                last_number = int(last_order.tran_id.replace("TRANS", ""))
-                new_number = last_number + 1
-            else:
-                new_number = 25001  # starting point
-                
-            
-            tran_id = f"TRANS{new_number}"
+           # Generate unique tran_id
+            tran_id = f"TRANS{uuid.uuid4().hex[:6].upper()}"
             data["tran_id"] = tran_id
 
             # Save order in DB

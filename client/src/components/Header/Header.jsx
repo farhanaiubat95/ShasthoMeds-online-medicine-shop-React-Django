@@ -16,13 +16,14 @@ import Image from "../../assets/images/logo-1.png";
 import LogCartIcon from "./LogCartIcon.jsx";
 // import Navbar from "./Navbar.jsx";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const toggleDrawer = (open) => () => setDrawerOpen(open);
   const user = useSelector((state) => state.auth.user);
+  
 
   return (
     <>

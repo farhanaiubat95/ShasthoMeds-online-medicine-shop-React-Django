@@ -30,7 +30,6 @@ import {
 
 const AllCategories = () => {
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.categories);
   const categories = useSelector(
     (state) => state.categories?.items?.results || []
   );
@@ -59,9 +58,6 @@ const AllCategories = () => {
     }
   }, [categoryName, slugEditedManually]);
 
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
 
   const createCategoryList = (categories, options = []) => {
     for (let category of categories) {

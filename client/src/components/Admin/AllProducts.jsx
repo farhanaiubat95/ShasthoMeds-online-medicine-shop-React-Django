@@ -25,8 +25,6 @@ import {
   removeProductApi,
   updateProduct,
 } from "../../redux/productSlice.js";
-import { fetchCategories } from "../../redux/categorySlice.js";
-import { fetchBrands } from "../../redux/brandSlice.js";
 import { Tooltip } from "@mui/material";
 
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -37,7 +35,7 @@ export default function AllProducts() {
   const dispatch = useDispatch();
   const formRef = useRef(null);
 
-  const { products, loading } = useSelector((state) => state.products);
+  const { products} = useSelector((state) => state.products);
   const categories =
     useSelector((state) => state.categories?.items?.results) || [];
   const brands = useSelector((state) =>
@@ -84,12 +82,6 @@ export default function AllProducts() {
   const weightUnits = ["mg", "g", "ml"];
   const packageQuantities = ["1 strip", "1 box", "1 pack"];
 
-  // fetch products, categories, brands on mount
-  useEffect(() => {
-    dispatch(fetchProducts());
-    dispatch(fetchCategories());
-    dispatch(fetchBrands());
-  }, [dispatch]);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;

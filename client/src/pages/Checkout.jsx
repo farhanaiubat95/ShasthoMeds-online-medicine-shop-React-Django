@@ -38,6 +38,9 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [openModal, setOpenModal] = useState(false);
 
+  // Submit check
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Initialize user info from auth.user
   const [userInfo, setUserInfo] = useState({
     name: authUser?.name || "",
@@ -75,11 +78,15 @@ const Checkout = () => {
   };
 
   const handleConfirm = async () => {
+    if (isSubmitting) return; // prevent double click
+
     // Validate postal code
     if (!userInfo.postalCode || userInfo.postalCode.trim() === "") {
       alert("Please fill in your postal code.");
       return;
     }
+
+    setIsSubmitting(true); // disable button
 
     const orderPayload = {
       user: authUser?.id,
@@ -110,9 +117,10 @@ const Checkout = () => {
     try {
       const res = await dispatch(createOrder({ orderPayload, token }));
 
+      dispatch(clearCart());
+
       if (paymentMethod === "cod") {
         // COD: show confirmation modal
-        dispatch(clearCart());
         setOpenModal(true);
       } else {
         const data = res.payload;
@@ -128,6 +136,7 @@ const Checkout = () => {
       alert(
         "Failed to place order: " + (err.response?.data?.detail || err.message),
       );
+      setIsSubmitting(false);
     }
   };
 
@@ -317,8 +326,9 @@ const Checkout = () => {
               backgroundColor: "#0F918F",
             }}
             onClick={handleConfirm}
+            disabled={isSubmitting} // disables button
           >
-            Confirm Order
+            {isSubmitting ? "Processing..." : "Confirm Order"}
           </Button>
         </Box>
       </Box>

@@ -51,10 +51,6 @@ const AllBrand = () => {
     }
   }, [brandName, slugEditedManually]);
 
-  // Fetch brands on mount
-  useEffect(() => {
-    dispatch(fetchBrands());
-  }, [dispatch]);
 
   // Handle file input
   const handleFileChange = (e) => {

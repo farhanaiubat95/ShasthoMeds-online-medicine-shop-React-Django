@@ -92,7 +92,6 @@ def payment_success(request):
         return JsonResponse({"status": "failed", "message": "Order not found"})
 
 
-
 # ================== Failed ==================
 @csrf_exempt
 def payment_fail(request):

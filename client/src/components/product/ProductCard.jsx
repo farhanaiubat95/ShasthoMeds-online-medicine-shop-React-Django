@@ -70,10 +70,6 @@ const ProductCard = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const access_token = localStorage.getItem("access_token");
 
-  useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
-
   // Add to cart
   const handleAddToCart = async (product) => {
     if (!user) {
@@ -177,7 +173,11 @@ const ProductCard = () => {
                   <div className="flex gap-2">
                     <Button
                       variant="contained"
-                      onClick={() => navigate(`/productdetails/${product.id}`)}
+                      onClick={() =>
+                        navigate(`/productdetails/${product.id}`, {
+                          state: { product },
+                        })
+                      }
                       sx={{
                         backgroundColor: "#626F47",
                         fontSize: "10px",

@@ -375,7 +375,7 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
     status = models.CharField(max_length=20, choices=STATUSES, default="pending")
     payment_status = models.CharField(max_length=20, choices=PAY_STATUSES, default="pending")
-    tran_id = models.CharField(max_length=100, null=True, blank=True)  # only for "card"
+    tran_id = models.CharField(max_length=100, unique=True, null=True, blank=True)  # only for "card"
 
     name = models.CharField(max_length=120)
     email = models.EmailField()
