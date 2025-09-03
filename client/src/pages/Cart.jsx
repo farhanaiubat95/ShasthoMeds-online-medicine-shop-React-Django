@@ -73,15 +73,10 @@ const DiscountBoxs = styled(Box)({
 export default function Cart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const token = localStorage.getItem("access_token");
+
   const cartState = useSelector((state) => state.carts);
   const [quantities, setQuantities] = useState({});
 
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchCart(token)); // correct function
-    }
-  }, [dispatch, token]);
 
   useEffect(() => {
     if (cartState.items.length > 0) {
