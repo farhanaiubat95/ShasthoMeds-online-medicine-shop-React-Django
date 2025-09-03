@@ -73,7 +73,7 @@ const DiscountBoxs = styled(Box)({
 export default function Cart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const token = useSelector((state) => state.auth.token);
+  const token = localStorage.getItem("access_token");
   const cartState = useSelector((state) => state.carts);
   const [quantities, setQuantities] = useState({});
 

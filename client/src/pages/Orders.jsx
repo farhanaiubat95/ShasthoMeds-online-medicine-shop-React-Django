@@ -15,15 +15,20 @@ import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import CancelIcon from "@mui/icons-material/Cancel";
 import LoopIcon from "@mui/icons-material/Loop";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchOrders } from "../redux/orderSlice";
 
 const Orders = () => {
-
+  
+  const dispatch = useDispatch();
+  
   // unwrap results array from API
   const { orders, loading } = useSelector((state) => state.orders);
   const orderList = orders || []; // orders is always array now
 
   orderList.forEach(order => console.log("order items", order.items));
+
+
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
