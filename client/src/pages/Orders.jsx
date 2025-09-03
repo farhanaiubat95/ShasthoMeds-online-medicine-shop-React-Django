@@ -15,7 +15,7 @@ import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import CancelIcon from "@mui/icons-material/Cancel";
 import LoopIcon from "@mui/icons-material/Loop";
 
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 const Orders = () => {
 
@@ -24,7 +24,6 @@ const Orders = () => {
   const orderList = orders || []; // orders is always array now
 
   orderList.forEach(order => console.log("order items", order.items));
-
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
