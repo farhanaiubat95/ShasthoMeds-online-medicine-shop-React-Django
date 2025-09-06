@@ -14,8 +14,8 @@ from .SSLCOMMERZ import create_payment_session
 from django.utils.crypto import get_random_string
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .models import Brand, Cart, CartItem, Category, Order, PrescriptionRequest,Product
-from .serializers import BrandSerializer, CartSerializer, CategorySerializer, OrderSerializer, PrescriptionRequestSerializer,ProductSerializer
+from .models import Brand, Cart, CartItem, Category, MonthlyReport, Order, PrescriptionRequest,Product, YearlyReport
+from .serializers import BrandSerializer, CartSerializer, CategorySerializer, MonthlyReportSerializer, OrderSerializer, PrescriptionRequestSerializer,ProductSerializer, YearlyReportSerializer
 
 from django.conf import settings
 
@@ -244,7 +244,6 @@ class CartViewSet(viewsets.ViewSet):
         except CartItem.DoesNotExist:
             return Response({"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
 # ---------------- PrescriptionRequest ViewSet ----------------
 class PrescriptionRequestViewSet(viewsets.ModelViewSet):
     queryset = PrescriptionRequest.objects.all().order_by("-created_at")
@@ -265,7 +264,6 @@ class PrescriptionRequestViewSet(viewsets.ModelViewSet):
             )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 # ---------------- Order ViewSet ----------------
 class OrderViewSet(viewsets.ModelViewSet):
@@ -394,3 +392,25 @@ class OrderViewSet(viewsets.ModelViewSet):
         else:
             return Response({"error": "Invalid payment method"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+# List all monthly reports
+class MonthlyReportListView(generics.ListAPIView):
+    queryset = MonthlyReport.objects.all().order_by('-month')
+    serializer_class = MonthlyReportSerializer
+
+# Get a single monthly report by month (YYYY-MM)
+class MonthlyReportDetailView(generics.RetrieveAPIView):
+    queryset = MonthlyReport.objects.all()
+    serializer_class = MonthlyReportSerializer
+    lookup_field = 'month'  # frontend can pass month=2025-09-01
+
+# List all yearly reports
+class YearlyReportListView(generics.ListAPIView):
+    queryset = YearlyReport.objects.all().order_by('-year')
+    serializer_class = YearlyReportSerializer
+
+# Get a single yearly report by year
+class YearlyReportDetailView(generics.RetrieveAPIView):
+    queryset = YearlyReport.objects.all()
+    serializer_class = YearlyReportSerializer
+    lookup_field = 'year'

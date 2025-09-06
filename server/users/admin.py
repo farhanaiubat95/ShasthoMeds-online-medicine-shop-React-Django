@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import  Cart, CartItem, Category, CustomUser, EmailOTP, Brand, Order,PrescriptionRequest,Product
+from .models import  Cart, CartItem, Category, CustomUser, EmailOTP, Brand, MonthlyReport, Order,PrescriptionRequest,Product, YearlyReport
 from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -70,7 +70,6 @@ class ProductAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-# Cart model
 # Cart model
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
@@ -165,3 +164,59 @@ class OrderAdmin(admin.ModelAdmin):
 
     # Optional: add items_list to readonly_fields if you want to see it
     readonly_fields += ("items_list",)
+
+# --- Monthly Report ---
+@admin.register(MonthlyReport)
+class MonthlyReportAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "month",
+        "total_income",
+        "total_profit",
+        "total_orders",
+        "total_products_sold",
+        "top_product",
+        "created_at",
+        "updated_at",
+    )
+    search_fields = ("top_product",)
+    list_filter = ("month", "created_at")
+    readonly_fields = (
+        "month",
+        "total_income",
+        "total_profit",
+        "total_orders",
+        "total_products_sold",
+        "top_product",
+        "products_details",
+        "created_at",
+        "updated_at",
+    )
+
+# --- Yearly Report ---
+@admin.register(YearlyReport)
+class YearlyReportAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "year",
+        "total_income",
+        "total_profit",
+        "total_orders",
+        "total_products_sold",
+        "top_product",
+        "created_at",
+        "updated_at",
+    )
+    search_fields = ("top_product",)
+    list_filter = ("year", "created_at")
+    readonly_fields = (
+        "year",
+        "total_income",
+        "total_profit",
+        "total_orders",
+        "total_products_sold",
+        "top_product",
+        "products_details",
+        "created_at",
+        "updated_at",
+    )

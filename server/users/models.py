@@ -19,6 +19,8 @@ from django.utils.text import slugify
 
 from django.core.validators import MinValueValidator
 
+from django.db.models import JSONField # if using PostgreSQL
+
 
 # Custom user model
 class CustomUser(AbstractUser):
@@ -158,6 +160,7 @@ class Product(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name="products")
     brand = models.ForeignKey('Brand', on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
 
+    actual_price = models.DecimalField(max_digits=12, decimal_places=2, default=0) # cost price / Buying price
     price = models.DecimalField(max_digits=10, decimal_places=2)
     new_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     offer_price = models.DecimalField(max_digits=5, decimal_places=2, default=0)
@@ -398,5 +401,37 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.PROTECT)           # reference
     product_name = models.CharField(max_length=255)                          # snapshot (from frontend or product)
     quantity = models.PositiveIntegerField()
+
+    actual_price = models.DecimalField(max_digits=12, decimal_places=2)     # snapshot from product
     price = models.DecimalField(max_digits=12, decimal_places=2)             # unit price snapshot
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)          # quantity * price
+
+
+# Monthly Report
+class MonthlyReport(models.Model):
+    month = models.DateField(unique=True)   # first day of month
+    total_income = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_profit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_orders = models.PositiveIntegerField(default=0)
+    total_products_sold = models.PositiveIntegerField(default=0)
+    top_product = models.CharField(max_length=255, null=True, blank=True)
+
+    products_details = JSONField(default=list)  
+    # Example: [{ "product": "Napa", "quantity": 120, "income": 15000, "profit": 2500 }, ...]
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+# Yearly Report
+class YearlyReport(models.Model):
+    year = models.IntegerField(unique=True)
+    total_income = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_profit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_orders = models.PositiveIntegerField(default=0)
+    total_products_sold = models.PositiveIntegerField(default=0)
+    top_product = models.CharField(max_length=255, null=True, blank=True)
+
+    products_details = JSONField(default=list)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

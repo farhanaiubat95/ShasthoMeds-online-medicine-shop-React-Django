@@ -49,7 +49,7 @@ const LogCartIcon = () => {
     if (token) {
       dispatch(fetchCart(token));
     }
-  }, [token, dispatch]);
+  }, [dispatch, token]);
 
   const cartCount = cartitems.length;
 

@@ -4,7 +4,7 @@ from shasthomeds.settings import EMAIL_HOST_USER
 from django.contrib.auth.password_validation import validate_password
 import random
 from django.core.mail import send_mail
-from .models import Brand, Cart, CartItem,Category, Order, OrderItem, PrescriptionRequest,Product
+from .models import Brand, Cart, CartItem,Category, MonthlyReport, Order, OrderItem, PrescriptionRequest,Product, YearlyReport
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer  # pyright: ignore[reportMissingImports]
 
 # Models
@@ -350,14 +350,32 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         items_data = validated_data.pop('items')
         order = Order.objects.create(**validated_data)
+
         for item_data in items_data:
             product = Product.objects.get(id=item_data['product_id'])
+
+            # Decide correct selling price
+            selling_price = product.new_price if product.new_price else product.price
+
             OrderItem.objects.create(
                 order=order,
                 product=product,
                 product_name=item_data['product_name'],
                 quantity=item_data['quantity'],
-                price=item_data['price'],
+                actual_price=product.actual_price,    # snapshot from Product
+                price=selling_price,                  # snapshot final selling price
                 subtotal=item_data['subtotal']
             )
         return order
+
+# Serializer for Monthly Reports
+class MonthlyReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MonthlyReport
+        fields = "__all__"  # or list specific fields if you want
+
+# Serializer for Yearly Reports
+class YearlyReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = YearlyReport
+        fields = "__all__"

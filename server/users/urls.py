@@ -6,8 +6,8 @@ from .SSLCOMMERZ import payment_success, payment_fail, payment_cancel
 
 
 from .views import (
-    APIRootView, BrandViewSet, CartViewSet, CategoryViewSet,LogoutView, OrderViewSet, PrescriptionRequestViewSet, ProductViewSet, RegisterAPIView, ResendOTPView,
-    UpdateProfileView, VerifyOTPView, CustomTokenObtainPairView,
+    APIRootView, BrandViewSet, CartViewSet, CategoryViewSet,LogoutView, MonthlyReportDetailView, MonthlyReportListView, OrderViewSet, PrescriptionRequestViewSet, ProductViewSet, RegisterAPIView, ResendOTPView,
+    UpdateProfileView, VerifyOTPView, CustomTokenObtainPairView, YearlyReportDetailView, YearlyReportListView,
 )
 
 from rest_framework_simplejwt.views import ( # pyright: ignore[reportMissingImports]
@@ -24,6 +24,7 @@ router.register(r'cart', CartViewSet, basename='cart')
 router.register(r'prescriptions', PrescriptionRequestViewSet, basename='prescription')
 router.register(r'orders', OrderViewSet, basename='order')
 
+
 urlpatterns = [
     path('', APIRootView.as_view(), name='api-root'),
     path('api/register/', RegisterAPIView.as_view(), name='register'),
@@ -37,6 +38,11 @@ urlpatterns = [
     path("payment/success/", payment_success, name="payment_success"),
     path("payment/fail/", payment_fail, name="payment_fail"),
     path("payment/cancel/", payment_cancel, name="payment_cancel"),
+
+    path('monthly/', MonthlyReportListView.as_view(), name='monthly-report-list'),
+    path('monthly/<str:month>/', MonthlyReportDetailView.as_view(), name='monthly-report-detail'),
+    path('yearly/', YearlyReportListView.as_view(), name='yearly-report-list'),
+    path('yearly/<int:year>/', YearlyReportDetailView.as_view(), name='yearly-report-detail'),
 
 
     # Include router URLs
