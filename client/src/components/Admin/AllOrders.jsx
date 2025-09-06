@@ -15,6 +15,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import PreviewIcon from "@mui/icons-material/Preview";
+import { Tooltip } from "@mui/material";
 
 const AllOrders = () => {
   const dispatch = useDispatch();
@@ -234,6 +235,7 @@ const AllOrders = () => {
       <table className="min-w-full divide-y divide-gray-200 table-fixed">
         <thead className="bg-[#64ae6378]">
           <tr>
+            <th className="px-4 py-3 text-center">ID</th>
             <th className="px-4 py-3 text-center">Name</th>
             <th className="px-4 py-3 text-center">Email</th>
             <th className="px-4 py-3 text-center">Phone</th>
@@ -259,16 +261,33 @@ const AllOrders = () => {
                   key={order.id}
                   className="bg-[#b2d2ce78] border border-[#80808094]"
                 >
+                  <td className="px-4 py-2 text-center">{order.id}</td>
                   <td className="px-4 py-2 text-center">{order.name}</td>
                   <td className="px-4 py-2 text-center">{order.email}</td>
                   <td className="px-4 py-2 text-center">{order.phone}</td>
                   <td className="px-4 py-2 text-center">{order.city}</td>
                   <td className="px-4 py-2 text-center">
-                    {order.items?.map((item, idx) => (
-                      <div key={idx}>
-                        {item.product_name} × {item.quantity}
-                      </div>
-                    ))}
+                    {order.items?.length > 0 && (
+                      <Tooltip
+                        title={
+                          <div>
+                            {order.items.map((item, idx) => (
+                              <div key={idx}>
+                                {item.product_name} × {item.quantity}
+                              </div>
+                            ))}
+                          </div>
+                        }
+                        arrow
+                      >
+                        <span>
+                          {order.items[0].product_name} ×{" "}
+                          {order.items[0].quantity}
+                          {order.items.length > 1 &&
+                            ` +${order.items.length - 1} more`}
+                        </span>
+                      </Tooltip>
+                    )}
                   </td>
                   <td className="px-4 py-2 text-center">
                     {order.total_amount}
