@@ -49,7 +49,7 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "sku", "name", "slug", "category", "brand", "price", "new_price",
+        "id", "sku", "name", "slug", "category", "brand","actual_price", "price", "new_price",
         "offer_price", "discount_price", "stock","weight_display","unit_display", "package_quantity","prescription_required","is_active",
         "created_at", "updated_at"
     )
