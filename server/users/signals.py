@@ -1,14 +1,38 @@
-# reports/signals.py
+# users/signals.py
+
 from django.db.models import Sum, F
-from django.db.models.signals import post_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.utils.timezone import make_aware
 from datetime import datetime
 from .models import MonthlyReport, Order, OrderItem, YearlyReport
 
 
+# --- Helper: check if payment_status changed ---
+@receiver(pre_save, sender=Order)
+def store_old_payment_status(sender, instance, **kwargs):
+    """Store old payment_status before saving (for comparison in post_save)."""
+    if instance.pk:  # Only if order already exists
+        try:
+            old_instance = Order.objects.get(pk=instance.pk)
+            instance._old_payment_status = old_instance.payment_status
+        except Order.DoesNotExist:
+            instance._old_payment_status = None
+    else:
+        instance._old_payment_status = None
+
+
 @receiver(post_save, sender=Order)
-def update_reports(sender, instance, **kwargs):
+def update_reports(sender, instance, created, **kwargs):
+    """
+    Update Monthly and Yearly Reports when an order is marked as paid.
+    Works for both new paid orders and updates from pending -> paid.
+    """
+
+    # If just created as paid OR changed from not-paid to paid
+    if not created and getattr(instance, "_old_payment_status", None) == "paid":
+        return  # already paid before, no need to recalc
+
     if instance.payment_status != "paid":
         return
 

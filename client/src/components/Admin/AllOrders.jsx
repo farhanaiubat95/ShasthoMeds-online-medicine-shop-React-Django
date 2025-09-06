@@ -21,7 +21,7 @@ const AllOrders = () => {
   const token = localStorage.getItem("access_token");
 
   const ordersState = useSelector((state) => state.orders) || {};
-  const orders = ordersState.orders?.results || [];
+  const orders = ordersState.orders || [];
   const loading = ordersState.loading || false;
   const error = ordersState.error || null;
 
