@@ -27,15 +27,15 @@ import {
 } from "../../redux/productSlice.js";
 import { Tooltip } from "@mui/material";
 
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import PreviewIcon from '@mui/icons-material/Preview';
-import EditSquareIcon from '@mui/icons-material/EditSquare';
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import PreviewIcon from "@mui/icons-material/Preview";
+import EditSquareIcon from "@mui/icons-material/EditSquare";
 
 export default function AllProducts() {
   const dispatch = useDispatch();
   const formRef = useRef(null);
 
-  const { products} = useSelector((state) => state.products);
+  const { products } = useSelector((state) => state.products);
   const categories =
     useSelector((state) => state.categories?.items?.results) || [];
   const brands = useSelector((state) =>
@@ -81,7 +81,6 @@ export default function AllProducts() {
   const units = ["pcs", "tablet", "capsule", "bottle"];
   const weightUnits = ["mg", "g", "ml"];
   const packageQuantities = ["1 strip", "1 box", "1 pack"];
-
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -262,6 +261,11 @@ export default function AllProducts() {
 
   return (
     <Box p={3}>
+      {/* Summary */}
+      <Box className="flex gap-6 p-4 bg-gray-100">
+        <Typography>Total Products: {products.length}</Typography>
+      </Box>
+
       <Typography variant="h5" mb={2}>
         {formMode === "add" ? "Add Product Form" : "Edit Product Form"}
       </Typography>
