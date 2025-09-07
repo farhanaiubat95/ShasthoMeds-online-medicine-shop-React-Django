@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Download, Search } from "@mui/icons-material";
-import useMonthlyReports from "../../redux/useMonthlyReports.js"; // Correct path
-// You might need to install a library like jspdf: npm install jspdf
-// import jsPDF from "jspdf";
+import useMonthlyReports from "../../redux/useMonthlyReports.js";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const AllReports = () => {
   const token = localStorage.getItem("access_token");
@@ -45,20 +45,35 @@ const AllReports = () => {
 
     data.forEach((report) => {
       if (!report.products_details || report.products_details.length === 0) {
-        const month = `"${new Date(report.month).toLocaleString("default", { month: "long", year: "numeric" })}"`;
+        const month = `"${new Date(report.month).toLocaleString("default", {
+          month: "long",
+          year: "numeric",
+        })}"`;
         const orders = report.total_orders;
         const profits = Number(report.total_profit).toFixed(2);
         csvRows.push([month, orders, profits, "", "", ""].join(","));
         return;
       }
       report.products_details.forEach((product) => {
-        const month = `"${new Date(report.month).toLocaleString("default", { month: "long", year: "numeric" })}"`;
+        const month = `"${new Date(report.month).toLocaleString("default", {
+          month: "long",
+          year: "numeric",
+        })}"`;
         const orders = report.total_orders;
         const profits = Number(report.total_profit).toFixed(2);
         const productName = `"${product.product.replace(/"/g, '""')}"`;
         const productQuantity = product.quantity;
         const productProfit = Number(product.profit).toFixed(2);
-        csvRows.push([month, orders, profits, productName, productQuantity, productProfit].join(","));
+        csvRows.push(
+          [
+            month,
+            orders,
+            profits,
+            productName,
+            productQuantity,
+            productProfit,
+          ].join(","),
+        );
       });
     });
 
@@ -75,14 +90,72 @@ const AllReports = () => {
   };
 
   const downloadPDF = (data) => {
-    // This is a placeholder. A full implementation would go here.
-    // Example with jsPDF:
-    // const doc = new jsPDF();
-    // doc.text("Sales Report", 10, 10);
-    // doc.autoTable({ html: '#report-table-id' }); // Requires a table with an ID
-    // doc.save("sales_report.pdf");
-    alert("PDF download feature is not yet implemented.");
-    console.log("PDF download initiated with data:", data);
+    const doc = new jsPDF();
+    let yPos = 20;
+
+    doc.setFontSize(22);
+    doc.text("Sales Reports", 14, yPos);
+    yPos += 10;
+
+    // Add summary table
+    doc.setFontSize(16);
+    doc.text("Monthly Summaries", 14, yPos);
+    yPos += 5;
+
+    const summaryColumns = ["Month", "Total Orders", "Total Profits"];
+    const summaryRows = data.map((report) => [
+      new Date(report.month).toLocaleString("default", {
+        month: "long",
+        year: "numeric",
+      }),
+      report.total_orders,
+      Number(report.total_profit).toFixed(2),
+    ]);
+
+    doc.autoTable({
+      startY: yPos,
+      head: [summaryColumns],
+      body: summaryRows,
+      theme: "striped",
+      headStyles: { fillColor: "#4ade80" }, // a shade of green
+      margin: { top: yPos },
+    });
+
+    // Get the final Y position from the first table
+    yPos = doc.autoTable.previous.finalY;
+
+    // Add per-product details if a report is selected
+    if (selectedReport && selectedReport.products_details) {
+      yPos += 15;
+      doc.setFontSize(16);
+      doc.text(
+        `Product Details for ${new Date(selectedReport.month).toLocaleString(
+          "default",
+          { month: "long", year: "numeric" },
+        )}`,
+        14,
+        yPos,
+      );
+      yPos += 5;
+
+      const productColumns = ["Product Name", "Quantity Sold", "Profit"];
+      const productRows = selectedReport.products_details.map((product) => [
+        product.product,
+        product.quantity,
+        Number(product.profit).toFixed(2),
+      ]);
+
+      doc.autoTable({
+        startY: yPos,
+        head: [productColumns],
+        body: productRows,
+        theme: "striped",
+        headStyles: { fillColor: "#4ade80" },
+        margin: { top: yPos },
+      });
+    }
+
+    doc.save("sales_report.pdf");
   };
 
   const handleDownload = (format) => {
@@ -91,9 +164,9 @@ const AllReports = () => {
       return;
     }
 
-    if (format === 'csv') {
+    if (format === "csv") {
       downloadCSV(filteredReports);
-    } else if (format === 'pdf') {
+    } else if (format === "pdf") {
       downloadPDF(filteredReports);
     }
 
@@ -141,13 +214,13 @@ const AllReports = () => {
           {showDownloadOptions && (
             <div className="absolute top-12 sm:right-0 bg-white shadow-md rounded-md p-2 flex flex-col space-y-2 z-10 w-40">
               <button
-                onClick={() => handleDownload('csv')}
+                onClick={() => handleDownload("csv")}
                 className="text-left px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-md"
               >
                 Download CSV
               </button>
               <button
-                onClick={() => handleDownload('pdf')}
+                onClick={() => handleDownload("pdf")}
                 className="text-left px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-md"
               >
                 Download PDF
