@@ -14,11 +14,13 @@ import axiosInstance from "../../axiosInstance.js";
 
 const Main = () => {
   const dispatch = useDispatch();
+  const token = localStorage.getItem("access_token");
 
   // Access users + token from Redux
-  const { users, loading, error, access_token } = useSelector(
+  const { users, loading, error } = useSelector(
     (state) => state.user
   );
+  const { orders } = useSelector((state) => state.order);
 
   const [chartData, setChartData] = useState([]);
   const [totalOrders, setTotalOrders] = useState(0);
@@ -26,19 +28,19 @@ const Main = () => {
 
   // Fetch users from Redux
   useEffect(() => {
-    if (access_token) {
-      dispatch(fetchAllUsers(access_token));
+    if (token) {
+      dispatch(fetchAllUsers(token));
     }
-  }, [dispatch, access_token]);
+  }, [dispatch, token]);
 
   // Fetch monthly report
   useEffect(() => {
     const fetchMonthly = async () => {
       try {
-        if (!access_token) return;
+        if (!token) return;
 
         const monthlyRes = await axiosInstance.get("/monthly/", {
-          headers: { Authorization: `Bearer ${access_token}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const monthlyReports = monthlyRes.data;
@@ -73,8 +75,8 @@ const Main = () => {
 
   // Derived counts
   const totalUser = users.length;
-  const totalCustomer = users.filter((u) => u.role === "customer").length;
-  const totalSeller = users.filter((u) => u.role === "seller").length;
+  const orderCount = orders.length;
+
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-5 ">
@@ -99,7 +101,7 @@ const Main = () => {
             Total Orders
           </p>
           <h3 className="text-4xl font-extrabold text-blue-900 mt-3">
-            {totalOrders}
+            {orderCount}
           </h3>
         </div>
 
@@ -108,7 +110,7 @@ const Main = () => {
             Total Profits
           </p>
           <h3 className="text-4xl font-extrabold text-green-900 mt-3">
-            {profit}
+            {totalProfit}
           </h3>
         </div>
       </div>
