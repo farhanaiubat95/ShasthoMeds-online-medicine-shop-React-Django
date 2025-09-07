@@ -68,7 +68,6 @@ export default function AdminDashboard() {
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
   const token = localStorage.getItem("access_token");
 
-
   useEffect(() => {
     if (token) dispatch(fetchPrescriptions(token));
   }, [dispatch, token]);
