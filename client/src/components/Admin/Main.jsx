@@ -15,19 +15,10 @@ const Main = () => {
   const dispatch = useDispatch();
   const token = localStorage.getItem("access_token");
 
-  // Access users + token from Redux
-  // const { users } = useSelector((state) => state.user);
-
   const [chartData, setChartData] = useState([]);
   const [totalOrders, setTotalOrders] = useState(0);
   const [profit, setProfit] = useState(0);
 
-  // Fetch users from Redux
-  // useEffect(() => {
-  //   dispatch(fetchAllUsers());
-  // }, [dispatch]);
-
-  // Fetch monthly report
   useEffect(() => {
     const fetchMonthly = async () => {
       try {
@@ -37,24 +28,32 @@ const Main = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const monthlyReports = monthlyRes.data;
-        const reportsArray = Array.isArray(monthlyReports)
-          ? monthlyReports
-          : [];
+        let monthlyReports = monthlyRes.data;
+
+        // Ensure we have an array
+        if (!Array.isArray(monthlyReports)) {
+          // If object returned (e.g., keyed by month), convert to array
+          monthlyReports = Object.values(monthlyReports || {});
+        }
+
+        // Default to empty array if still falsy
+        const reportsArray = monthlyReports || [];
 
         const totalOrders = reportsArray.reduce(
-          (sum, m) => sum + m.total_orders,
-          0,
+          (sum, m) => sum + (m.total_orders || 0),
+          0
         );
         const totalProfit = reportsArray.reduce(
-          (sum, m) => sum + Number(m.total_profit),
-          0,
+          (sum, m) => sum + Number(m.total_profit || 0),
+          0
         );
 
         const chart = reportsArray.map((m) => ({
-          name: new Date(m.month).toLocaleString("default", { month: "short" }),
-          income: Number(m.total_income),
-          profit: Number(m.total_profit),
+          name: m.month
+            ? new Date(m.month).toLocaleString("default", { month: "short" })
+            : "",
+          income: Number(m.total_income || 0),
+          profit: Number(m.total_profit || 0),
         }));
 
         setTotalOrders(totalOrders);
@@ -68,11 +67,11 @@ const Main = () => {
     fetchMonthly();
   }, [token]);
 
-  // Derived counts
+  // Derived counts (replace with real Redux state if available)
   const totalUser = 10;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-5 ">
+    <div className="max-w-7xl mx-auto px-6 py-5">
       {/* Header */}
       <h2 className="text-xl lg:text-2xl font-semibold text-[#586277] mb-10">
         Admin Dashboard
