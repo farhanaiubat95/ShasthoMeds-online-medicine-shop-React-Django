@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const AllPayment = () => {
+const AllReports = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -101,4 +101,4 @@ const AllPayment = () => {
 };
 
 
-export default AllPayment
+export default AllReports

@@ -24,7 +24,7 @@ import AllBrand from "../components/Admin/AllBrand";
 import AllOrders from "../components/Admin/AllOrders";
 import AllProducts from "../components/Admin/AllProducts";
 import AllNotification from "../components/Admin/AllNotification";
-import AllPayment from "../components/Admin/AllPayment.jsx";
+import AllReports from "../components/Admin/AllReports.jsx";
 
 import Findpagecheck from "../components/product/Findpagecheck";
 import Checkout from "../pages/CheckOut";
@@ -70,7 +70,7 @@ const Routers = () => {
             <Route path="all-products" element={<AllProducts/>} />
             <Route path="profile" element={<Profile />} />
             <Route path="all-users" element={<AllCustomer />} />
-            <Route path="all-payments" element={<AllPayment />} />
+            <Route path="all-reports" element={<AllReports />} />
             <Route path="all-notifications" element={<AllNotification />} />
           </Route>
         </Route>

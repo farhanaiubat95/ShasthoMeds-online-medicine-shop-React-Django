@@ -3,8 +3,6 @@ import React, { useState } from "react";
 import {
   Typography,
   AppBar,
-  TextField,
-  InputAdornment,
   Box,
   Menu,
   MenuItem,
@@ -90,17 +88,19 @@ const AdminHeader = ({ onMenuClick, isMdUp }) => {
             </IconButton>
           )}
 
-          <Typography
-            className="w-[90%] "
-            sx={{
-              color: "#d1f1f0",
-              fontWeight: 700,
-              whiteSpace: "nowrap",
-            }}
-          >
-            <span className="text-xl lg:text-2xl">Shasthomeds</span>{" "}
-            <span className="hidden lg:inline">- Online Medicine Store</span>
-          </Typography>
+          <Link to="/">
+            <Typography
+              className="w-[90%] "
+              sx={{
+                color: "#d1f1f0",
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+              }}
+            >
+              <span className="text-xl lg:text-2xl">Shasthomeds</span>{" "}
+              <span className="hidden lg:inline">- Online Medicine Store</span>
+            </Typography>
+          </Link>
         </Box>
 
         {/* Right section */}

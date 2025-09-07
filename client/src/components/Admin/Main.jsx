@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -7,106 +7,81 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  PieChart, // <-- Import PieChart
-  Pie, // <-- Import Pie
-  Cell, // <-- Import Cell for colors
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
-import { useDispatch } from "react-redux";
-import axiosInstance from "../../axiosInstance.js";
+import useMonthlyReports from "../../redux/useMonthlyReports.js";
 
 const Main = () => {
-  const dispatch = useDispatch();
   const token = localStorage.getItem("access_token");
+  const { reports, loading, error } = useMonthlyReports(token);
 
-  const [chartData, setChartData] = useState([]);
-  const [totalOrders, setTotalOrders] = useState(0);
-  const [profit, setProfit] = useState(0);
-  const [topProductsData, setTopProductsData] = useState([]); // New state for pie chart
+  // --- Data Processing ---
+  // If data is loading or there's an error, these will be default values.
+  const chartData = reports.map((m) => ({
+    name: m.month
+      ? new Date(m.month).toLocaleString("default", { month: "short" })
+      : "",
+    income: Number(m.total_income || 0),
+    profit: Number(m.total_profit || 0),
+  }));
 
-  useEffect(() => {
-    const fetchMonthly = async () => {
-      try {
-        if (!token) return;
+  const totalOrders = reports.reduce(
+    (sum, m) => sum + (m.total_orders || 0),
+    0,
+  );
+  const totalProfit = reports.reduce(
+    (sum, m) => sum + Number(m.total_profit || 0),
+    0,
+  );
 
-        const monthlyRes = await axiosInstance.get("/monthly/", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  const allProducts = [];
+  reports.forEach((report) => {
+    if (report.products_details && Array.isArray(report.products_details)) {
+      allProducts.push(...report.products_details);
+    }
+  });
 
-        // The correct way to get the array
-        const monthlyReports = monthlyRes.data.results || [];
+  const aggregatedProducts = allProducts.reduce((acc, product) => {
+    const productName = product.product.trim();
+    const quantity = product.quantity || 0;
+    if (acc[productName]) {
+      acc[productName] += quantity;
+    } else {
+      acc[productName] = quantity;
+    }
+    return acc;
+  }, {});
 
-        // Aggregate data for total orders, profit, and chart
-        const totalOrders = monthlyReports.reduce(
-          (sum, m) => sum + (m.total_orders || 0),
-          0,
-        );
-        const totalProfit = monthlyReports.reduce(
-          (sum, m) => sum + Number(m.total_profit || 0),
-          0,
-        );
-        const chart = monthlyReports.map((m) => ({
-          name: m.month
-            ? new Date(m.month).toLocaleString("default", { month: "short" })
-            : "",
-          income: Number(m.total_income || 0),
-          profit: Number(m.total_profit || 0),
-        }));
+  const sortedProducts = Object.entries(aggregatedProducts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5);
 
-        setTotalOrders(totalOrders);
-        setProfit(totalProfit);
-        setChartData(chart);
+  const totalProductsSold = sortedProducts.reduce(
+    (sum, [, quantity]) => sum + quantity,
+    0,
+  );
 
-        // --- New Logic for Top 5 Products Pie Chart ---
-
-        const allProducts = [];
-        monthlyReports.forEach((report) => {
-          if (report.products_details && Array.isArray(report.products_details)) {
-            allProducts.push(...report.products_details);
-          }
-        });
-
-        const aggregatedProducts = allProducts.reduce((acc, product) => {
-          const productName = product.product.trim();
-          const quantity = product.quantity || 0;
-          if (acc[productName]) {
-            acc[productName] += quantity;
-          } else {
-            acc[productName] = quantity;
-          }
-          return acc;
-        }, {});
-
-        const sortedProducts = Object.entries(aggregatedProducts)
-          .sort(([, a], [, b]) => b - a)
-          .slice(0, 5); // Get top 5
-
-        const totalProductsSold = sortedProducts.reduce(
-          (sum, [, quantity]) => sum + quantity,
-          0,
-        );
-
-        const topFiveProductsData = sortedProducts.map(([name, quantity]) => ({
-          name,
-          value: quantity,
-          percentage: ((quantity / totalProductsSold) * 100).toFixed(1),
-        }));
-
-        setTopProductsData(topFiveProductsData); // Set the new state
-        
-      } catch (err) {
-        console.error("Monthly fetch error:", err);
-      }
-    };
-
-    fetchMonthly();
-  }, [token]);
+  const topProductsData = sortedProducts.map(([name, quantity]) => ({
+    name,
+    value: quantity,
+    percentage: ((quantity / totalProductsSold) * 100).toFixed(1),
+  }));
 
   const totalUser = 10;
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
-  const renderCustomizedLabel = ({ name, percent }) => {
-    return `${name} - ${(percent * 100).toFixed(0)}%`;
-  };
+  // --- Conditional Rendering ---
+  if (loading) {
+    return <div className="text-center py-10">Loading dashboard data...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-10 text-red-500">Error fetching data.</div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-5">
@@ -177,7 +152,10 @@ const Main = () => {
                 // label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
               >
                 {topProductsData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />

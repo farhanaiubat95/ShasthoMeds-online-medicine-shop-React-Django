@@ -13,7 +13,7 @@ import {
   Badge,
 } from "@mui/material";
 
-import { Category, Payment, Notifications } from "@mui/icons-material";
+import { Category, Notifications } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
 
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
@@ -25,6 +25,7 @@ import WidgetsIcon from "@mui/icons-material/Widgets";
 import { useSelector } from "react-redux";
 import { fetchPrescriptions } from "../redux/prescriptionSlice";
 import { fetchOrders } from "../redux/orderSlice";
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 const drawerWidth = 240;
 
@@ -49,7 +50,7 @@ const sidebarItems = [
     icon: <AddShoppingCartIcon />,
     path: "/admin-dashboard/all-products",
   },
-  { text: "Payment", icon: <Payment />, path: "/admin-dashboard/all-payments" },
+  { text: "Reports", icon: <AssessmentIcon />, path: "/admin-dashboard/all-reports" },
   {
     text: "All Orders",
     icon: <WidgetsIcon />,
@@ -177,7 +178,7 @@ export default function AdminDashboard() {
       >
         <div className="bg-[#0F918F] h-[40px] p-2">
           <Link
-            to="/"
+            to="/admin-dashboard"
             className="text-white hover:underline text-md lg:text-xl"
           >
             Home
