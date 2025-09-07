@@ -260,483 +260,497 @@ export default function AllProducts() {
   const handleCloseView = () => setViewProduct(null);
 
   return (
-    <Box p={3}>
+    <Box>
       {/* Summary */}
-      <Box className="flex gap-6 p-4 bg-gray-100">
+      <Box className="flex gap-6 py-2 px-4 bg-gray-100">
         <Typography>Total Products: {products.length}</Typography>
       </Box>
 
-      <Typography variant="h5" mb={2}>
-        {formMode === "add" ? "Add Product Form" : "Edit Product Form"}
-      </Typography>
+      <Box p={3}>
+        <Typography variant="h5" mb={2}>
+          {formMode === "add" ? "Add Product Form" : "Edit Product Form"}
+        </Typography>
 
-      <Box
-        component="form"
-        ref={formRef}
-        onSubmit={handleSubmit}
-        display="grid"
-        gridTemplateColumns="1fr 1fr"
-        gap={2}
-        mb={4}
-      >
-        {/* --- form fields same as before --- */}
-        <TextField
-          name="sku"
-          label="SKU"
-          value={product.sku}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          name="name"
-          label="Name"
-          value={product.name}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          name="description"
-          label="Description"
-          value={product.description}
-          onChange={handleChange}
-          fullWidth
-          multiline
-        />
-        <TextField
-          name="generic_name"
-          label="Generic Name"
-          value={product.generic_name}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          name="indication"
-          label="Indication"
-          value={product.indication}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          name="adult_dose"
-          label="Adult Dose"
-          value={product.adult_dose}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          name="child_dose"
-          label="Child Dose"
-          value={product.child_dose}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          name="contraindication"
-          label="Contraindication"
-          value={product.contraindication}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          name="precaution"
-          label="Precaution"
-          value={product.precaution}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          name="side_effect"
-          label="Side Effect"
-          value={product.side_effect}
-          onChange={handleChange}
-          fullWidth
-        />
-
-        <TextField
-          select
-          label="Category"
-          value={product.category} // this will be the ID
-          onChange={(e) =>
-            setProduct({ ...product, category: parseInt(e.target.value, 10) })
-          }
-          fullWidth
-          margin="normal"
+        <Box
+          component="form"
+          ref={formRef}
+          onSubmit={handleSubmit}
+          display="grid"
+          gridTemplateColumns="1fr 1fr"
+          gap={2}
+          mb={4}
         >
-          {categories.map((c) => (
-            <MenuItem key={c.id} value={c.id}>
-              {c.name}
-            </MenuItem>
-          ))}
-        </TextField>
+          {/* --- form fields same as before --- */}
+          <TextField
+            name="sku"
+            label="SKU"
+            value={product.sku}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="name"
+            label="Name"
+            value={product.name}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="description"
+            label="Description"
+            value={product.description}
+            onChange={handleChange}
+            fullWidth
+            multiline
+          />
+          <TextField
+            name="generic_name"
+            label="Generic Name"
+            value={product.generic_name}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="indication"
+            label="Indication"
+            value={product.indication}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="adult_dose"
+            label="Adult Dose"
+            value={product.adult_dose}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="child_dose"
+            label="Child Dose"
+            value={product.child_dose}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="contraindication"
+            label="Contraindication"
+            value={product.contraindication}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="precaution"
+            label="Precaution"
+            value={product.precaution}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="side_effect"
+            label="Side Effect"
+            value={product.side_effect}
+            onChange={handleChange}
+            fullWidth
+          />
 
-        <TextField
-          select
-          label="Brand"
-          value={product.brand} // this will be the ID
-          onChange={(e) =>
-            setProduct({ ...product, brand: parseInt(e.target.value, 10) })
-          }
-          fullWidth
-          margin="normal"
-        >
-          {brands.map((b) => (
-            <MenuItem key={b.id} value={b.id}>
-              {b.name}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          name="price"
-          label="Price"
-          value={product.price}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          name="offer_price"
-          label="Offer (%)"
-          value={product.offer_price}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          name="stock"
-          label="Stock"
-          value={product.stock}
-          onChange={handleChange}
-          fullWidth
-        />
-
-        <TextField
-          select
-          name="package_quantity"
-          label="Package Quantity"
-          value={product.package_quantity}
-          onChange={handleChange}
-          fullWidth
-        >
-          {packageQuantities.map((pq) => (
-            <MenuItem key={pq} value={pq}>
-              {pq}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          name="unit_value"
-          label="Unit Value"
-          value={product.unit_value}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          select
-          name="unit"
-          label="Unit"
-          value={product.unit}
-          onChange={handleChange}
-          fullWidth
-        >
-          {units.map((u) => (
-            <MenuItem key={u} value={u}>
-              {u}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          name="weight_value"
-          label="Weight Value"
-          value={product.weight_value}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          select
-          name="weight_unit"
-          label="Weight Unit"
-          value={product.weight_unit}
-          onChange={handleChange}
-          fullWidth
-        >
-          {weightUnits.map((wu) => (
-            <MenuItem key={wu} value={wu}>
-              {wu}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              name="prescription_required"
-              checked={product.prescription_required}
-              onChange={handleChange}
-            />
-          }
-          label="Prescription Required"
-        />
-
-        <Button variant="outlined" component="label">
-          Upload Image 1
-          <input type="file" hidden name="image1" onChange={handleChange} />
-        </Button>
-        <Button variant="outlined" component="label">
-          Upload Image 2
-          <input type="file" hidden name="image2" onChange={handleChange} />
-        </Button>
-        <Button variant="outlined" component="label">
-          Upload Image 3
-          <input type="file" hidden name="image3" onChange={handleChange} />
-        </Button>
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              name="is_active"
-              checked={product.is_active}
-              onChange={handleChange}
-            />
-          }
-          label="Is Active"
-        />
-
-        <Box gridColumn="span 2" display="flex" gap={2}>
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ backgroundColor: "#246275" }}
+          <TextField
+            select
+            label="Category"
+            value={product.category} // this will be the ID
+            onChange={(e) =>
+              setProduct({ ...product, category: parseInt(e.target.value, 10) })
+            }
+            fullWidth
+            margin="normal"
           >
-            {formMode === "add" ? "Submit" : "Update"}
+            {categories.map((c) => (
+              <MenuItem key={c.id} value={c.id}>
+                {c.name}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            select
+            label="Brand"
+            value={product.brand} // this will be the ID
+            onChange={(e) =>
+              setProduct({ ...product, brand: parseInt(e.target.value, 10) })
+            }
+            fullWidth
+            margin="normal"
+          >
+            {brands.map((b) => (
+              <MenuItem key={b.id} value={b.id}>
+                {b.name}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            name="price"
+            label="Price"
+            value={product.price}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="offer_price"
+            label="Offer (%)"
+            value={product.offer_price}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            name="stock"
+            label="Stock"
+            value={product.stock}
+            onChange={handleChange}
+            fullWidth
+          />
+
+          <TextField
+            select
+            name="package_quantity"
+            label="Package Quantity"
+            value={product.package_quantity}
+            onChange={handleChange}
+            fullWidth
+          >
+            {packageQuantities.map((pq) => (
+              <MenuItem key={pq} value={pq}>
+                {pq}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            name="unit_value"
+            label="Unit Value"
+            value={product.unit_value}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            select
+            name="unit"
+            label="Unit"
+            value={product.unit}
+            onChange={handleChange}
+            fullWidth
+          >
+            {units.map((u) => (
+              <MenuItem key={u} value={u}>
+                {u}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            name="weight_value"
+            label="Weight Value"
+            value={product.weight_value}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            select
+            name="weight_unit"
+            label="Weight Unit"
+            value={product.weight_unit}
+            onChange={handleChange}
+            fullWidth
+          >
+            {weightUnits.map((wu) => (
+              <MenuItem key={wu} value={wu}>
+                {wu}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="prescription_required"
+                checked={product.prescription_required}
+                onChange={handleChange}
+              />
+            }
+            label="Prescription Required"
+          />
+
+          <Button variant="outlined" component="label">
+            Upload Image 1
+            <input type="file" hidden name="image1" onChange={handleChange} />
           </Button>
-          {formMode !== "add" && (
+          <Button variant="outlined" component="label">
+            Upload Image 2
+            <input type="file" hidden name="image2" onChange={handleChange} />
+          </Button>
+          <Button variant="outlined" component="label">
+            Upload Image 3
+            <input type="file" hidden name="image3" onChange={handleChange} />
+          </Button>
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="is_active"
+                checked={product.is_active}
+                onChange={handleChange}
+              />
+            }
+            label="Is Active"
+          />
+
+          <Box gridColumn="span 2" display="flex" gap={2}>
             <Button
+              type="submit"
               variant="contained"
               sx={{ backgroundColor: "#246275" }}
-              onClick={resetForm}
             >
-              Add Product
+              {formMode === "add" ? "Submit" : "Update"}
             </Button>
-          )}
+            {formMode !== "add" && (
+              <Button
+                variant="contained"
+                sx={{ backgroundColor: "#246275" }}
+                onClick={resetForm}
+              >
+                Add Product
+              </Button>
+            )}
+          </Box>
         </Box>
-      </Box>
 
-      {/* Table preview */}
-      <Box sx={{ overflowX: "auto" }}>
-        <Paper>
-          <Table sx={{ minWidth: 800 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>SKU</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Price</TableCell>
-                <TableCell>Stock</TableCell>
-                <TableCell>Unit</TableCell>
-                <TableCell>Prescription</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {products?.map((p, i) => (
-                <TableRow key={i}>
-                  <TableCell>{p.sku || "-"}</TableCell>
-                  <TableCell>{p.name || "-"}</TableCell>
-                  <TableCell>{p.price || "-"}</TableCell>
-                  <TableCell>{p.stock || "-"}</TableCell>
-                  <TableCell>
-                    {p.unit_value} {p.unit}
-                  </TableCell>
-                  <TableCell>
-                    {p.prescription_required ? "Yes" : "No"}
-                  </TableCell>
-                  <TableCell>
-                    <Box display="flex" gap={1} justifyContent="center">
-                      <Button
-                        variant="outlined"
-                        color="success"
-                        size="small"
-                        sx={{ mr: 1 }}
-                        onClick={() => handleView(i)}
-                      >
-                        <PreviewIcon />
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        size="small"
-                        sx={{ mr: 1 }}
-                        onClick={() => handleEdit(i)}
-                      >
-                        <EditSquareIcon />
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        size="small"
-                        onClick={() => handleDelete(products[i].id)}
-                      >
-                        <DeleteForeverIcon />
-                      </Button>
-                    </Box>
-                  </TableCell>
+        {/* Table preview */}
+        <Box sx={{ overflowX: "auto" }}>
+          <Paper>
+            <Table sx={{ minWidth: 800 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>SKU</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Price</TableCell>
+                  <TableCell>Stock</TableCell>
+                  <TableCell>Unit</TableCell>
+                  <TableCell>Prescription</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Paper>
+              </TableHead>
+              <TableBody>
+                {products?.map((p, i) => (
+                  <TableRow key={i}>
+                    <TableCell>{p.sku || "-"}</TableCell>
+                    <TableCell>{p.name || "-"}</TableCell>
+                    <TableCell>{p.price || "-"}</TableCell>
+                    <TableCell>{p.stock || "-"}</TableCell>
+                    <TableCell>
+                      {p.unit_value} {p.unit}
+                    </TableCell>
+                    <TableCell>
+                      {p.prescription_required ? "Yes" : "No"}
+                    </TableCell>
+                    <TableCell>
+                      <Box display="flex" gap={1} justifyContent="center">
+                        <Button
+                          variant="outlined"
+                          color="success"
+                          size="small"
+                          sx={{ mr: 1 }}
+                          onClick={() => handleView(i)}
+                        >
+                          <PreviewIcon />
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          size="small"
+                          sx={{ mr: 1 }}
+                          onClick={() => handleEdit(i)}
+                        >
+                          <EditSquareIcon />
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          onClick={() => handleDelete(products[i].id)}
+                        >
+                          <DeleteForeverIcon />
+                        </Button>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
+        </Box>
+
+        {/* View Dialog */}
+        <Dialog
+          open={!!viewProduct}
+          onClose={handleCloseView}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Product Details</DialogTitle>
+          <DialogContent dividers>
+            {viewProduct && (
+              <Box display={"flex"} gap={2} flexDirection={"column"}>
+                {/* Product details 1*/}
+                <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
+                  {viewProduct.sku && (
+                    <Typography>
+                      <strong>SKU:</strong> {viewProduct.sku}
+                    </Typography>
+                  )}
+                  {viewProduct.name && (
+                    <Typography>
+                      <strong>Name:</strong> {viewProduct.name}
+                    </Typography>
+                  )}
+                  {viewProduct.generic_name && (
+                    <Typography>
+                      <strong>Generic Name:</strong> {viewProduct.generic_name}
+                    </Typography>
+                  )}
+                  {viewProduct.stock && (
+                    <Typography>
+                      <strong>Stock:</strong> {viewProduct.stock}
+                    </Typography>
+                  )}
+                  {viewProduct.category && (
+                    <Typography>
+                      <strong>Category:</strong> {viewProduct.category.name}
+                    </Typography>
+                  )}
+
+                  {viewProduct.brand && (
+                    <Typography>
+                      <strong>Brand:</strong> {viewProduct.brand.name}
+                    </Typography>
+                  )}
+
+                  {viewProduct.price && (
+                    <Typography>
+                      <strong>Price:</strong> {viewProduct.price}
+                    </Typography>
+                  )}
+                  {viewProduct.offer_price && (
+                    <Typography>
+                      <strong>Offer:</strong> {viewProduct.offer_price}
+                    </Typography>
+                  )}
+
+                  {(viewProduct.unit_value || viewProduct.unit) && (
+                    <Typography>
+                      <strong>Unit:</strong> {viewProduct.unit_value}{" "}
+                      {viewProduct.unit}
+                    </Typography>
+                  )}
+                  {(viewProduct.weight_value || viewProduct.weight_unit) && (
+                    <Typography>
+                      <strong>Weight:</strong> {viewProduct.weight_value}{" "}
+                      {viewProduct.weight_unit}
+                    </Typography>
+                  )}
+                  {viewProduct.package_quantity && (
+                    <Typography>
+                      <strong>Package Quantity:</strong>{" "}
+                      {viewProduct.package_quantity}
+                    </Typography>
+                  )}
+                  {"prescription_required" in viewProduct && (
+                    <Typography>
+                      <strong>Prescription Required:</strong>{" "}
+                      {viewProduct.prescription_required ? "Yes" : "No"}
+                    </Typography>
+                  )}
+                  {"is_active" in viewProduct && (
+                    <Typography>
+                      <strong>Active:</strong>{" "}
+                      {viewProduct.is_active ? "Yes" : "No"}
+                    </Typography>
+                  )}
+                </Box>
+                {/* Images with correct condition + fixed variable */}
+                <Box display="flex" gap={2}>
+                  {viewProduct.image1 && (
+                    <img
+                      src={viewProduct.image1}
+                      alt={viewProduct.image1}
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                        borderRadius: "15%",
+                      }}
+                    />
+                  )}
+                  {viewProduct.image2 && (
+                    <img
+                      src={viewProduct.image2}
+                      alt={viewProduct.image2}
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                        borderRadius: "5%",
+                      }}
+                    />
+                  )}
+                  {viewProduct.image3 && (
+                    <img
+                      src={viewProduct.image3}
+                      alt={viewProduct.image3}
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                        borderRadius: "5%",
+                      }}
+                    />
+                  )}
+                </Box>
+
+                {/* Product Details 2 */}
+                <ProductField
+                  label="Description"
+                  value={viewProduct.description}
+                />
+                <ProductField
+                  label="Indication"
+                  value={viewProduct.indication}
+                />
+                <ProductField
+                  label="Adult Dose"
+                  value={viewProduct.adult_dose}
+                />
+                <ProductField
+                  label="Child Dose"
+                  value={viewProduct.child_dose}
+                />
+                <ProductField
+                  label="Contraindication"
+                  value={viewProduct.contraindication}
+                />
+                <ProductField
+                  label="Precaution"
+                  value={viewProduct.precaution}
+                />
+                <ProductField
+                  label="Side Effect"
+                  value={viewProduct.side_effect}
+                />
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseView} variant="contained">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
-
-      {/* View Dialog */}
-      <Dialog
-        open={!!viewProduct}
-        onClose={handleCloseView}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Product Details</DialogTitle>
-        <DialogContent dividers>
-          {viewProduct && (
-            <Box display={"flex"} gap={2} flexDirection={"column"}>
-              {/* Product details 1*/}
-              <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
-                {viewProduct.sku && (
-                  <Typography>
-                    <strong>SKU:</strong> {viewProduct.sku}
-                  </Typography>
-                )}
-                {viewProduct.name && (
-                  <Typography>
-                    <strong>Name:</strong> {viewProduct.name}
-                  </Typography>
-                )}
-                {viewProduct.generic_name && (
-                  <Typography>
-                    <strong>Generic Name:</strong> {viewProduct.generic_name}
-                  </Typography>
-                )}
-                {viewProduct.stock && (
-                  <Typography>
-                    <strong>Stock:</strong> {viewProduct.stock}
-                  </Typography>
-                )}
-                {viewProduct.category && (
-                  <Typography>
-                    <strong>Category:</strong> {viewProduct.category.name}
-                  </Typography>
-                )}
-
-                {viewProduct.brand && (
-                  <Typography>
-                    <strong>Brand:</strong> {viewProduct.brand.name}
-                  </Typography>
-                )}
-
-                {viewProduct.price && (
-                  <Typography>
-                    <strong>Price:</strong> {viewProduct.price}
-                  </Typography>
-                )}
-                {viewProduct.offer_price && (
-                  <Typography>
-                    <strong>Offer:</strong> {viewProduct.offer_price}
-                  </Typography>
-                )}
-
-                {(viewProduct.unit_value || viewProduct.unit) && (
-                  <Typography>
-                    <strong>Unit:</strong> {viewProduct.unit_value}{" "}
-                    {viewProduct.unit}
-                  </Typography>
-                )}
-                {(viewProduct.weight_value || viewProduct.weight_unit) && (
-                  <Typography>
-                    <strong>Weight:</strong> {viewProduct.weight_value}{" "}
-                    {viewProduct.weight_unit}
-                  </Typography>
-                )}
-                {viewProduct.package_quantity && (
-                  <Typography>
-                    <strong>Package Quantity:</strong>{" "}
-                    {viewProduct.package_quantity}
-                  </Typography>
-                )}
-                {"prescription_required" in viewProduct && (
-                  <Typography>
-                    <strong>Prescription Required:</strong>{" "}
-                    {viewProduct.prescription_required ? "Yes" : "No"}
-                  </Typography>
-                )}
-                {"is_active" in viewProduct && (
-                  <Typography>
-                    <strong>Active:</strong>{" "}
-                    {viewProduct.is_active ? "Yes" : "No"}
-                  </Typography>
-                )}
-              </Box>
-              {/* Images with correct condition + fixed variable */}
-              <Box display="flex" gap={2}>
-                {viewProduct.image1 && (
-                  <img
-                    src={viewProduct.image1}
-                    alt={viewProduct.image1}
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      borderRadius: "15%",
-                    }}
-                  />
-                )}
-                {viewProduct.image2 && (
-                  <img
-                    src={viewProduct.image2}
-                    alt={viewProduct.image2}
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      borderRadius: "5%",
-                    }}
-                  />
-                )}
-                {viewProduct.image3 && (
-                  <img
-                    src={viewProduct.image3}
-                    alt={viewProduct.image3}
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      borderRadius: "5%",
-                    }}
-                  />
-                )}
-              </Box>
-
-              {/* Product Details 2 */}
-              <ProductField
-                label="Description"
-                value={viewProduct.description}
-              />
-              <ProductField label="Indication" value={viewProduct.indication} />
-              <ProductField label="Adult Dose" value={viewProduct.adult_dose} />
-              <ProductField label="Child Dose" value={viewProduct.child_dose} />
-              <ProductField
-                label="Contraindication"
-                value={viewProduct.contraindication}
-              />
-              <ProductField label="Precaution" value={viewProduct.precaution} />
-              <ProductField
-                label="Side Effect"
-                value={viewProduct.side_effect}
-              />
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseView} variant="contained">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
