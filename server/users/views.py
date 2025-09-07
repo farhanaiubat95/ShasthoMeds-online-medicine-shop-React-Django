@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticate
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status, permissions
+from rest_framework.permissions import IsAdminUser
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from .SSLCOMMERZ import create_payment_session
@@ -144,6 +145,14 @@ class MyProtectedView(APIView):
     def get(self, request):
         user = request.user  # from token
         return Response({"email": user.email, "username": user.username, "role": user.role, "id": user.id})
+
+
+# Admin: Get all users
+class UserListView(generics.ListAPIView):
+    queryset = CustomUser.objects.all().order_by('-id')
+    serializer_class = UserRegistrationSerializer
+    permission_classes = [IsAdminUser]   # only admins can access
+
 
 # View to logout
 class LogoutView(APIView):
