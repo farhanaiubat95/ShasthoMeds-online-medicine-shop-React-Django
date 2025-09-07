@@ -117,14 +117,12 @@ const AllReports = () => {
       head: [summaryColumns],
       body: summaryRows,
       theme: "striped",
-      headStyles: { fillColor: "#4ade80" }, // a shade of green
+      headStyles: { fillColor: "#4ade80" },
       margin: { top: yPos },
     });
 
-    // Get the final Y position from the first table
     yPos = doc.autoTable.previous.finalY;
 
-    // Add per-product details if a report is selected
     if (selectedReport && selectedReport.products_details) {
       yPos += 15;
       doc.setFontSize(16);
@@ -207,7 +205,7 @@ const AllReports = () => {
         <div className="relative">
           <button
             onClick={() => setShowDownloadOptions(!showDownloadOptions)}
-            className="flex items-center justify-center bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors w-full sm:w-auto cursor-pointer"
+            className="flex items-center justify-center bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors w-full sm:w-auto"
           >
             <Download className="mr-2" /> Download
           </button>
