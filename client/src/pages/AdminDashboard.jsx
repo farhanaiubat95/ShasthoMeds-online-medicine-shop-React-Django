@@ -50,7 +50,7 @@ const sidebarItems = [
     icon: <AddShoppingCartIcon />,
     path: "/admin-dashboard/all-products",
   },
-  { text: "Reports", icon: <AssessmentIcon />, path: "/admin-dashboard/all-reports" },
+  { text: "All Reports", icon: <AssessmentIcon />, path: "/admin-dashboard/all-reports" },
   {
     text: "All Orders",
     icon: <WidgetsIcon />,
