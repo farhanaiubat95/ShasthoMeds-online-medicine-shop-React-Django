@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Download, Search } from "@mui/icons-material";
 import useMonthlyReports from "../../redux/useMonthlyReports.js";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import "jspdf-autotable"; // This is the crucial line
 
 const AllReports = () => {
   const token = localStorage.getItem("access_token");
@@ -117,12 +117,14 @@ const AllReports = () => {
       head: [summaryColumns],
       body: summaryRows,
       theme: "striped",
-      headStyles: { fillColor: "#4ade80" },
+      headStyles: { fillColor: "#4ade80" }, // a shade of green
       margin: { top: yPos },
     });
 
+    // Get the final Y position from the first table
     yPos = doc.autoTable.previous.finalY;
 
+    // Add per-product details if a report is selected
     if (selectedReport && selectedReport.products_details) {
       yPos += 15;
       doc.setFontSize(16);
@@ -187,7 +189,6 @@ const AllReports = () => {
     <div className="p-6 bg-gray-50 text-black min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Sales Reports</h1>
 
-      {/* Search & Download Section */}
       <div className="bg-white rounded-xl shadow p-4 mb-6 flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 relative">
         <input
           type="text"
@@ -229,7 +230,6 @@ const AllReports = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Reports Section */}
         <div className="bg-white rounded-xl shadow p-4 overflow-x-auto">
           <h2 className="text-xl font-semibold mb-4">Monthly Summaries</h2>
           <table className="min-w-full divide-y divide-gray-200">
@@ -287,7 +287,6 @@ const AllReports = () => {
           </table>
         </div>
 
-        {/* Per-Product Details Section */}
         <div className="bg-white rounded-xl shadow p-4 overflow-x-auto">
           <h2 className="text-xl font-semibold mb-4">
             Per-Product Details
