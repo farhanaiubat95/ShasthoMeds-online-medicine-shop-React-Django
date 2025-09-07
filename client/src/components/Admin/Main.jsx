@@ -28,6 +28,9 @@ const Main = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
+        console.log("Monthly API response:", monthlyRes); // <-- Debug API response
+        console.log("Monthly API data:", monthlyRes.data); // <-- Debug only the data
+
         let monthlyReports = monthlyRes.data;
 
         // Ensure we have an array
@@ -37,20 +40,20 @@ const Main = () => {
 
         // Filter out null or invalid entries
         const reportsArray = (monthlyReports || []).filter(
-          (m) => m && typeof m === "object"
+          (m) => m && typeof m === "object",
         );
 
-        // Safely reduce
+        console.log("Filtered monthly reports:", reportsArray); // <-- Debug filtered data
+
         const totalOrders = reportsArray.reduce(
           (sum, m) => sum + (m.total_orders || 0),
-          0
+          0,
         );
         const totalProfit = reportsArray.reduce(
           (sum, m) => sum + Number(m.total_profit || 0),
-          0
+          0,
         );
 
-        // Map for chart
         const chart = reportsArray.map((m) => ({
           name: m.month
             ? new Date(m.month).toLocaleString("default", { month: "short" })
@@ -62,6 +65,8 @@ const Main = () => {
         setTotalOrders(totalOrders);
         setProfit(totalProfit);
         setChartData(chart);
+
+        console.log("Chart data:", chart); // <-- Debug chart data
       } catch (err) {
         console.error("Monthly fetch error:", err);
       }
