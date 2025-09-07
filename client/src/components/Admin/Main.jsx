@@ -8,7 +8,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useDispatch,  } from "react-redux";
+import { useDispatch } from "react-redux";
 import axiosInstance from "../../axiosInstance.js";
 
 const Main = () => {
@@ -38,26 +38,27 @@ const Main = () => {
         });
 
         const monthlyReports = monthlyRes.data;
+        const reportsArray = Array.isArray(monthlyReports)
+          ? monthlyReports
+          : [];
 
-        // Update extra states
-        const totalOrders = monthlyReports.reduce(
+        const totalOrders = reportsArray.reduce(
           (sum, m) => sum + m.total_orders,
           0,
         );
-        const totalProfit = monthlyReports.reduce(
+        const totalProfit = reportsArray.reduce(
           (sum, m) => sum + Number(m.total_profit),
           0,
         );
 
-        setTotalOrders(totalOrders);
-        setProfit(totalProfit);
-
-        // Map data for recharts
-        const chart = monthlyReports.map((m) => ({
+        const chart = reportsArray.map((m) => ({
           name: new Date(m.month).toLocaleString("default", { month: "short" }),
           income: Number(m.total_income),
           profit: Number(m.total_profit),
         }));
+
+        setTotalOrders(totalOrders);
+        setProfit(totalProfit);
         setChartData(chart);
       } catch (err) {
         console.error("Monthly fetch error:", err);
@@ -146,5 +147,3 @@ const Main = () => {
 };
 
 export default Main;
-
-
