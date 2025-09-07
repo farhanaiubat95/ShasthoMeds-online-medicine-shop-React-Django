@@ -207,7 +207,7 @@ const AllReports = () => {
         <div className="relative">
           <button
             onClick={() => setShowDownloadOptions(!showDownloadOptions)}
-            className="flex items-center justify-center bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors w-full sm:w-auto"
+            className="flex items-center justify-center bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors w-full sm:w-auto cursor-pointer"
           >
             <Download className="mr-2" /> Download
           </button>
