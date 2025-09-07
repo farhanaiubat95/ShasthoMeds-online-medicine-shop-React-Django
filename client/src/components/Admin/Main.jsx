@@ -17,16 +17,16 @@ const Main = () => {
   const token = localStorage.getItem("access_token");
 
   // Access users + token from Redux
-  const { users } = useSelector((state) => state.user);
+  // const { users } = useSelector((state) => state.user);
 
   const [chartData, setChartData] = useState([]);
   const [totalOrders, setTotalOrders] = useState(0);
   const [profit, setProfit] = useState(0);
 
   // Fetch users from Redux
-  useEffect(() => {
-    dispatch(fetchAllUsers());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchAllUsers());
+  // }, [dispatch]);
 
   // Fetch monthly report
   useEffect(() => {
@@ -69,7 +69,7 @@ const Main = () => {
   }, [token]);
 
   // Derived counts
-  const totalUser = users.length;
+  const totalUser = 10;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-5 ">
