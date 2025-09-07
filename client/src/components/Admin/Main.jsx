@@ -17,10 +17,7 @@ const Main = () => {
   const token = localStorage.getItem("access_token");
 
   // Access users + token from Redux
-  const { users, loading, error } = useSelector(
-    (state) => state.user
-  );
-  const { orders } = useSelector((state) => state.order);
+  const { users } = useSelector((state) => state.user);
 
   const [chartData, setChartData] = useState([]);
   const [totalOrders, setTotalOrders] = useState(0);
@@ -28,10 +25,8 @@ const Main = () => {
 
   // Fetch users from Redux
   useEffect(() => {
-    if (token) {
-      dispatch(fetchAllUsers(token));
-    }
-  }, [dispatch, token]);
+    dispatch(fetchAllUsers());
+  }, [dispatch]);
 
   // Fetch monthly report
   useEffect(() => {
@@ -48,11 +43,11 @@ const Main = () => {
         // Update extra states
         const totalOrders = monthlyReports.reduce(
           (sum, m) => sum + m.total_orders,
-          0
+          0,
         );
         const totalProfit = monthlyReports.reduce(
           (sum, m) => sum + Number(m.total_profit),
-          0
+          0,
         );
 
         setTotalOrders(totalOrders);
@@ -71,12 +66,10 @@ const Main = () => {
     };
 
     fetchMonthly();
-  }, [access_token]);
+  }, [token]);
 
   // Derived counts
   const totalUser = users.length;
-  const orderCount = orders.length;
-
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-5 ">
@@ -101,7 +94,7 @@ const Main = () => {
             Total Orders
           </p>
           <h3 className="text-4xl font-extrabold text-blue-900 mt-3">
-            {orderCount}
+            {totalOrders}
           </h3>
         </div>
 
@@ -110,7 +103,7 @@ const Main = () => {
             Total Profits
           </p>
           <h3 className="text-4xl font-extrabold text-green-900 mt-3">
-            {totalProfit}
+            {profit}
           </h3>
         </div>
       </div>

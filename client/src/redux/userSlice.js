@@ -16,8 +16,9 @@ const initialState = {
 // Fetch all users (admin only)
 export const fetchAllUsers = createAsyncThunk(
   "user/fetchAllUsers", // keep same slice namespace
-  async (token, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("access_token");
       const res = await axiosInstance.get("/users/", {
         headers: { Authorization: `Bearer ${token}` },
       });
