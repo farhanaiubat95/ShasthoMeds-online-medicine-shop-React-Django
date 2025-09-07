@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Download, Search } from "@mui/icons-material";
 import useMonthlyReports from "../../redux/useMonthlyReports.js"; // Correct path
+// You might need to install a library like jspdf: npm install jspdf
+// import jsPDF from "jspdf";
 
 const AllReports = () => {
   const token = localStorage.getItem("access_token");
-
-  // Use the custom hook to get data, loading, and error states
   const { reports, loading, error } = useMonthlyReports(token);
 
   const [filteredReports, setFilteredReports] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showDownloadOptions, setShowDownloadOptions] = useState(false);
 
-  // Use useEffect to update filteredReports whenever reports change
-  // This ensures the initial data is displayed and reflects any data changes
   useEffect(() => {
     if (reports) {
       setFilteredReports(reports);
@@ -22,7 +21,6 @@ const AllReports = () => {
 
   const handleSearch = () => {
     const filtered = reports.filter((report) => {
-      // Use 'reports' from the hook as the data source
       const reportMonth = new Date(report.month).toLocaleString("default", {
         month: "long",
         year: "numeric",
@@ -30,16 +28,10 @@ const AllReports = () => {
       return reportMonth.toLowerCase().includes(searchQuery.toLowerCase());
     });
     setFilteredReports(filtered);
-    setSelectedReport(null); // Reset selection
+    setSelectedReport(null);
   };
 
-  const handleDownload = () => {
-    if (filteredReports.length === 0) {
-      alert("No data to download.");
-      return;
-    }
-
-    // 1. Define the CSV header
+  const downloadCSV = (data) => {
     const headers = [
       "Month",
       "Total Orders",
@@ -48,57 +40,64 @@ const AllReports = () => {
       "Quantity Sold",
       "Product Profit",
     ];
-
-    // 2. Map data to CSV format
     const csvRows = [];
-    csvRows.push(headers.join(",")); // Add the header row
+    csvRows.push(headers.join(","));
 
-    // Iterate through each monthly report
-    filteredReports.forEach((report) => {
-      // If there are no product details, create a row with just the monthly summary
+    data.forEach((report) => {
       if (!report.products_details || report.products_details.length === 0) {
         const month = `"${new Date(report.month).toLocaleString("default", { month: "long", year: "numeric" })}"`;
         const orders = report.total_orders;
         const profits = Number(report.total_profit).toFixed(2);
         csvRows.push([month, orders, profits, "", "", ""].join(","));
-        return; // Skip to the next report
+        return;
       }
-
-      // Iterate through each product detail for a given month
       report.products_details.forEach((product) => {
         const month = `"${new Date(report.month).toLocaleString("default", { month: "long", year: "numeric" })}"`;
         const orders = report.total_orders;
         const profits = Number(report.total_profit).toFixed(2);
-        const productName = `"${product.product.replace(/"/g, '""')}"`; // Handle commas and quotes in product names
+        const productName = `"${product.product.replace(/"/g, '""')}"`;
         const productQuantity = product.quantity;
         const productProfit = Number(product.profit).toFixed(2);
-
-        csvRows.push(
-          [
-            month,
-            orders,
-            profits,
-            productName,
-            productQuantity,
-            productProfit,
-          ].join(","),
-        );
+        csvRows.push([month, orders, profits, productName, productQuantity, productProfit].join(","));
       });
     });
 
-    // 3. Create a Blob from the CSV data
     const csvString = csvRows.join("\n");
     const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
-
-    // 4. Create a temporary download link and trigger the download
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.href = url;
-    link.setAttribute("download", "sales_report.csv"); // Set the file name
+    link.setAttribute("download", "sales_report.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  const downloadPDF = (data) => {
+    // This is a placeholder. A full implementation would go here.
+    // Example with jsPDF:
+    // const doc = new jsPDF();
+    // doc.text("Sales Report", 10, 10);
+    // doc.autoTable({ html: '#report-table-id' }); // Requires a table with an ID
+    // doc.save("sales_report.pdf");
+    alert("PDF download feature is not yet implemented.");
+    console.log("PDF download initiated with data:", data);
+  };
+
+  const handleDownload = (format) => {
+    if (filteredReports.length === 0) {
+      alert("No data to download.");
+      return;
+    }
+
+    if (format === 'csv') {
+      downloadCSV(filteredReports);
+    } else if (format === 'pdf') {
+      downloadPDF(filteredReports);
+    }
+
+    setShowDownloadOptions(false);
   };
 
   if (loading) {
@@ -118,7 +117,7 @@ const AllReports = () => {
       <h1 className="text-3xl font-bold mb-6">Sales Reports</h1>
 
       {/* Search & Download Section */}
-      <div className="bg-white rounded-xl shadow p-4 mb-6 flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+      <div className="bg-white rounded-xl shadow p-4 mb-6 flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 relative">
         <input
           type="text"
           placeholder="Search by month (e.g., 'September 2025')"
@@ -132,12 +131,30 @@ const AllReports = () => {
         >
           <Search className="mr-2" /> Search
         </button>
-        <button
-          onClick={handleDownload}
-          className="flex items-center justify-center bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors w-full sm:w-auto"
-        >
-          <Download className="mr-2" /> Download
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowDownloadOptions(!showDownloadOptions)}
+            className="flex items-center justify-center bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors w-full sm:w-auto"
+          >
+            <Download className="mr-2" /> Download
+          </button>
+          {showDownloadOptions && (
+            <div className="absolute top-12 sm:right-0 bg-white shadow-md rounded-md p-2 flex flex-col space-y-2 z-10 w-40">
+              <button
+                onClick={() => handleDownload('csv')}
+                className="text-left px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-md"
+              >
+                Download CSV
+              </button>
+              <button
+                onClick={() => handleDownload('pdf')}
+                className="text-left px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-md"
+              >
+                Download PDF
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
