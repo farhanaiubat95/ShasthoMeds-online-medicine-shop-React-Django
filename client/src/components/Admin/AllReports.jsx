@@ -34,8 +34,71 @@ const AllReports = () => {
   };
 
   const handleDownload = () => {
-    // Implement your download logic here
-    console.log("Downloading data...");
+    if (filteredReports.length === 0) {
+      alert("No data to download.");
+      return;
+    }
+
+    // 1. Define the CSV header
+    const headers = [
+      "Month",
+      "Total Orders",
+      "Total Profits",
+      "Product Name",
+      "Quantity Sold",
+      "Product Profit",
+    ];
+
+    // 2. Map data to CSV format
+    const csvRows = [];
+    csvRows.push(headers.join(",")); // Add the header row
+
+    // Iterate through each monthly report
+    filteredReports.forEach((report) => {
+      // If there are no product details, create a row with just the monthly summary
+      if (!report.products_details || report.products_details.length === 0) {
+        const month = `"${new Date(report.month).toLocaleString("default", { month: "long", year: "numeric" })}"`;
+        const orders = report.total_orders;
+        const profits = Number(report.total_profit).toFixed(2);
+        csvRows.push([month, orders, profits, "", "", ""].join(","));
+        return; // Skip to the next report
+      }
+
+      // Iterate through each product detail for a given month
+      report.products_details.forEach((product) => {
+        const month = `"${new Date(report.month).toLocaleString("default", { month: "long", year: "numeric" })}"`;
+        const orders = report.total_orders;
+        const profits = Number(report.total_profit).toFixed(2);
+        const productName = `"${product.product.replace(/"/g, '""')}"`; // Handle commas and quotes in product names
+        const productQuantity = product.quantity;
+        const productProfit = Number(product.profit).toFixed(2);
+
+        csvRows.push(
+          [
+            month,
+            orders,
+            profits,
+            productName,
+            productQuantity,
+            productProfit,
+          ].join(","),
+        );
+      });
+    });
+
+    // 3. Create a Blob from the CSV data
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+
+    // 4. Create a temporary download link and trigger the download
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute("download", "sales_report.csv"); // Set the file name
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   if (loading) {
