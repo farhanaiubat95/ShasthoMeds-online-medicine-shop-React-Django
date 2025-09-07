@@ -25,6 +25,7 @@ import WidgetsIcon from "@mui/icons-material/Widgets";
 import { useSelector } from "react-redux";
 import { fetchPrescriptions } from "../redux/prescriptionSlice";
 import { fetchOrders } from "../redux/orderSlice";
+import { fetchAllUsers } from "../redux/userSlice";
 
 const drawerWidth = 240;
 
@@ -67,6 +68,10 @@ export default function AdminDashboard() {
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
   const token = localStorage.getItem("access_token");
+
+  useEffect(() => {
+    if (token) dispatch(fetchAllUsers(token));
+  }, [dispatch, token]);
 
   useEffect(() => {
     if (token) dispatch(fetchPrescriptions(token));
