@@ -1,154 +1,127 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  TextField,
-  Button,
-  Typography,
   Card,
   CardContent,
-  Box,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
+  Typography,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
-import { useSelector, useDispatch } from "react-redux";
-import { fetchBrands, addBrand, removeBrand } from "../../redux/brandSlice.js";
+import { BarChart2, TrendingUp, CreditCard, Package } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as ReTooltip, BarChart, Bar } from "recharts";
 
-const FindPageCheck = () => {
-  const dispatch = useDispatch();
-  const { items: brands, loading, error } = useSelector((state) => state.brand);
+// Example data (replace with API later)
+const monthlyData = [
+  { month: "Jan", revenue: 120000, orders: 320 },
+  { month: "Feb", revenue: 150000, orders: 400 },
+  { month: "Mar", revenue: 180000, orders: 450 },
+  { month: "Apr", revenue: 200000, orders: 500 },
+];
 
-  const [brandName, setBrandName] = useState("");
-  const [brandImage, setBrandImage] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  const [editBrandId, setEditBrandId] = useState(null);
+function StatCard({ title, value, icon: Icon, color }) {
+  return (
+    <Card className="rounded-2xl shadow-md hover:shadow-xl transition w-full">
+      <CardContent className="flex items-center gap-4">
+        <div
+          className={`p-3 rounded-xl text-white`}
+          style={{ backgroundColor: color }}
+        >
+          <Icon size={28} />
+        </div>
+        <div>
+          <Typography variant="subtitle2" color="textSecondary">
+            {title}
+          </Typography>
+          <Typography variant="h6" className="font-bold">
+            {value}
+          </Typography>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
-  useEffect(() => {
-    dispatch(fetchBrands());
-  }, [dispatch]);
-
-  const handleFileChange = (e) => {
-    setBrandImage(e.target.files[0]);
-  };
-
-  const resetForm = () => {
-    setBrandName("");
-    setBrandImage(null);
-    setEditMode(false);
-    setEditBrandId(null);
-  };
-
-  const handleSubmit = () => {
-    if (!brandName) return alert("Brand Name is required");
-
-    const token = localStorage.getItem("accessToken");
-    const formData = new FormData();
-    formData.append("name", brandName);
-    if (brandImage) formData.append("image", brandImage);
-
-    if (editMode) {
-      alert("Update feature can be added here with Redux/Backend");
-      resetForm();
-    } else {
-      dispatch(addBrand({ brandData: formData, token }));
-      resetForm();
-    }
-  };
-
-  const handleEditClick = (brand) => {
-    setEditMode(true);
-    setEditBrandId(brand.id);
-    setBrandName(brand.name);
-    setBrandImage(null); // existing image remains
-  };
-
-  const handleDelete = (id) => {
-    if (window.confirm("Delete this brand?")) {
-      const token = localStorage.getItem("accessToken");
-      dispatch(removeBrand({ id, token }));
-    }
-  };
+export default function FindPageCheck() {
+  const [chartType, setChartType] = useState("revenue");
 
   return (
-    <Box>
-      {/* Summary */}
-      <Box className="flex gap-6 p-4 bg-gray-100">
-        <Typography>Total Brands: {brands.length}</Typography>
-      </Box>
+    <div className="space-y-6 mt-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatCard
+          title="This Month's Revenue"
+          value="৳200,000"
+          icon={BarChart2}
+          color="#4f46e5"
+        />
+        <StatCard
+          title="This Month's Orders"
+          value="500"
+          icon={Package}
+          color="#10b981"
+        />
+        <StatCard
+          title="This Year's Revenue"
+          value="৳1,450,000"
+          icon={TrendingUp}
+          color="#f59e0b"
+        />
+        <StatCard
+          title="Total Paid Orders"
+          value="5,200"
+          icon={CreditCard}
+          color="#9333ea"
+        />
+      </div>
 
-      {/* Form and Table */}
-      <Box className="flex gap-6 p-6 flex-wrap">
-        {/* Form */}
-        <Card sx={{ flex: "1 1 300px" }}>
-          <CardContent>
-            <Typography variant="h6" className="pb-4">
-              {editMode ? "Edit Brand" : "Add New Brand"}
-            </Typography>
+      {/* Chart Section */}
+      <Card className="rounded-2xl shadow-md p-4">
+        <div className="flex justify-between items-center mb-4">
+          <Typography variant="h6" className="font-bold">
+            {chartType === "revenue" ? "Monthly Revenue" : "Monthly Orders"}
+          </Typography>
+          <div className="flex gap-2">
+            <Tooltip title="Show Revenue">
+              <IconButton
+                onClick={() => setChartType("revenue")}
+                color={chartType === "revenue" ? "primary" : "default"}
+              >
+                <BarChart2 />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Show Orders">
+              <IconButton
+                onClick={() => setChartType("orders")}
+                color={chartType === "orders" ? "primary" : "default"}
+              >
+                <Package />
+              </IconButton>
+            </Tooltip>
+          </div>
+        </div>
 
-            <TextField
-              fullWidth
-              label="Brand Name"
-              value={brandName}
-              onChange={(e) => setBrandName(e.target.value)}
-              sx={{ mb: 2 }}
-            />
-
-            <TextField type="file" fullWidth onChange={handleFileChange} sx={{ mb: 2 }} />
-
-            <Button fullWidth variant="contained" onClick={handleSubmit}>
-              {editMode ? "Update" : "Submit"}
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Table */}
-        <Box sx={{ flex: "2 1 500px" }}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Image</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {brands.map((brand) => (
-                  <TableRow key={brand.id}>
-                    <TableCell>{brand.id}</TableCell>
-                    <TableCell>{brand.name}</TableCell>
-                    <TableCell>
-                      {brand.image && (
-                        <img
-                          src={brand.image}
-                          alt=""
-                          style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Button size="small" onClick={() => handleEditClick(brand)}>
-                        Edit
-                      </Button>
-                      <Button size="small" color="error" onClick={() => handleDelete(brand.id)}>
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
-      </Box>
-
-      {loading && <Typography>Loading brands...</Typography>}
-      {error && <Typography color="error">{error}</Typography>}
-    </Box>
+        <ResponsiveContainer width="100%" height={300}>
+          {chartType === "revenue" ? (
+            <BarChart data={monthlyData}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <ReTooltip />
+              <Bar dataKey="revenue" fill="#4f46e5" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          ) : (
+            <LineChart data={monthlyData}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <ReTooltip />
+              <Line
+                type="monotone"
+                dataKey="orders"
+                stroke="#10b981"
+                strokeWidth={3}
+              />
+            </LineChart>
+          )}
+        </ResponsiveContainer>
+      </Card>
+    </div>
   );
-};
-
-export default FindPageCheck;
+}

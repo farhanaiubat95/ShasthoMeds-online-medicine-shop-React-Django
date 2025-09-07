@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -8,15 +8,73 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
-const uData = [4000, 3000, 2000, 2780, 1890, 2390, 3490];
-const pData = [2400, 1398, 9800, 3908, 4800, 3800, 4300];
-const xLabels = ["Page A", "Page B", "Page C", "Page D", "Page E", "Page F", "Page G"];
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllUsers } from "../../redux/userSlice";
+import axiosInstance from "../../axiosInstance.js";
 
 const Main = () => {
-  const totalUser = 4;
-  const totalCustomer = 2;
-  const totalSeller = 1;
+  const dispatch = useDispatch();
+
+  // Access users + token from Redux
+  const { users, loading, error, access_token } = useSelector(
+    (state) => state.user
+  );
+
+  const [chartData, setChartData] = useState([]);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [profit, setProfit] = useState(0);
+
+  // Fetch users from Redux
+  useEffect(() => {
+    if (access_token) {
+      dispatch(fetchAllUsers(access_token));
+    }
+  }, [dispatch, access_token]);
+
+  // Fetch monthly report
+  useEffect(() => {
+    const fetchMonthly = async () => {
+      try {
+        if (!access_token) return;
+
+        const monthlyRes = await axiosInstance.get("/monthly/", {
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
+
+        const monthlyReports = monthlyRes.data;
+
+        // Update extra states
+        const totalOrders = monthlyReports.reduce(
+          (sum, m) => sum + m.total_orders,
+          0
+        );
+        const totalProfit = monthlyReports.reduce(
+          (sum, m) => sum + Number(m.total_profit),
+          0
+        );
+
+        setTotalOrders(totalOrders);
+        setProfit(totalProfit);
+
+        // Map data for recharts
+        const chart = monthlyReports.map((m) => ({
+          name: new Date(m.month).toLocaleString("default", { month: "short" }),
+          income: Number(m.total_income),
+          profit: Number(m.total_profit),
+        }));
+        setChartData(chart);
+      } catch (err) {
+        console.error("Monthly fetch error:", err);
+      }
+    };
+
+    fetchMonthly();
+  }, [access_token]);
+
+  // Derived counts
+  const totalUser = users.length;
+  const totalCustomer = users.filter((u) => u.role === "customer").length;
+  const totalSeller = users.filter((u) => u.role === "seller").length;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-5 ">
@@ -25,74 +83,72 @@ const Main = () => {
         Admin Dashboard
       </h2>
 
-          <div>
-              {/* Top Cards */}
+      {/* Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <div className="bg-purple-100 rounded-xl shadow-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
-          <p className="text-sm font-medium text-purple-700 uppercase tracking-wide">
-            Total Members
+        <div className="bg-purple-100 rounded-xl shadow-lg p-6">
+          <p className="text-sm font-medium text-purple-700 uppercase">
+            Total Users
           </p>
-          <h3 className="text-4xl font-extrabold text-purple-900 mt-3">{totalUser}</h3>
-          <h5 className="mt-6 text-sm text-purple-600 cursor-pointer">
-            More Details
-          </h5>
+          <h3 className="text-4xl font-extrabold text-purple-900 mt-3">
+            {totalUser}
+          </h3>
         </div>
 
-        <div className="bg-blue-100 rounded-xl shadow-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
-          <p className="text-sm font-medium text-blue-700 uppercase tracking-wide">
-            Total Customers
+        <div className="bg-blue-100 rounded-xl shadow-lg p-6">
+          <p className="text-sm font-medium text-blue-700 uppercase">
+            Total Orders
           </p>
-          <h3 className="text-4xl font-extrabold text-blue-900 mt-3">{totalCustomer}</h3>
-          <h5 className="mt-6 text-sm text-blue-600 cursor-pointer">
-            More Details
-          </h5>
+          <h3 className="text-4xl font-extrabold text-blue-900 mt-3">
+            {totalOrders}
+          </h3>
         </div>
 
-        <div className="bg-green-100 rounded-xl shadow-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
-          <p className="text-sm font-medium text-green-700 uppercase tracking-wide">
-            Total Sellers
+        <div className="bg-green-100 rounded-xl shadow-lg p-6">
+          <p className="text-sm font-medium text-green-700 uppercase">
+            Total Profits
           </p>
-          <h3 className="text-4xl font-extrabold text-green-900 mt-3">{totalSeller}</h3>
-          <h5 className="mt-6 text-sm text-green-600 cursor-pointer">
-            More Details
-          </h5>
+          <h3 className="text-4xl font-extrabold text-green-900 mt-3">
+            {profit}
+          </h3>
         </div>
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10  h-[270px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 h-[270px]">
         <section className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Cost Overview</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">
+            Income vs Profit
+          </h3>
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={xLabels.map((x, i) => ({ name: x, uv: uData[i], pv: pData[i] }))}>
+            <BarChart data={chartData}>
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="pv" fill="#10b981" />
-              <Bar dataKey="uv" fill="#f59e0b" />
+              <Bar dataKey="income" fill="#10b981" />
+              <Bar dataKey="profit" fill="#f59e0b" />
             </BarChart>
           </ResponsiveContainer>
         </section>
 
-        <section className="bg-white rounded-xl shadow-lg p-6 h-[270px]">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Product Overview</h3>
-          <ResponsiveContainer width="100%" height={180} >
-            <BarChart data={xLabels.map((x, i) => ({ name: x, uv: uData[i], pv: pData[i] }))}>
+        <section className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">
+            Product Overview
+          </h3>
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={chartData}>
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="pv" fill="#a855f7" />
-              <Bar dataKey="uv" fill="#3b82f6" />
+              <Bar dataKey="income" fill="#a855f7" />
+              <Bar dataKey="profit" fill="#3b82f6" />
             </BarChart>
           </ResponsiveContainer>
         </section>
-      </div>
       </div>
     </div>
   );
 };
-
 
 export default Main;
