@@ -112,7 +112,7 @@ const Main = () => {
             Total Profits
           </p>
           <h3 className="text-4xl font-bold text-green-900 mt-3">
-            <span className="text-2xl">Tk</span> {profit}
+            <span className="text-2xl">Tk</span> {totalProfit}
           </h3>
         </div>
       </div>
