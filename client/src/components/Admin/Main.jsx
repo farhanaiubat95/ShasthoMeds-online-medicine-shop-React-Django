@@ -32,13 +32,15 @@ const Main = () => {
 
         // Ensure we have an array
         if (!Array.isArray(monthlyReports)) {
-          // If object returned (e.g., keyed by month), convert to array
           monthlyReports = Object.values(monthlyReports || {});
         }
 
-        // Default to empty array if still falsy
-        const reportsArray = monthlyReports || [];
+        // Filter out null or invalid entries
+        const reportsArray = (monthlyReports || []).filter(
+          (m) => m && typeof m === "object"
+        );
 
+        // Safely reduce
         const totalOrders = reportsArray.reduce(
           (sum, m) => sum + (m.total_orders || 0),
           0
@@ -48,6 +50,7 @@ const Main = () => {
           0
         );
 
+        // Map for chart
         const chart = reportsArray.map((m) => ({
           name: m.month
             ? new Date(m.month).toLocaleString("default", { month: "short" })
@@ -67,17 +70,14 @@ const Main = () => {
     fetchMonthly();
   }, [token]);
 
-  // Derived counts (replace with real Redux state if available)
   const totalUser = 10;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-5">
-      {/* Header */}
       <h2 className="text-xl lg:text-2xl font-semibold text-[#586277] mb-10">
         Admin Dashboard
       </h2>
 
-      {/* Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <div className="bg-purple-100 rounded-xl shadow-lg p-6">
           <p className="text-sm font-medium text-purple-700 uppercase">
@@ -107,7 +107,6 @@ const Main = () => {
         </div>
       </div>
 
-      {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 h-[270px]">
         <section className="bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-4">
