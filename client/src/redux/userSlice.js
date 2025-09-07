@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axiosInstance from "../axiosInstance";
-
 // Load initial state from localStorage to persist login after refresh
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || null,
@@ -12,22 +10,6 @@ const initialState = {
   loading: false,
   error: null,
 };
-
-// Fetch all users (admin only)
-export const fetchAllUsers = createAsyncThunk(
-  "user/fetchAllUsers", // keep same slice namespace
-  async (_, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem("access_token");
-      const res = await axiosInstance.get("/users/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return res.data.results || res.data; // handle pagination or direct list
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
 
 // User slice
 const userSlice = createSlice({
@@ -60,21 +42,7 @@ const userSlice = createSlice({
       localStorage.removeItem("refresh_token");
     },
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchAllUsers.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAllUsers.fulfilled, (state, action) => {
-        state.loading = false;
-        state.users = action.payload;
-      })
-      .addCase(fetchAllUsers.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to fetch users";
-      });
-  },
+  
 });
 
 // Export actions so they can be dispatched from components
