@@ -162,7 +162,7 @@ const Main = () => {
         {/* --- Replace Bar Chart with Pie Chart --- */}
         <section className="bg-white rounded-sm shadow-lg p-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-4">
-            Top 5 Products by Sales
+            Top Products by Sales
           </h3>
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
@@ -174,7 +174,7 @@ const Main = () => {
                 cy="50%"
                 outerRadius={80}
                 fill="#8884d8"
-                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                // label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
               >
                 {topProductsData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
