@@ -31,8 +31,8 @@ const Main = () => {
         console.log("Monthly API response:", monthlyRes); // <-- Debug API response
         console.log("Monthly API data:", monthlyRes.data); // <-- Debug only the data
 
-        let monthlyReports = monthlyRes.data;
-
+        // Access the 'results' array directly from the response data
+        let monthlyReports = monthlyRes.data.results || [];
         // Ensure we have an array
         if (!Array.isArray(monthlyReports)) {
           monthlyReports = Object.values(monthlyReports || {});
