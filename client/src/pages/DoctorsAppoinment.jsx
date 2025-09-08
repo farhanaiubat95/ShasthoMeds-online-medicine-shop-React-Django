@@ -88,25 +88,27 @@ export default function DoctorsAppoinment() {
       (a) => a.date === date && a.time_slot === time,
     );
 
-    let color = "success";
-    let disabled = false;
-    let icon = <FaClock className="animate-pulse" />;
+    // If no one has booked this slot, it's available
+    if (!slotBooked) {
+      return {
+        color: "success",
+        disabled: false,
+        icon: <FaClock className="animate-pulse" />,
+      };
+    }
 
-    if (slotBooked) {
-      if (slotBooked.status === "cancelled") color = "success";
-      else if (slotBooked.patient === user.id) {
-        color = slotBooked.status === "pending" ? "secondary" : "warning";
-        icon =
-          slotBooked.status === "pending" ? <FaClock /> : <FaCheckCircle />;
-        disabled = true;
-      } else {
-        color = "error";
-        icon = <FaCheckCircle />;
-        disabled = true;
+    // If the current user has booked this slot
+    if (slotBooked.patient.username === user.username) {
+      if (slotBooked.status === "pending") {
+        return { color: "secondary", disabled: true, icon: <FaClock /> };
+      }
+      if (slotBooked.status === "confirmed") {
+        return { color: "warning", disabled: true, icon: <FaCheckCircle /> };
       }
     }
 
-    return { color, disabled, icon };
+    // If another user has booked this slot
+    return { color: "error", disabled: true, icon: <FaCheckCircle /> };
   };
 
   return (
@@ -119,30 +121,20 @@ export default function DoctorsAppoinment() {
         My Appointments
       </Typography>
 
-      {/* Button to show booking */}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setShowBooking((prev) => !prev)}
-        className="mb-6"
-      >
-        Take Appointment
-      </Button>
-
       {/* Show all user appointments */}
       <Box className="mb-6">
         {appointmentsList
-          .filter((a) => a.patient === user.id)
+          .filter((a) => a.patient.username === user.username) // compare username
           .map((a) => (
-            <Paper key={a.id}>
-              <Typography>
+            <Paper key={a.id} className="p-4 mb-3">
+              <Typography variant="h6" className="font-semibold">
                 {a.doctor.full_name} ({a.doctor.specialization})
               </Typography>
               <Typography>
                 Date: {a.date} | Time: {a.time_slot}
               </Typography>
               <Typography>
-                Status:
+                Status:{" "}
                 <span
                   className={
                     a.status === "pending"
@@ -158,6 +150,16 @@ export default function DoctorsAppoinment() {
             </Paper>
           ))}
       </Box>
+
+      {/* Button to show booking */}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setShowBooking((prev) => !prev)}
+        className="mb-6"
+      >
+        Take Appointment
+      </Button>
 
       {/* Booking Section */}
       {showBooking && (
