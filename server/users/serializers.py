@@ -4,7 +4,7 @@ from shasthomeds.settings import EMAIL_HOST_USER
 from django.contrib.auth.password_validation import validate_password
 import random
 from django.core.mail import send_mail
-from .models import Brand, Cart, CartItem,Category, MonthlyReport, Order, OrderItem, PrescriptionRequest,Product, YearlyReport
+from .models import Appointment, Brand, Cart, CartItem,Category, Doctor, MonthlyReport, Order, OrderItem, PrescriptionRequest,Product, YearlyReport
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer  # pyright: ignore[reportMissingImports]
 
 # Models
@@ -378,4 +378,16 @@ class MonthlyReportSerializer(serializers.ModelSerializer):
 class YearlyReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = YearlyReport
+        fields = "__all__"
+
+# Serializer for Doctor
+class DoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = "__all__"
+
+# Serializer for Appointment
+class AppointmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
         fields = "__all__"

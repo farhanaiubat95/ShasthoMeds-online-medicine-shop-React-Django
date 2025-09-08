@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.forms import ValidationError
 from django.utils import timezone
-from datetime import timedelta
+from datetime import date, timedelta
 from django.conf import settings
 
 from django.core.mail import send_mail
@@ -435,3 +435,80 @@ class YearlyReport(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+# Doctor model
+class Doctor(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    specialization = models.CharField(max_length=255)
+    experience_years = models.PositiveIntegerField(default=0)
+    max_patients_per_day = models.PositiveIntegerField(default=10)
+    consultation_fee = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    available_days = models.JSONField(default=list)  # ["Monday", "Wednesday"]
+    available_time = models.JSONField(default=list)  # ["10:00-12:00", "15:00-17:00"]
+
+    def __str__(self):
+        return f"Dr. {self.user.full_name} ({self.specialization})"
+
+
+# Appointment model with validation
+class Appointment(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("confirmed", "Confirmed"),
+        ("cancelled", "Cancelled"),
+    ]
+
+    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="appointments")
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="appointments")
+    date = models.DateField()
+    time_slot = models.CharField(max_length=50)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("doctor", "date", "time_slot")
+
+    def __str__(self):
+        return f"{self.patient.username} → {self.doctor.user.username} ({self.date} {self.time_slot})"
+
+    # -------------------------------
+    # VALIDATIONS
+    # -------------------------------
+    def clean(self):
+        # Only allow current week
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+        end_of_week = start_of_week + timedelta(days=6)
+
+        if not (start_of_week <= self.date <= end_of_week):
+            raise ValidationError("You can only book appointments for the current week.")
+
+        # Check doctor available time
+        if self.time_slot not in self.doctor.available_time:
+            raise ValidationError("This time slot is not available for this doctor.")
+
+        # Check max patients per day
+        booked_count = Appointment.objects.filter(
+            doctor=self.doctor,
+            date=self.date,
+            status__in=["pending", "confirmed"]
+        ).count()
+        if booked_count >= self.doctor.max_patients_per_day:
+            raise ValidationError("Doctor has reached maximum patients for this day.")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+
+# -------------------------------
+# Helper function to get available time slots for frontend
+# -------------------------------
+def get_available_time_slots(doctor, date):
+    booked_slots = Appointment.objects.filter(
+        doctor=doctor,
+        date=date,
+        status__in=["pending", "confirmed"]
+    ).values_list("time_slot", flat=True)
+    return [slot for slot in doctor.available_time if slot not in booked_slots]

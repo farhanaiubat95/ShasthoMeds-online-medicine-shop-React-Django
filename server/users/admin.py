@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import  Cart, CartItem, Category, CustomUser, EmailOTP, Brand, MonthlyReport, Order,PrescriptionRequest,Product, YearlyReport
+from .models import  Appointment, Cart, CartItem, Category, CustomUser, Doctor, EmailOTP, Brand, MonthlyReport, Order,PrescriptionRequest,Product, YearlyReport, get_available_time_slots
 from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -220,3 +220,40 @@ class YearlyReportAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
+
+# --- Doctor ---
+@admin.register(Doctor)
+class DoctorAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "user", "specialization", "experience_years", "max_patients_per_day",
+        "consultation_fee", "available_days", "available_time"
+    )
+    search_fields = ("user__username", "user__email", "specialization")
+    list_filter = ("specialization",)
+
+
+# --- Appointment ---
+@admin.register(Appointment)
+class AppointmentAdmin(admin.ModelAdmin):
+    list_display = ("id", "patient", "doctor", "date", "time_slot","available_slots_today", "status", "created_at")
+    search_fields = ("patient__username", "doctor__user__username")
+    list_filter = ("status", "date", "doctor")
+
+    # Make fields read-only if needed
+    readonly_fields = ("created_at",)
+
+    def available_slots_today(self, obj):
+        from datetime import date
+        slots = get_available_time_slots(obj.doctor, obj.date or date.today())
+        return ", ".join(slots) if slots else "No slots"
+    available_slots_today.short_description = "Available Slots"
+
+
+    # Optionally prevent creating invalid appointments manually
+    def save_model(self, request, obj, form, change):
+        try:
+            obj.clean()  # enforce your model validations
+            super().save_model(request, obj, form, change)
+        except Exception as e:
+            from django.contrib import messages
+            messages.error(request, f"Cannot save appointment: {e}")

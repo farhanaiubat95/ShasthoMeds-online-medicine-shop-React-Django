@@ -6,7 +6,7 @@ from .SSLCOMMERZ import payment_success, payment_fail, payment_cancel
 
 
 from .views import (
-    APIRootView, BrandViewSet, CartViewSet, CategoryViewSet,LogoutView, MonthlyReportDetailView, MonthlyReportListView, OrderViewSet, PrescriptionRequestViewSet, ProductViewSet, RegisterAPIView, ResendOTPView,
+    APIRootView, AppointmentViewSet, BrandViewSet, CartViewSet, CategoryViewSet, DoctorViewSet,LogoutView, MonthlyReportDetailView, MonthlyReportListView, OrderViewSet, PrescriptionRequestViewSet, ProductViewSet, RegisterAPIView, ResendOTPView,
     UpdateProfileView, UserListView, VerifyOTPView, CustomTokenObtainPairView, YearlyReportDetailView, YearlyReportListView,
 )
 
@@ -23,6 +23,9 @@ router.register(r'products', ProductViewSet, basename='product')
 router.register(r'cart', CartViewSet, basename='cart')
 router.register(r'prescriptions', PrescriptionRequestViewSet, basename='prescription')
 router.register(r'orders', OrderViewSet, basename='order')
+router.register(r'doctors', DoctorViewSet, basename='doctor')
+router.register(r'appointments', AppointmentViewSet, basename='appointment')
+
 
 
 urlpatterns = [

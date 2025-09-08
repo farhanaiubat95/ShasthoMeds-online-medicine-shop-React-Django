@@ -15,17 +15,18 @@ from .SSLCOMMERZ import create_payment_session
 from django.utils.crypto import get_random_string
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .models import Brand, Cart, CartItem, Category, MonthlyReport, Order, PrescriptionRequest,Product, YearlyReport
-from .serializers import BrandSerializer, CartSerializer, CategorySerializer, MonthlyReportSerializer, OrderSerializer, PrescriptionRequestSerializer,ProductSerializer, YearlyReportSerializer
-
-from django.conf import settings
-
-EMAIL_HOST_USER = settings.EMAIL_HOST_USER
+from .models import Appointment, Brand, Cart, CartItem, Category, Doctor, MonthlyReport, Order, PrescriptionRequest,Product, YearlyReport,  Appointment, Doctor, get_available_time_slots
+from .serializers import AppointmentSerializer, BrandSerializer, CartSerializer, CategorySerializer, DoctorSerializer, MonthlyReportSerializer, OrderSerializer, PrescriptionRequestSerializer,ProductSerializer, YearlyReportSerializer
 
 # store/views.py
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
+
+from datetime import date, timedelta
+from django.conf import settings
+
+EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
 
 from .models import (
@@ -423,3 +424,121 @@ class YearlyReportDetailView(generics.RetrieveAPIView):
     queryset = YearlyReport.objects.all()
     serializer_class = YearlyReportSerializer
     lookup_field = 'year'
+
+# List all doctors
+class DoctorViewSet(viewsets.ModelViewSet):
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorSerializer
+    permission_classes = [permissions.AllowAny]
+
+# List all appointments
+class AppointmentViewSet(viewsets.ModelViewSet):
+    """
+    Appointment API:
+    - Patients can see their own appointments
+    - Doctors can see appointments for themselves
+    - Patients can book appointments only within the current week
+    - Max patients per doctor per day enforced
+    - Only available time slots allowed
+    """
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if hasattr(user, "doctor"):  # doctor user
+            return Appointment.objects.filter(doctor__user=user).order_by("date", "time_slot")
+        return Appointment.objects.filter(patient=user).order_by("date", "time_slot")
+
+    def perform_create(self, serializer):
+        """
+        Override to automatically assign patient as current user if not provided
+        """
+        if not serializer.validated_data.get("patient"):
+            serializer.save(patient=self.request.user)
+        else:
+            serializer.save()
+
+    # -------------------------------
+    # Custom action to get available slots for frontend
+    # -------------------------------
+    @action(detail=True, methods=["get"])
+    def available_slots(self, request, pk=None):
+        """
+        Returns available time slots for this doctor in the current week
+        """
+        try:
+            doctor = Doctor.objects.get(pk=pk)
+        except Doctor.DoesNotExist:
+            return Response({"detail": "Doctor not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())  # Monday
+        end_of_week = start_of_week + timedelta(days=6)          # Sunday
+
+        # Only days doctor is available in this week
+        available_dates = [
+            start_of_week + timedelta(days=i)
+            for i in range(7)
+            if (start_of_week + timedelta(days=i)).strftime("%A") in doctor.available_days
+        ]
+
+        data = {}
+        for d in available_dates:
+            slots = get_available_time_slots(doctor, d)
+            if slots:
+                data[str(d)] = slots  # e.g. "2025-09-08": ["10:00-12:00"]
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if hasattr(user, "doctor"):
+            # If doctor, show appointments for that doctor
+            return Appointment.objects.filter(doctor__user=user)
+        # Otherwise patient sees their own appointments
+        return Appointment.objects.filter(patient=user)
+
+    # -------------------------------
+    # Custom endpoint: available slots for a doctor
+    # -------------------------------
+    @action(detail=True, methods=["get"])
+    def available_slots(self, request, pk=None):
+        """
+        Returns available time slots for this doctor in the current week
+        """
+        doctor = self.get_object()  # doctor object
+
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+        end_of_week = start_of_week + timedelta(days=6)
+
+        # Only days doctor is available in this week
+        available_dates = [
+            start_of_week + timedelta(days=i)
+            for i in range(7)
+            if (start_of_week + timedelta(days=i)).strftime("%A") in doctor.available_days
+        ]
+
+        data = {}
+        for d in available_dates:
+            slots = get_available_time_slots(doctor, d)
+            if slots:
+                data[str(d)] = slots
+
+        return Response(data)
+
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "doctor":
+            return Appointment.objects.filter(doctor__user=user)
+        return Appointment.objects.filter(patient=user)
