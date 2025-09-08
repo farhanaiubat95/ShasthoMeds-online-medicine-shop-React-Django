@@ -138,7 +138,7 @@ export default function DoctorsAppoinment() {
           </Typography>
 
           <Autocomplete
-            options={doctors || []}
+            options={doctorsList}
             getOptionLabel={(doc) => `${doc.full_name} - ${doc.specialization}`}
             onChange={(e, value) => setSelectedDoctor(value)}
             renderInput={(params) => (

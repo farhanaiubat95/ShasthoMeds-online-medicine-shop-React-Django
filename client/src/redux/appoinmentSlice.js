@@ -3,17 +3,14 @@ import axios from "axios";
 
 const API_URL = "https://shasthomeds-backend.onrender.com";
 
-// Fetch appointments for a doctor
+// Fetch all appointments for logged-in user
 export const fetchAppointments = createAsyncThunk(
   "appointments/fetchAppointments",
   async ({ token }, thunkAPI) => {
     try {
-      const res = await axios.get(
-        `${API_URL}/appointments/?doctor=${doctorId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const res = await axios.get(`${API_URL}/appointments/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return res.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -56,6 +53,7 @@ const appointmentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetch appointments
       .addCase(fetchAppointments.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -68,13 +66,19 @@ const appointmentSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      // Book appointment
       .addCase(bookAppointment.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(bookAppointment.fulfilled, (state, action) => {
         state.loading = false;
-        state.appointments.push(action.payload);
+        if (state.appointments.results) {
+          state.appointments.results.push(action.payload); // pagination style
+        } else {
+          state.appointments.push(action.payload); // simple array style
+        }
       })
       .addCase(bookAppointment.rejected, (state, action) => {
         state.loading = false;
