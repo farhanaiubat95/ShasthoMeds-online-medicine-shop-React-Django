@@ -102,6 +102,13 @@ const SlideCategory = () => {
               <CardContent className="p-2">
                 <Typography
                   variant="subtitle2"
+                  noWrap
+                  sx={{
+                    maxWidth: 80, // fixed width in px (adjust as needed)
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
                   className="text-center font-medium"
                 >
                   {cat.name}
