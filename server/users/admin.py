@@ -261,7 +261,7 @@ class AppointmentAdmin(admin.ModelAdmin):
             if obj.status == "confirmed":
                 send_mail(
                     subject="Your Appointment is Confirmed",
-                    message=f"Hello {obj.patient.full_name},\n\nYour appointment with Dr. {obj.doctor.full_name} on {obj.date} at {obj.time_slot} is confirmed.",
+                    message=f"Hello {obj.patient.full_name},\n\nYour appointment with {obj.doctor.full_name} on {obj.date} at {obj.time_slot} is confirmed.",
                     from_email=EMAIL_HOST_USER,
                     recipient_list=[obj.patient.email],
                     fail_silently=True,

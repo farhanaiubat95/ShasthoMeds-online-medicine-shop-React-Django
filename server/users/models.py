@@ -448,7 +448,7 @@ class Doctor(models.Model):
     available_time = models.JSONField(default=list)  # ["10:00-12:00", "15:00-17:00"]
 
     def __str__(self):
-        return f"Dr. {self.full_name} ({self.specialization})"
+        return f"{self.full_name} ({self.specialization})"
 
 # Appointment model
 class Appointment(models.Model):
