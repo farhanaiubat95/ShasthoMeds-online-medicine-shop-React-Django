@@ -406,7 +406,6 @@ class DoctorSerializer(serializers.ModelSerializer):
 
 
 # Serializer for Appointment
-# Serializer for Appointment
 class AppointmentSerializer(serializers.ModelSerializer):
     doctor = DoctorSerializer(read_only=True)  # full nested doctor object
     doctor_id = serializers.PrimaryKeyRelatedField(
