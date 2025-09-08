@@ -78,8 +78,8 @@ def update_reports(sender, instance, created, **kwargs):
         products_details.append({
             "product": g["product_name"],
             "quantity": g["total_qty"],
-            "income": float(g["total_income"]),
-            "actual": float(g["total_actual"]), 
+            "income": float(g["total_income"]or 0),
+            "actual": float(g["total_actual"] or 0),   # ensure not None
             "profit": float(profit),
         })
 
@@ -126,8 +126,8 @@ def update_reports(sender, instance, created, **kwargs):
         products_details_year.append({
             "product": g["product_name"],
             "quantity": g["total_qty"],
-            "income": float(g["total_income"]),
-            "actual": float(g["total_actual"]), 
+            "income": float(g["total_income"]or 0),
+            "actual": float(g["total_actual"] or 0),   # ensure not None
             "profit": float(profit),
         })
 

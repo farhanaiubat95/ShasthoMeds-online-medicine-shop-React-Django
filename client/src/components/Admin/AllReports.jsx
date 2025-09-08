@@ -251,13 +251,13 @@ const AllReports = () => {
                         {product.quantity}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm">
-                        Tk {Number(product.income).toFixed(2)}
+                        Tk {Number(product.income || 0).toFixed(2)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm">
-                        Tk {Number(product.actual).toFixed(2)}
+                        Tk {Number(product.actual || 0).toFixed(2)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm">
-                        Tk {Number(product.profit).toFixed(2)}
+                        Tk {Number(product.profit || 0).toFixed(2)}
                       </td>
                     </tr>
                   ))
