@@ -6,14 +6,19 @@ const API_URL = "https://shasthomeds-backend.onrender.com";
 // Fetch appointments for a doctor
 export const fetchAppointments = createAsyncThunk(
   "appointments/fetchAppointments",
-  async (doctorId, thunkAPI) => {
+  async ({ doctorId, token }, thunkAPI) => {
     try {
-      const res = await axios.get(`${API_URL}/appointments/?doctor=${doctorId}`);
+      const res = await axios.get(
+        `${API_URL}/appointments/?doctor=${doctorId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       return res.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 // Book an appointment
@@ -26,13 +31,13 @@ export const bookAppointment = createAsyncThunk(
         { doctor: doctorId, date, time_slot },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       return res.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 const appointmentSlice = createSlice({
