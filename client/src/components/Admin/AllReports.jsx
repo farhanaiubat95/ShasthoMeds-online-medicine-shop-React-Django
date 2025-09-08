@@ -38,9 +38,12 @@ const AllReports = () => {
     const headers = [
       "Month",
       "Total Orders",
+      "Total Income",
       "Total Profits",
       "Product Name",
       "Quantity Sold",
+      "Product's Selling Price",
+      "Product Buying Price",
       "Product Profit",
     ];
 
@@ -69,18 +72,24 @@ const AllReports = () => {
           year: "numeric",
         })}"`;
         const orders = report.total_orders;
+        const total_income = report.total_income;
         const profits = Number(report.total_profit).toFixed(2);
         const productName = `"${product.product.replace(/"/g, '""')}"`; // Handle commas and quotes in product names
         const productQuantity = product.quantity;
+        const productSellingPrice = product.income;
+        const productBuyingPrice = product.actual;
         const productProfit = Number(product.profit).toFixed(2);
 
         csvRows.push(
           [
             month,
             orders,
+            total_income,
             profits,
             productName,
             productQuantity,
+            productSellingPrice,
+            productBuyingPrice,
             productProfit,
           ].join(","),
         );
@@ -221,6 +230,12 @@ const AllReports = () => {
                     Quantity Sold
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    Selling Price
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    Buying Price
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Profit
                   </th>
                 </tr>
@@ -234,6 +249,12 @@ const AllReports = () => {
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm">
                         {product.quantity}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm">
+                        Tk {Number(product.income).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm">
+                        Tk {Number(product.actual).toFixed(2)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm">
                         Tk {Number(product.profit).toFixed(2)}

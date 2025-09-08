@@ -79,6 +79,7 @@ def update_reports(sender, instance, created, **kwargs):
             "product": g["product_name"],
             "quantity": g["total_qty"],
             "income": float(g["total_income"]),
+            "actual": float(g["total_actual"]), 
             "profit": float(profit),
         })
 
@@ -126,6 +127,7 @@ def update_reports(sender, instance, created, **kwargs):
             "product": g["product_name"],
             "quantity": g["total_qty"],
             "income": float(g["total_income"]),
+            "actual": float(g["total_actual"]), 
             "profit": float(profit),
         })
 
