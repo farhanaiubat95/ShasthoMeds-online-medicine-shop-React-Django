@@ -21,11 +21,11 @@ export const fetchAppointments = createAsyncThunk(
 // Book an appointment
 export const bookAppointment = createAsyncThunk(
   "appointments/bookAppointment",
-  async ({ doctorId, patientId, date, time_slot, token }, thunkAPI) => {
+  async ({ doctor, patient, date, time_slot, token }, thunkAPI) => {
     try {
       const res = await axios.post(
         `${API_URL}/appointments/`,
-        { doctor: doctorId, patient: patientId, date, time_slot },
+        { doctor, patient, date, time_slot },
         {
           headers: { Authorization: `Bearer ${token}` },
         },

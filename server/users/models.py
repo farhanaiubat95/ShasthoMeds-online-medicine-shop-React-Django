@@ -475,7 +475,7 @@ class Appointment(models.Model):
     # VALIDATIONS
     # -------------------------------
     def clean(self):
-        # Only allow current week
+    # Only allow current week
         today = date.today()
         start_of_week = today - timedelta(days=today.weekday())
         end_of_week = start_of_week + timedelta(days=6)
@@ -483,21 +483,23 @@ class Appointment(models.Model):
         if not (start_of_week <= self.date <= end_of_week):
             raise ValidationError("You can only book appointments for the current week.")
 
-        # Generate all small slots from available_time
-        all_small_slots = []
+        # New validation: allow any time inside doctor's available_time
+        is_valid = False
+        slot_time = datetime.strptime(self.time_slot, "%H:%M").time()
+
         for time_range in self.doctor.available_time:
             start_str, end_str = time_range.split("-")
-            start = datetime.strptime(start_str, "%H:%M")
-            end = datetime.strptime(end_str, "%H:%M")
-            current = start
-            while current < end:
-                all_small_slots.append(current.strftime("%H:%M"))
-                current += timedelta(minutes=20)
+            start = datetime.strptime(start_str, "%H:%M").time()
+            end = datetime.strptime(end_str, "%H:%M").time()
 
-        if self.time_slot not in all_small_slots:
+            if start <= slot_time < end:
+                is_valid = True
+                break
+
+        if not is_valid:
             raise ValidationError("This time slot is not available for this doctor.")
 
-        # Check max patients per day
+    # Check max patients per day
         booked_count = Appointment.objects.filter(
             doctor=self.doctor,
             date=self.date,

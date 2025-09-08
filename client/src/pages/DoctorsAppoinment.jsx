@@ -61,8 +61,8 @@ export default function DoctorsAppoinment() {
       // Dispatch booking
       const resultAction = await dispatch(
         bookAppointment({
-          doctorId: selectedDoctor.id,
-          patientId: user.id, // send patient explicitly
+          doctor: selectedDoctor.id,
+          patient: user.id, // send patient explicitly
           date,
           time_slot: time,
           token: token,
