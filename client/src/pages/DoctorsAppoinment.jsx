@@ -52,17 +52,16 @@ export default function DoctorsAppoinment() {
 
     if (!confirmBooking) return; // stop if user cancels
 
-      try {
-          console.log("Selected Doctor:", selectedDoctor.id);
-          console.log("User ID:", user.id);
-          console.log("Date:", date);
-          console.log("Time:", time);
-          console.log("Token:", token);
+    try {
+      console.log("Selected Doctor:", selectedDoctor.id);
+      console.log("User ID:", user.id);
+      console.log("Date:", date);
+      console.log("Time:", time);
+      console.log("Token:", token);
       // Dispatch booking
       const resultAction = await dispatch(
         bookAppointment({
-          doctor: selectedDoctor.id,
-          patient: user.id, // send patient explicitly
+          doctor_id: selectedDoctor.id, // use doctor_id now
           date,
           time_slot: time,
           token: token,
@@ -75,7 +74,7 @@ export default function DoctorsAppoinment() {
         // Auto-refresh appointment list
         dispatch(fetchAppointments({ token }));
       } else {
-          console.error("Booking error:", resultAction.payload);
+        console.error("Booking error:", resultAction.payload);
         alert("Failed to book appointment: ");
       }
     } catch (error) {
@@ -120,6 +119,16 @@ export default function DoctorsAppoinment() {
         My Appointments
       </Typography>
 
+      {/* Button to show booking */}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setShowBooking((prev) => !prev)}
+        className="mb-6"
+      >
+        Take Appointment
+      </Button>
+
       {/* Show all user appointments */}
       <Box className="mb-6">
         {appointmentsList
@@ -149,16 +158,6 @@ export default function DoctorsAppoinment() {
             </Paper>
           ))}
       </Box>
-
-      {/* Button to show booking */}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setShowBooking((prev) => !prev)}
-        className="mb-6"
-      >
-        Take Appointment
-      </Button>
 
       {/* Booking Section */}
       {showBooking && (

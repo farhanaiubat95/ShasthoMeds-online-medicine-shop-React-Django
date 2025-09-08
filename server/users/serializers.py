@@ -406,8 +406,26 @@ class DoctorSerializer(serializers.ModelSerializer):
 
 
 # Serializer for Appointment
+# Serializer for Appointment
 class AppointmentSerializer(serializers.ModelSerializer):
+    doctor = DoctorSerializer(read_only=True)  # full nested doctor object
+    doctor_id = serializers.PrimaryKeyRelatedField(
+        queryset=Doctor.objects.all(), source="doctor", write_only=True
+    )
+
+    # Add patient details (read-only nested)
+    patient = UserProfileSerializer(read_only=True)
+
     class Meta:
         model = Appointment
-        fields = "__all__"
-        read_only_fields = ("patient",)  #  patient will be set automatically
+        fields = [
+            "id",
+            "patient",     # full patient details
+            "doctor",      # full doctor details
+            "doctor_id",   # used when creating appointment
+            "date",
+            "time_slot",
+            "status",
+            "created_at",
+        ]
+        read_only_fields = ("patient",)
