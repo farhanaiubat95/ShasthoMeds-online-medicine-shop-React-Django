@@ -439,11 +439,12 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete'] 
 
     def perform_create(self, serializer):
         # Automatically set the patient to the logged-in user
         serializer.save(patient=self.request.user)
-        
+
     def get_queryset(self):
         user = self.request.user
         if user.role == "doctor":
