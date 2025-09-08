@@ -439,7 +439,7 @@ class YearlyReport(models.Model):
 
 # Doctor model
 class Doctor(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=255)
     specialization = models.CharField(max_length=255)
     experience_years = models.PositiveIntegerField(default=0)
     max_patients_per_day = models.PositiveIntegerField(default=10)
@@ -448,7 +448,7 @@ class Doctor(models.Model):
     available_time = models.JSONField(default=list)  # ["10:00-12:00", "15:00-17:00"]
 
     def __str__(self):
-        return f"Dr. {self.user.full_name} ({self.specialization})"
+        return f"Dr. {self.full_name} ({self.specialization})"
 
 
 # Appointment model with validation
@@ -459,7 +459,7 @@ class Appointment(models.Model):
         ("cancelled", "Cancelled"),
     ]
 
-    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="appointments")
+    patient = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name="appointments")
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="appointments")
     date = models.DateField()
     time_slot = models.CharField(max_length=50)
@@ -470,13 +470,10 @@ class Appointment(models.Model):
         unique_together = ("doctor", "date", "time_slot")
 
     def __str__(self):
-        return f"{self.patient.username} → {self.doctor.user.username} ({self.date} {self.time_slot})"
+        return f"{self.patient.username} → {self.doctor.full_name} ({self.date} {self.time_slot})"
 
-    # -------------------------------
-    # VALIDATIONS
-    # -------------------------------
+    # Validation logic stays the same
     def clean(self):
-        # Only allow current week
         today = date.today()
         start_of_week = today - timedelta(days=today.weekday())
         end_of_week = start_of_week + timedelta(days=6)
@@ -484,11 +481,9 @@ class Appointment(models.Model):
         if not (start_of_week <= self.date <= end_of_week):
             raise ValidationError("You can only book appointments for the current week.")
 
-        # Check doctor available time
         if self.time_slot not in self.doctor.available_time:
             raise ValidationError("This time slot is not available for this doctor.")
 
-        # Check max patients per day
         booked_count = Appointment.objects.filter(
             doctor=self.doctor,
             date=self.date,
@@ -500,7 +495,6 @@ class Appointment(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
-
 
 # -------------------------------
 # Helper function to get available time slots for frontend
