@@ -447,9 +447,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == "doctor":
-            return Appointment.objects.filter(doctor__id=user.id)
+        if user.is_staff:  # Admin can see/manage everything
+            return Appointment.objects.all()
+        # Patients can only see their own appointments
         return Appointment.objects.filter(patient=user)
+
 
     # Available small slots
     @action(detail=True, methods=["get"])
