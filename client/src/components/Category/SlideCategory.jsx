@@ -52,8 +52,6 @@ const SlideCategory = () => {
     (state) => state.categories?.items?.results || [],
   );
 
-  console.log("Categories:", categories);
-
   const token = localStorage.getItem("access_token");
 
   // Fetch categories when component mounts

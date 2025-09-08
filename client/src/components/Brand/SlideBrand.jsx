@@ -76,46 +76,8 @@ const SlideBrand = () => {
     ],
   };
 
-  // Dummy brands (fallback)
-  const dummyBrands = [
-    {
-      id: 1,
-      name: "Square",
-      image: "https://via.placeholder.com/120?text=Square",
-    },
-    {
-      id: 2,
-      name: "ACME Pharma",
-      image: "https://via.placeholder.com/120?text=ACME",
-    },
-    {
-      id: 3,
-      name: "Incepta",
-      image: "https://via.placeholder.com/120?text=Incepta",
-    },
-    {
-      id: 4,
-      name: "Healthcare Ltd",
-      image: "https://via.placeholder.com/120?text=Healthcare",
-    },
-    {
-      id: 5,
-      name: "Aristopharma",
-      image: "https://via.placeholder.com/120?text=Aristo",
-    },
-    {
-      id: 6,
-      name: "Beximco",
-      image: "https://via.placeholder.com/120?text=Beximco",
-    },
-    {
-      id: 7,
-      name: "Renata",
-      image: "https://via.placeholder.com/120?text=Renata",
-    },
-  ];
 
-  const displayBrands = brands.length > 0 ? brands : dummyBrands;
+  const displayBrands = brands.length > 0 ? brands : [];
 
   if (loading) return <p>Loading brands...</p>;
   if (error) return <p>Error loading brands: {error}</p>;
