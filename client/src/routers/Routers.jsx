@@ -30,6 +30,7 @@ import Findpagecheck from "../components/product/Findpagecheck";
 import Checkout from "../pages/CheckOut";
 import Paymen_succesfull from "../pages/PaymenSuccesfull";
 import Orders from "../pages/Orders";
+import DoctorsAppoinment from "../pages/DoctorsAppoinment.jsx";
 
 
 const Routers = () => {
@@ -79,6 +80,7 @@ const Routers = () => {
         <Route path="*" element={<ErrorPage />} />
         <Route path="/check" element={<Findpagecheck />} />
         <Route path="/payment-success" element={<Paymen_succesfull />} />
+        <Route path="/doctor-appointment" element={<DoctorsAppoinment />} />
       </Routes>
     </>
   );

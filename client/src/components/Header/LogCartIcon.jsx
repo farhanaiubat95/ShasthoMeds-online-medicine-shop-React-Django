@@ -250,7 +250,10 @@ const LogCartIcon = () => {
         )}
 
         <div className="flex items-center justify-end">
-          <Link to="/doctor-appointment" className="cursor-pointer">
+          <Link
+            to={user ? "/doctor-appointment" : "/login"}
+            className="cursor-pointer"
+          >
             <div className="border-2 border-[#30C2C0] rounded md:p-3  h-[35px] sm:h-[40px] lg:h-[45px] flex items-center">
               <IconButton>
                 <MedicalServicesIcon
