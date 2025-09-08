@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.forms import ValidationError
 from django.utils import timezone
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from django.conf import settings
 
 from django.core.mail import send_mail
@@ -450,8 +450,7 @@ class Doctor(models.Model):
     def __str__(self):
         return f"Dr. {self.full_name} ({self.specialization})"
 
-
-# Appointment model with validation
+# Appointment model
 class Appointment(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
@@ -459,10 +458,10 @@ class Appointment(models.Model):
         ("cancelled", "Cancelled"),
     ]
 
-    patient = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name="appointments")
+    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="appointments")
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="appointments")
     date = models.DateField()
-    time_slot = models.CharField(max_length=50)
+    time_slot = models.CharField(max_length=5)  # small slot e.g., "10:20"
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -472,8 +471,11 @@ class Appointment(models.Model):
     def __str__(self):
         return f"{self.patient.username} → {self.doctor.full_name} ({self.date} {self.time_slot})"
 
-    # Validation logic stays the same
+    # -------------------------------
+    # VALIDATIONS
+    # -------------------------------
     def clean(self):
+        # Only allow current week
         today = date.today()
         start_of_week = today - timedelta(days=today.weekday())
         end_of_week = start_of_week + timedelta(days=6)
@@ -481,9 +483,21 @@ class Appointment(models.Model):
         if not (start_of_week <= self.date <= end_of_week):
             raise ValidationError("You can only book appointments for the current week.")
 
-        if self.time_slot not in self.doctor.available_time:
+        # Generate all small slots from available_time
+        all_small_slots = []
+        for time_range in self.doctor.available_time:
+            start_str, end_str = time_range.split("-")
+            start = datetime.strptime(start_str, "%H:%M")
+            end = datetime.strptime(end_str, "%H:%M")
+            current = start
+            while current < end:
+                all_small_slots.append(current.strftime("%H:%M"))
+                current += timedelta(minutes=20)
+
+        if self.time_slot not in all_small_slots:
             raise ValidationError("This time slot is not available for this doctor.")
 
+        # Check max patients per day
         booked_count = Appointment.objects.filter(
             doctor=self.doctor,
             date=self.date,
@@ -495,14 +509,12 @@ class Appointment(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+        # Send email if status is confirmed
+        if self.status == "confirmed":
+            self.send_confirmation_email()
 
-# -------------------------------
-# Helper function to get available time slots for frontend
-# -------------------------------
-def get_available_time_slots(doctor, date):
-    booked_slots = Appointment.objects.filter(
-        doctor=doctor,
-        date=date,
-        status__in=["pending", "confirmed"]
-    ).values_list("time_slot", flat=True)
-    return [slot for slot in doctor.available_time if slot not in booked_slots]
+    def send_confirmation_email(self):
+        subject = "Appointment Confirmed"
+        message = f"Hello {self.patient.full_name},\n\nYour appointment with {self.doctor.full_name} on {self.date} at {self.time_slot} has been confirmed."
+        recipient_list = [self.patient.email]
+        send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
