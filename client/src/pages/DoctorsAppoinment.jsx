@@ -37,10 +37,10 @@ export default function DoctorsAppoinment() {
 
   // Load all appointments for this user
   useEffect(() => {
-    if (selectedDoctor && user) {
-      dispatch(fetchAppointments({ doctorId: selectedDoctor.id, token }));
+    if (token) {
+      dispatch(fetchAppointments({ token }));
     }
-  }, [dispatch, selectedDoctor, user, token]);
+  }, [dispatch, stoken]);
 
   const handleBook = (date, time) => {
     if (!selectedDoctor || !user) return;

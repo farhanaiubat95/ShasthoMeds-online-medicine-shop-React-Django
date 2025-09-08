@@ -6,7 +6,7 @@ const API_URL = "https://shasthomeds-backend.onrender.com";
 // Fetch appointments for a doctor
 export const fetchAppointments = createAsyncThunk(
   "appointments/fetchAppointments",
-  async ({ doctorId, token }, thunkAPI) => {
+  async ({ token }, thunkAPI) => {
     try {
       const res = await axios.get(
         `${API_URL}/appointments/?doctor=${doctorId}`,
