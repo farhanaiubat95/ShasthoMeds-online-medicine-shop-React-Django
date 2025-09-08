@@ -78,13 +78,41 @@ const SlideBrand = () => {
 
   // Dummy brands (fallback)
   const dummyBrands = [
-    { id: 1, name: "Square", image: "https://via.placeholder.com/120?text=Square" },
-    { id: 2, name: "ACME Pharma", image: "https://via.placeholder.com/120?text=ACME" },
-    { id: 3, name: "Incepta", image: "https://via.placeholder.com/120?text=Incepta" },
-    { id: 4, name: "Healthcare Ltd", image: "https://via.placeholder.com/120?text=Healthcare" },
-    { id: 5, name: "Aristopharma", image: "https://via.placeholder.com/120?text=Aristo" },
-    { id: 6, name: "Beximco", image: "https://via.placeholder.com/120?text=Beximco" },
-    { id: 7, name: "Renata", image: "https://via.placeholder.com/120?text=Renata" },
+    {
+      id: 1,
+      name: "Square",
+      image: "https://via.placeholder.com/120?text=Square",
+    },
+    {
+      id: 2,
+      name: "ACME Pharma",
+      image: "https://via.placeholder.com/120?text=ACME",
+    },
+    {
+      id: 3,
+      name: "Incepta",
+      image: "https://via.placeholder.com/120?text=Incepta",
+    },
+    {
+      id: 4,
+      name: "Healthcare Ltd",
+      image: "https://via.placeholder.com/120?text=Healthcare",
+    },
+    {
+      id: 5,
+      name: "Aristopharma",
+      image: "https://via.placeholder.com/120?text=Aristo",
+    },
+    {
+      id: 6,
+      name: "Beximco",
+      image: "https://via.placeholder.com/120?text=Beximco",
+    },
+    {
+      id: 7,
+      name: "Renata",
+      image: "https://via.placeholder.com/120?text=Renata",
+    },
   ];
 
   const displayBrands = brands.length > 0 ? brands : dummyBrands;
@@ -94,7 +122,9 @@ const SlideBrand = () => {
 
   return (
     <div className="border border-[#30C2C0] rounded-xl p-4 mt-6 bg-white">
-      <h2 className="text-2xl font-bold mb-4 ml-3 text-[#30C2C0]">Popular Brands</h2>
+      <h2 className="text-2xl font-bold mb-4 ml-3 text-[#30C2C0]">
+        Popular Brands
+      </h2>
       <Slider {...settings}>
         {displayBrands.map((brand) => (
           <div key={brand.id} className="p-2">
@@ -103,10 +133,14 @@ const SlideBrand = () => {
                 component="img"
                 image={brand.image || "/placeholder-brand.jpg"}
                 alt={brand.name}
-                className="h-20 object-contain p-2"
+                className="h-24 w-24 object-contain mx-auto"
               />
+
               <CardContent className="p-1">
-                <Typography variant="subtitle2" className="text-center font-medium">
+                <Typography
+                  variant="subtitle2"
+                  className="text-center font-medium"
+                >
                   {brand.name}
                 </Typography>
               </CardContent>

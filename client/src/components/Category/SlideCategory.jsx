@@ -49,8 +49,11 @@ const NextArrow = (props) => (
 const SlideCategory = () => {
   const dispatch = useDispatch();
   const categories = useSelector(
-    (state) => state.category?.items?.results || []
+    (state) => state.categories?.items?.results || [],
   );
+
+  console.log("Categories:", categories);
+
   const token = localStorage.getItem("access_token");
 
   // Fetch categories when component mounts
@@ -78,23 +81,14 @@ const SlideCategory = () => {
     ],
   };
 
-  // Fallback dummy categories
-  const dummyCategories = [
-    { id: 1, name: "Pain Relief", image: "https://via.placeholder.com/150?text=Pain+Relief" },
-    { id: 2, name: "Vitamins", image: "https://via.placeholder.com/150?text=Vitamins" },
-    { id: 3, name: "Cough & Cold", image: "https://via.placeholder.com/150?text=Cough+Cold" },
-    { id: 4, name: "Diabetes Care", image: "https://via.placeholder.com/150?text=Diabetes+Care" },
-    { id: 5, name: "Baby Products", image: "https://via.placeholder.com/150?text=Baby+Products" },
-    { id: 6, name: "Skin Care", image: "https://via.placeholder.com/150?text=Skin+Care" },
-    { id: 7, name: "Fitness", image: "https://via.placeholder.com/150?text=Fitness" },
-  ];
-
   const displayCategories =
-    categories && categories.length > 0 ? categories : dummyCategories;
+    categories && categories.length > 0 ? categories : [];
 
   return (
     <div className="border border-[#30C2C0] rounded-xl p-4 mt-6 bg-white">
-      <h2 className="text-2xl font-bold mb-4 ml-3 text-[#30C2C0]">Categories</h2>
+      <h2 className="text-2xl font-bold mb-4 ml-3 text-[#30C2C0]">
+        Categories
+      </h2>
       <Slider {...settings}>
         {displayCategories.map((cat) => (
           <div key={cat.id} className="p-2">
@@ -106,7 +100,10 @@ const SlideCategory = () => {
                 className="h-24 w-24 object-contain p-2"
               />
               <CardContent className="p-2">
-                <Typography variant="subtitle2" className="text-center font-medium">
+                <Typography
+                  variant="subtitle2"
+                  className="text-center font-medium"
+                >
                   {cat.name}
                 </Typography>
               </CardContent>
@@ -118,5 +115,4 @@ const SlideCategory = () => {
   );
 };
 
-
-export default SlideCategory
+export default SlideCategory;

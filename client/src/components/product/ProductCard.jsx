@@ -133,6 +133,9 @@ const ProductCard = () => {
         className="border border-[#30C2C0] rounded-xl p-4 mt-4 pb-10 bg-white"
         style={{ width: "100%", position: "relative" }}
       >
+        <h2 className="text-2xl font-bold mb-4 ml-3 text-[#30C2C0]">
+          Featured Products
+        </h2>
         <Slider {...sliderSettings}>
           {products.map((product) => (
             <div key={product.id} className="p-2" style={{ width: "auto" }}>
