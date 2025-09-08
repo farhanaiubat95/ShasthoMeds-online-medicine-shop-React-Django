@@ -42,16 +42,40 @@ export default function DoctorsAppoinment() {
     }
   }, [dispatch, token]);
 
-  const handleBook = (date, time) => {
+  const handleBook = async (date, time) => {
     if (!selectedDoctor || !user) return;
-    dispatch(
-      bookAppointment({
-        doctorId: selectedDoctor.id,
-        date,
-        time_slot: time,
-        token
-      }),
+
+    // Ask confirmation first
+    const confirmBooking = window.confirm(
+      `Are you sure you want to book an appointment with ${selectedDoctor.full_name} on ${date} at ${time}?`,
     );
+
+    if (!confirmBooking) return; // stop if user cancels
+
+    try {
+      // Dispatch booking
+      const resultAction = await dispatch(
+        bookAppointment({
+          doctorId: selectedDoctor.id,
+          patientId: user.id, // send patient explicitly
+          date,
+          time_slot: time,
+          token: token,
+        }),
+      );
+
+      if (bookAppointment.fulfilled.match(resultAction)) {
+        alert("Appointment booked successfully!");
+
+        // Auto-refresh appointment list
+        dispatch(fetchAppointments({ token }));
+      } else {
+        alert("Failed to book appointment: " + resultAction.payload);
+      }
+    } catch (error) {
+      console.error("Booking error:", error);
+      alert("Something went wrong while booking the appointment.");
+    }
   };
 
   const getSlotStyle = (date, time) => {
