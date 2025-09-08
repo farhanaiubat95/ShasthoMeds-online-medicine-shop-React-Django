@@ -40,7 +40,7 @@ export default function DoctorsAppoinment() {
     if (token) {
       dispatch(fetchAppointments({ token }));
     }
-  }, [dispatch, stoken]);
+  }, [dispatch, token]);
 
   const handleBook = (date, time) => {
     if (!selectedDoctor || !user) return;
