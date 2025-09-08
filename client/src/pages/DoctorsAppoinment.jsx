@@ -52,7 +52,12 @@ export default function DoctorsAppoinment() {
 
     if (!confirmBooking) return; // stop if user cancels
 
-    try {
+      try {
+          console.log("Selected Doctor:", selectedDoctor.id);
+          console.log("User ID:", user.id);
+          console.log("Date:", date);
+          console.log("Time:", time);
+          console.log("Token:", token);
       // Dispatch booking
       const resultAction = await dispatch(
         bookAppointment({
@@ -70,7 +75,8 @@ export default function DoctorsAppoinment() {
         // Auto-refresh appointment list
         dispatch(fetchAppointments({ token }));
       } else {
-        alert("Failed to book appointment: " + resultAction.payload);
+          console.error("Booking error:", resultAction.payload);
+        alert("Failed to book appointment: ");
       }
     } catch (error) {
       console.error("Booking error:", error);
