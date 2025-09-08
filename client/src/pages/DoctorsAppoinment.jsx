@@ -49,7 +49,7 @@ export default function DoctorsAppoinment() {
         doctorId: selectedDoctor.id,
         date,
         time_slot: time,
-        token: user.access,
+        token
       }),
     );
   };
