@@ -1,5 +1,7 @@
+from datetime import date, timedelta
 from django.utils import timezone
 from rest_framework import serializers
+from users.helpers import get_available_time_slots
 from shasthomeds.settings import EMAIL_HOST_USER
 from django.contrib.auth.password_validation import validate_password
 import random
@@ -382,9 +384,26 @@ class YearlyReportSerializer(serializers.ModelSerializer):
 
 # Serializer for Doctor
 class DoctorSerializer(serializers.ModelSerializer):
+    availability = serializers.SerializerMethodField()
+
     class Meta:
         model = Doctor
-        fields = "__all__"
+        fields = ['id', 'full_name', 'specialization', 'experience_years', 
+                  'max_patients_per_day', 'consultation_fee', 'available_days', 
+                  'available_time', 'availability']
+
+    def get_availability(self, obj):
+        availability = {}
+        today = date.today()
+        for i in range(7):  # next 7 days
+            day = today + timedelta(days=i)
+            weekday = day.strftime("%A")
+            if weekday in obj.available_days:
+                slots = get_available_time_slots(obj, day)
+                if slots:
+                    availability[str(day)] = slots
+        return availability
+
 
 # Serializer for Appointment
 class AppointmentSerializer(serializers.ModelSerializer):
