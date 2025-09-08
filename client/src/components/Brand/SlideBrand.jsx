@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBrands } from "../../redux/brandSlice"; // make sure brandSlice exists
 import Slider from "react-slick";
 import { Card, CardMedia, CardContent, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -44,7 +46,18 @@ const NextArrow = (props) => (
   </NextArrowButton>
 );
 
-const FindPageCheck = ({ brands }) => {
+const SlideBrand = () => {
+  const dispatch = useDispatch();
+
+  // Redux state
+  const { items, loading, error } = useSelector((state) => state.brands || {});
+  const brands = Array.isArray(items?.results) ? items.results : [];
+  const token = localStorage.getItem("access_token");
+
+  useEffect(() => {
+    dispatch(fetchBrands(token));
+  }, [dispatch, token]);
+
   const settings = {
     dots: false,
     infinite: true,
@@ -63,7 +76,7 @@ const FindPageCheck = ({ brands }) => {
     ],
   };
 
-  // Dummy brands (if no backend data provided)
+  // Dummy brands (fallback)
   const dummyBrands = [
     { id: 1, name: "Square", image: "https://via.placeholder.com/120?text=Square" },
     { id: 2, name: "ACME Pharma", image: "https://via.placeholder.com/120?text=ACME" },
@@ -74,7 +87,10 @@ const FindPageCheck = ({ brands }) => {
     { id: 7, name: "Renata", image: "https://via.placeholder.com/120?text=Renata" },
   ];
 
-  const displayBrands = brands && brands.length > 0 ? brands : dummyBrands;
+  const displayBrands = brands.length > 0 ? brands : dummyBrands;
+
+  if (loading) return <p>Loading brands...</p>;
+  if (error) return <p>Error loading brands: {error}</p>;
 
   return (
     <div className="border border-[#30C2C0] rounded-xl p-4 mt-6 bg-white">
@@ -102,4 +118,4 @@ const FindPageCheck = ({ brands }) => {
   );
 };
 
-export default FindPageCheck;
+export default SlideBrand;

@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Slider from "react-slick";
 import { Card, CardMedia, CardContent, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import IconButton from "@mui/material/IconButton";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories } from "../redux/categorySlice"; // adjust path if needed
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-// Reuse styled arrows
+// Styled arrows
 const PrevArrowButton = styled(IconButton)(({ theme }) => ({
   position: "absolute",
   top: "50%",
@@ -44,7 +46,20 @@ const NextArrow = (props) => (
   </NextArrowButton>
 );
 
-const FindPageCheck = ({ brands }) => {
+const SlideCategory = () => {
+  const dispatch = useDispatch();
+  const categories = useSelector(
+    (state) => state.category?.items?.results || []
+  );
+  const token = localStorage.getItem("access_token");
+
+  // Fetch categories when component mounts
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchCategories(token));
+    }
+  }, [dispatch, token]);
+
   const settings = {
     dots: false,
     infinite: true,
@@ -53,7 +68,7 @@ const FindPageCheck = ({ brands }) => {
     slidesToScroll: 1,
     arrows: true,
     autoplay: true,
-    autoplaySpeed: 2000,
+    autoplaySpeed: 2500,
     prevArrow: <PrevArrow />,
     nextArrow: <NextArrow />,
     responsive: [
@@ -63,35 +78,36 @@ const FindPageCheck = ({ brands }) => {
     ],
   };
 
-  // Dummy brands (if no backend data provided)
-  const dummyBrands = [
-    { id: 1, name: "Square", image: "https://via.placeholder.com/120?text=Square" },
-    { id: 2, name: "ACME Pharma", image: "https://via.placeholder.com/120?text=ACME" },
-    { id: 3, name: "Incepta", image: "https://via.placeholder.com/120?text=Incepta" },
-    { id: 4, name: "Healthcare Ltd", image: "https://via.placeholder.com/120?text=Healthcare" },
-    { id: 5, name: "Aristopharma", image: "https://via.placeholder.com/120?text=Aristo" },
-    { id: 6, name: "Beximco", image: "https://via.placeholder.com/120?text=Beximco" },
-    { id: 7, name: "Renata", image: "https://via.placeholder.com/120?text=Renata" },
+  // Fallback dummy categories
+  const dummyCategories = [
+    { id: 1, name: "Pain Relief", image: "https://via.placeholder.com/150?text=Pain+Relief" },
+    { id: 2, name: "Vitamins", image: "https://via.placeholder.com/150?text=Vitamins" },
+    { id: 3, name: "Cough & Cold", image: "https://via.placeholder.com/150?text=Cough+Cold" },
+    { id: 4, name: "Diabetes Care", image: "https://via.placeholder.com/150?text=Diabetes+Care" },
+    { id: 5, name: "Baby Products", image: "https://via.placeholder.com/150?text=Baby+Products" },
+    { id: 6, name: "Skin Care", image: "https://via.placeholder.com/150?text=Skin+Care" },
+    { id: 7, name: "Fitness", image: "https://via.placeholder.com/150?text=Fitness" },
   ];
 
-  const displayBrands = brands && brands.length > 0 ? brands : dummyBrands;
+  const displayCategories =
+    categories && categories.length > 0 ? categories : dummyCategories;
 
   return (
     <div className="border border-[#30C2C0] rounded-xl p-4 mt-6 bg-white">
-      <h2 className="text-2xl font-bold mb-4 ml-3 text-[#30C2C0]">Popular Brands</h2>
+      <h2 className="text-2xl font-bold mb-4 ml-3 text-[#30C2C0]">Categories</h2>
       <Slider {...settings}>
-        {displayBrands.map((brand) => (
-          <div key={brand.id} className="p-2">
+        {displayCategories.map((cat) => (
+          <div key={cat.id} className="p-2">
             <Card className="rounded-lg shadow-md flex flex-col items-center hover:shadow-lg transition">
               <CardMedia
                 component="img"
-                image={brand.image || "/placeholder-brand.jpg"}
-                alt={brand.name}
-                className="h-20 object-contain p-2"
+                image={cat.image || "/placeholder-category.jpg"}
+                alt={cat.name}
+                className="h-24 w-24 object-contain p-2"
               />
-              <CardContent className="p-1">
+              <CardContent className="p-2">
                 <Typography variant="subtitle2" className="text-center font-medium">
-                  {brand.name}
+                  {cat.name}
                 </Typography>
               </CardContent>
             </Card>
@@ -102,4 +118,5 @@ const FindPageCheck = ({ brands }) => {
   );
 };
 
-export default FindPageCheck;
+
+export default SlideCategory

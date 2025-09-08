@@ -1,6 +1,8 @@
 import React from "react";
 import ProductCard from "../product/ProductCard";
 import BannerCarousel from "./BannerCarousel";
+import SlideBrand from "../Brand/SlideBrand";
+import SlideCategory from "../Category/SlideCategory";
 
 const HomeMain = () => {
   return (
@@ -10,6 +12,14 @@ const HomeMain = () => {
       </div>
       <div>
         <ProductCard />
+      </div>
+
+      <div>
+        <SlideBrand />
+      </div>
+
+      <div>
+        <SlideCategory />
       </div>
     </div>
   );
