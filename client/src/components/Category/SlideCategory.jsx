@@ -6,7 +6,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import IconButton from "@mui/material/IconButton";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories } from "../redux/categorySlice"; // adjust path if needed
+import { fetchCategories } from "../../redux/categorySlice.js"; // adjust path if needed
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
