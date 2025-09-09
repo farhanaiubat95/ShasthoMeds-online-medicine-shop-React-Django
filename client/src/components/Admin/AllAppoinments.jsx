@@ -14,6 +14,7 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
+import Dialog from '@mui/material/Dialog';
 
 const AllAppointments = () => {
   const dispatch = useDispatch();
