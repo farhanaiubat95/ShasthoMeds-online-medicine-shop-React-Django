@@ -16,6 +16,7 @@ import {
 
 const AllAppointments = () => {
   const dispatch = useDispatch();
+  const token = localStorage.getItem("access_token");
   console.log("Appointments:", appointmentsList);
   const { appointments, loading, error } = useSelector(
     (state) => state.appointments,
@@ -43,7 +44,7 @@ const AllAppointments = () => {
     }
   }, [dispatch, token]);
 
-  const token = localStorage.getItem("access_token");
+  
 
   // Load all appointments for this user
   useEffect(() => {
