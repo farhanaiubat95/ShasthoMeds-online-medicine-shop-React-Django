@@ -47,7 +47,7 @@ export default function DoctorsAppoinment() {
 
     // Ask confirmation first
     const confirmBooking = window.confirm(
-      `Are you sure you want to book an appointment with ${selectedDoctor.full_name} on ${date} at ${time}?`,
+      `Are you sure you want to book an appointment with ${selectedDoctor.full_name} on ${date} at ${time}?`
     );
 
     if (!confirmBooking) return; // stop if user cancels
@@ -65,7 +65,7 @@ export default function DoctorsAppoinment() {
           date,
           time_slot: time,
           token: token,
-        }),
+        })
       );
 
       if (bookAppointment.fulfilled.match(resultAction)) {
@@ -99,6 +99,20 @@ export default function DoctorsAppoinment() {
     return { color: "gray", disabled: true, icon: <FaCheckCircle /> };
   };
 
+  // Helper function to check if a date is in the current week
+  const isDateInCurrentWeek = (dateString) => {
+    const today = new Date();
+    const date = new Date(dateString);
+    const firstDayOfWeek = new Date(today.setDate(today.getDate() - today.getDay())); // Get the date of the most recent Sunday
+    const lastDayOfWeek = new Date(firstDayOfWeek);
+    lastDayOfWeek.setDate(lastDayOfWeek.getDate() + 6); // Get the date of the next Saturday
+
+    return date >= firstDayOfWeek && date <= lastDayOfWeek;
+  };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize to midnight for accurate date comparison
+
   return (
     <Box className="p-4 md:p-8 bg-gray-50 min-h-screen w-full">
       <Typography
@@ -109,7 +123,7 @@ export default function DoctorsAppoinment() {
         My Appointments
       </Typography>
 
-      <Box className="mb-6 md:flex  align-center justify-center">
+      <Box className="mb-6 md:flex  align-center justify-center">
         {/* Left Section */}
         <Box className="md:w-[60%]">
           {/* Button to show booking */}
@@ -148,57 +162,56 @@ export default function DoctorsAppoinment() {
                 className="mb-6"
               />
 
-              {/* availability section */}
               {selectedDoctor &&
                 // Filter the entries to only include dates in the current week
                 Object.entries(selectedDoctor.availability || {})
-                  .filter(([date]) => isDateInCurrentWeek(date))
-                  .map(([date, slots]) => {
-                    const dayName = new Date(date).toLocaleDateString("en-US", {
-                      weekday: "long",
-                    });
-                    return (
-                      <Box key={date} className="mt-6 w-[70%]">
-                        <Typography
-                          variant="h6"
-                          className="mb-3 font-semibold text-gray-700"
-                        >
-                          {date} ({dayName})
-                        </Typography>
+                .filter(([date]) => isDateInCurrentWeek(date))
+                .map(([date, slots]) => {
+                  const dayName = new Date(date).toLocaleDateString("en-US", {
+                    weekday: "long",
+                  });
+                  return (
+                    <Box key={date} className="mt-6 w-[70%]">
+                      <Typography
+                        variant="h6"
+                        className="mb-3 font-semibold text-gray-700"
+                      >
+                        {date} ({dayName})
+                      </Typography>
 
-                        <Grid container spacing={1}>
-                          {slots.map((time) => {
-                            const { color, disabled, icon } = getSlotStyle(
-                              date,
-                              time,
-                            );
-                            return (
-                              <Grid item xs={4} sm={3} md={2} key={time}>
-                                <Button
-                                  variant="contained"
-                                  color={color}
-                                  startIcon={icon}
-                                  onClick={() => handleBook(date, time)}
-                                  disabled={disabled}
-                                  sx={{
-                                    width: "100%",
-                                    fontSize: {
-                                      xs: "0.65rem",
-                                      sm: "0.8rem",
-                                      md: "0.9rem",
-                                    },
-                                    py: { xs: 0.7, sm: 1, md: 1.2 },
-                                  }}
-                                >
-                                  {time}
-                                </Button>
-                              </Grid>
-                            );
-                          })}
-                        </Grid>
-                      </Box>
-                    );
-                  })}
+                      <Grid container spacing={1}>
+                        {slots.map((time) => {
+                          const { color, disabled, icon } = getSlotStyle(
+                            date,
+                            time
+                          );
+                          return (
+                            <Grid item xs={4} sm={3} md={2} key={time}>
+                              <Button
+                                variant="contained"
+                                color={color}
+                                startIcon={icon}
+                                onClick={() => handleBook(date, time)}
+                                disabled={disabled}
+                                sx={{
+                                  width: "100%",
+                                  fontSize: {
+                                    xs: "0.65rem",
+                                    sm: "0.8rem",
+                                    md: "0.9rem",
+                                  },
+                                  py: { xs: 0.7, sm: 1, md: 1.2 },
+                                }}
+                              >
+                                {time}
+                              </Button>
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    </Box>
+                  );
+                })}
             </Paper>
           )}
         </Box>
@@ -209,7 +222,7 @@ export default function DoctorsAppoinment() {
               .filter((a) => {
                 // Check if the appointment belongs to the user
                 const isUserAppointment = a.patient.username === user.username;
-
+                
                 // Check if the appointment date has passed
                 const appointmentDate = new Date(a.date);
                 const isDateInFutureOrToday = appointmentDate >= today;
@@ -231,8 +244,8 @@ export default function DoctorsAppoinment() {
                         a.status === "pending"
                           ? "text-blue-600"
                           : a.status === "confirmed"
-                            ? "text-green-600"
-                            : "text-red-600"
+                          ? "text-green-600"
+                          : "text-red-600"
                       }
                     >
                       {a.status}
