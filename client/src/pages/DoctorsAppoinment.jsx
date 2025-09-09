@@ -117,7 +117,7 @@ export default function DoctorsAppoinment() {
             variant="contained"
             onClick={() => setShowBooking((prev) => !prev)}
             className="w-full"
-            sx={{ backgroundColor: "#0F918F" , marginBottom: 2}}
+            sx={{ backgroundColor: "#0F918F", marginBottom: 2 }}
           >
             Take Appointment
           </Button>
@@ -148,9 +148,12 @@ export default function DoctorsAppoinment() {
                 className="mb-6"
               />
 
+              {/* availability section */}
               {selectedDoctor &&
-                Object.entries(selectedDoctor.availability || {}).map(
-                  ([date, slots]) => {
+                // Filter the entries to only include dates in the current week
+                Object.entries(selectedDoctor.availability || {})
+                  .filter(([date]) => isDateInCurrentWeek(date))
+                  .map(([date, slots]) => {
                     const dayName = new Date(date).toLocaleDateString("en-US", {
                       weekday: "long",
                     });
@@ -195,8 +198,7 @@ export default function DoctorsAppoinment() {
                         </Grid>
                       </Box>
                     );
-                  },
-                )}
+                  })}
             </Paper>
           )}
         </Box>
@@ -204,7 +206,16 @@ export default function DoctorsAppoinment() {
         <Box className="mb-6 md:w-[40%]">
           <div className="w-fit">
             {appointmentsList
-              .filter((a) => a.patient.username === user.username) // compare username
+              .filter((a) => {
+                // Check if the appointment belongs to the user
+                const isUserAppointment = a.patient.username === user.username;
+
+                // Check if the appointment date has passed
+                const appointmentDate = new Date(a.date);
+                const isDateInFutureOrToday = appointmentDate >= today;
+
+                return isUserAppointment && isDateInFutureOrToday;
+              })
               .map((a) => (
                 <Paper key={a.id} className="p-4 mb-3">
                   <Typography variant="h6" className="font-semibold">
