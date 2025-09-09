@@ -37,6 +37,25 @@ export const bookAppointment = createAsyncThunk(
   },
 );
 
+// Update appointment status (PATCH)
+export const updateAppointmentStatus = createAsyncThunk(
+  "appointments/updateStatus",
+  async ({ appointmentId, status, token }, thunkAPI) => {
+    try {
+      const res = await axios.patch(
+        `${API_URL}/appointments/${appointmentId}/`,
+        { status },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
 const appointmentSlice = createSlice({
   name: "appointments",
   initialState: {
@@ -81,6 +100,36 @@ const appointmentSlice = createSlice({
         }
       })
       .addCase(bookAppointment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Update appointment status
+      .addCase(updateAppointmentStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateAppointmentStatus.fulfilled, (state, action) => {
+        state.loading = false;
+
+        // Update in list
+        if (state.appointments.results) {
+          const index = state.appointments.results.findIndex(
+            (appt) => appt.id === action.payload.id,
+          );
+          if (index !== -1) {
+            state.appointments.results[index] = action.payload;
+          }
+        } else {
+          const index = state.appointments.findIndex(
+            (appt) => appt.id === action.payload.id,
+          );
+          if (index !== -1) {
+            state.appointments[index] = action.payload;
+          }
+        }
+      })
+      .addCase(updateAppointmentStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

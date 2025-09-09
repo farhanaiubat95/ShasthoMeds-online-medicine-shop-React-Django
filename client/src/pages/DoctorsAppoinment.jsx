@@ -222,8 +222,8 @@ export default function DoctorsAppoinment() {
           <div className="w-fit px-1">
             <Typography
               variant="h6"
-              sx={{ fontSize: { xs: "1.8rem", sm: "2rem", md: "2.5rem" } }}
-              className="mb-6 pb-5 pt-2 font-bold text-[#0F918F]"
+              sx={{ fontSize: "1.8rem"}}
+              className="mb-6 pb-5  text-[#0F918F]"
             >
               My Appointments
             </Typography>
