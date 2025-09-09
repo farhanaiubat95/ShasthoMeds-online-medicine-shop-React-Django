@@ -17,7 +17,7 @@ import {
 const AllAppointments = () => {
   const dispatch = useDispatch();
   const token = localStorage.getItem("access_token");
-  console.log("Appointments:", appointmentsList);
+  
   const { appointments, loading, error } = useSelector(
     (state) => state.appointments,
   );
@@ -28,6 +28,7 @@ const AllAppointments = () => {
     const { allAppointments} = useSelector(
     (state) => state.appointments,
   );
+  console.log("Appointments:", appointmentsList);
    // Group appointments by date
   const groupedByDates = {};
   allAppointments.forEach((appt) => { // Use allAppointments here
