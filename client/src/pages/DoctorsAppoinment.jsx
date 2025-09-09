@@ -84,9 +84,7 @@ export default function DoctorsAppoinment() {
   };
 
   const getSlotStyle = (date, time) => {
-    const slotBooked = appointmentsList.find(
-      (a) => a.date === date && a.time_slot === time,
-    );
+    const slotBooked = appointmentsList.find((a) => a.date === date);
 
     // If no one has booked this slot, it's available
     if (!slotBooked) {
@@ -97,18 +95,8 @@ export default function DoctorsAppoinment() {
       };
     }
 
-    // If the current user has booked this slot
-    if (slotBooked.patient.username === user.username) {
-      if (slotBooked.status === "pending") {
-        return { color: "secondary", disabled: true, icon: <FaClock /> };
-      }
-      if (slotBooked.status === "confirmed") {
-        return { color: "warning", disabled: true, icon: <FaCheckCircle /> };
-      }
-    }
-
     // If another user has booked this slot
-    return { color: "error", disabled: true, icon: <FaCheckCircle /> };
+    return { color: "gray", disabled: true, icon: <FaCheckCircle /> };
   };
 
   return (
@@ -127,9 +115,9 @@ export default function DoctorsAppoinment() {
           {/* Button to show booking */}
           <Button
             variant="contained"
-            color="primary"
             onClick={() => setShowBooking((prev) => !prev)}
-            className="mb-6 w-full"
+            className="w-full"
+            sx={{ backgroundColor: "#0F918F" , marginBottom: 2}}
           >
             Take Appointment
           </Button>
@@ -138,8 +126,8 @@ export default function DoctorsAppoinment() {
           {showBooking && (
             <Paper elevation={3} className="p-4 md:p-6 mb-8 w-full">
               <Typography
-                variant="h4"
-                className="font-bold mb-4 text-[#0F918F]"
+                variant="h6"
+                className="font-bold mb-4 pb-4 text-[#0F918F]"
               >
                 Book Your Appointment
               </Typography>
