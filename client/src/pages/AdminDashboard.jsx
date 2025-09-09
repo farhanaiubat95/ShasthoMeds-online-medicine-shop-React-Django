@@ -26,8 +26,8 @@ import { useSelector } from "react-redux";
 import { fetchPrescriptions } from "../redux/prescriptionSlice";
 import { fetchOrders } from "../redux/orderSlice";
 import AssessmentIcon from "@mui/icons-material/Assessment";
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
-import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 
 const drawerWidth = 240;
 
@@ -58,11 +58,6 @@ const sidebarItems = [
     path: "/admin-dashboard/all-reports",
   },
   {
-    text: "All Orders",
-    icon: <WidgetsIcon />,
-    path: "/admin-dashboard/all-orders",
-  },
-  {
     text: "All Doctors",
     icon: <LocalHospitalIcon />,
     path: "/admin-dashboard/all-doctors",
@@ -71,6 +66,11 @@ const sidebarItems = [
     text: "All Appoinments",
     icon: <BookmarkAddedIcon />,
     path: "/admin-dashboard/all-appointments",
+  },
+  {
+    text: "All Orders",
+    icon: <WidgetsIcon />,
+    path: "/admin-dashboard/all-orders",
   },
   {
     text: "Notification",

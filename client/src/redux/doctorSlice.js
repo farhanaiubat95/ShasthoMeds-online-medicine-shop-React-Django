@@ -17,7 +17,7 @@ export const fetchDoctors = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 // Add a new doctor
@@ -30,7 +30,7 @@ export const addDoctor = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 // Update a doctor
@@ -43,7 +43,7 @@ export const updateDoctor = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 // Delete a doctor
@@ -56,7 +56,7 @@ export const deleteDoctor = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 // ---------------------------
@@ -93,7 +93,17 @@ const doctorSlice = createSlice({
       })
       .addCase(addDoctor.fulfilled, (state, action) => {
         state.loading = false;
-        state.doctors.push(action.payload);
+        if (state.doctors.results) {
+          // pagination style response
+          state.doctors.results.push(action.payload);
+          state.doctors.count += 1;
+        } else if (Array.isArray(state.doctors)) {
+          // simple array
+          state.doctors.push(action.payload);
+        } else {
+          // first doctor
+          state.doctors = [action.payload];
+        }
       })
       .addCase(addDoctor.rejected, (state, action) => {
         state.loading = false;
@@ -107,9 +117,15 @@ const doctorSlice = createSlice({
       })
       .addCase(updateDoctor.fulfilled, (state, action) => {
         state.loading = false;
-        state.doctors = state.doctors.map((doc) =>
-          doc.id === action.payload.id ? action.payload : doc
-        );
+        if (state.doctors.results) {
+          state.doctors.results = state.doctors.results.map((doc) =>
+            doc.id === action.payload.id ? action.payload : doc,
+          );
+        } else if (Array.isArray(state.doctors)) {
+          state.doctors = state.doctors.map((doc) =>
+            doc.id === action.payload.id ? action.payload : doc,
+          );
+        }
       })
       .addCase(updateDoctor.rejected, (state, action) => {
         state.loading = false;
@@ -123,7 +139,16 @@ const doctorSlice = createSlice({
       })
       .addCase(deleteDoctor.fulfilled, (state, action) => {
         state.loading = false;
-        state.doctors = state.doctors.filter((doc) => doc.id !== action.payload);
+        if (state.doctors.results) {
+          state.doctors.results = state.doctors.results.filter(
+            (doc) => doc.id !== action.payload,
+          );
+          state.doctors.count -= 1;
+        } else if (Array.isArray(state.doctors)) {
+          state.doctors = state.doctors.filter(
+            (doc) => doc.id !== action.payload,
+          );
+        }
       })
       .addCase(deleteDoctor.rejected, (state, action) => {
         state.loading = false;

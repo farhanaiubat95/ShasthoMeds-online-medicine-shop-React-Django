@@ -15,11 +15,11 @@ import {
 
 const AllAppointments = ({ token }) => {
   const dispatch = useDispatch();
-  const { appointments, loading, error } = useSelector(
-    (state) => state.appointments
-  );
+  const { appointments, loading, error } = useSelector((state) => state.appointments);
   const appointmentsList = appointments?.results || [];
+  console.log("Appointments:", appointmentsList);
 
+  // Load all appointments for this user
   useEffect(() => {
     if (token) {
       dispatch(fetchAppointments({ token }));
@@ -37,13 +37,13 @@ const AllAppointments = ({ token }) => {
 
   const handleStatusChange = async (appointmentId, newStatus) => {
     const confirmed = window.confirm(
-      "Are you sure you want to update the status?"
+      "Are you sure you want to update the status?",
     );
     if (!confirmed) return;
 
     try {
       await dispatch(
-        updateAppointmentStatus({ appointmentId, status: newStatus, token })
+        updateAppointmentStatus({ appointmentId, status: newStatus, token }),
       ).unwrap();
 
       // Auto refresh after successful update
@@ -59,7 +59,7 @@ const AllAppointments = ({ token }) => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">All Appointments (Admin View)</h2>
+      <h2 className="text-xl font-bold mb-4">All Appointments </h2>
 
       {appointmentsList.length === 0 && <p>No appointments found.</p>}
 
