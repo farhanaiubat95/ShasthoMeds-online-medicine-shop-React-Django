@@ -31,6 +31,8 @@ import Checkout from "../pages/CheckOut";
 import Paymen_succesfull from "../pages/PaymenSuccesfull";
 import Orders from "../pages/Orders";
 import DoctorsAppoinment from "../pages/DoctorsAppoinment.jsx";
+import AllAppoinments from "../components/Admin/AllAppoinments.jsx";
+import AllDoctors from "../components/Admin/AllDoctors.jsx";
 
 
 const Routers = () => {
@@ -73,6 +75,8 @@ const Routers = () => {
             <Route path="all-users" element={<AllCustomer />} />
             <Route path="all-reports" element={<AllReports />} />
             <Route path="all-notifications" element={<AllNotification />} />
+            <Route path="all-appointments" element={<AllAppoinments />} />
+            <Route path="all-doctors" element={<AllDoctors />} />
           </Route>
         </Route>
 

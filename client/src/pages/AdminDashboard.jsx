@@ -25,7 +25,9 @@ import WidgetsIcon from "@mui/icons-material/Widgets";
 import { useSelector } from "react-redux";
 import { fetchPrescriptions } from "../redux/prescriptionSlice";
 import { fetchOrders } from "../redux/orderSlice";
-import AssessmentIcon from '@mui/icons-material/Assessment';
+import AssessmentIcon from "@mui/icons-material/Assessment";
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 
 const drawerWidth = 240;
 
@@ -50,11 +52,25 @@ const sidebarItems = [
     icon: <AddShoppingCartIcon />,
     path: "/admin-dashboard/all-products",
   },
-  { text: "All Reports", icon: <AssessmentIcon />, path: "/admin-dashboard/all-reports" },
+  {
+    text: "All Reports",
+    icon: <AssessmentIcon />,
+    path: "/admin-dashboard/all-reports",
+  },
   {
     text: "All Orders",
     icon: <WidgetsIcon />,
     path: "/admin-dashboard/all-orders",
+  },
+  {
+    text: "All Doctors",
+    icon: <LocalHospitalIcon />,
+    path: "/admin-dashboard/all-doctors",
+  },
+  {
+    text: "All Appoinments",
+    icon: <BookmarkAddedIcon />,
+    path: "/admin-dashboard/all-appointments",
   },
   {
     text: "Notification",
@@ -77,9 +93,7 @@ export default function AdminDashboard() {
     if (token) dispatch(fetchOrders(token));
   }, [dispatch, token]);
 
-  const ordersCount = useSelector(
-    (state) => state.orders.orders?.length || 0,
-  );
+  const ordersCount = useSelector((state) => state.orders.orders?.length || 0);
   const notificationsCount = useSelector(
     (state) => state.prescriptions.items?.results?.length || 0,
   );
