@@ -18,6 +18,22 @@ export const fetchAppointments = createAsyncThunk(
   },
 );
 
+// Fetch all appointments for an admin
+export const fetchAllAppointments = createAsyncThunk(
+  "appointments/fetchAllAppointments",
+  async ({ token }, thunkAPI) => {
+    try {
+      // Use the appropriate backend endpoint for all appointments
+      const res = await axios.get(`${API_URL}/appointments/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
 // Book an appointment
 export const bookAppointment = createAsyncThunk(
   "appointments/bookAppointment",
@@ -60,6 +76,7 @@ const appointmentSlice = createSlice({
   name: "appointments",
   initialState: {
     appointments: [],
+    allAppointments: [],
     loading: false,
     error: null,
   },
@@ -85,6 +102,18 @@ const appointmentSlice = createSlice({
       })
 
       .addCase(fetchAppointments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchAllAppointments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllAppointments.fulfilled, (state, action) => {
+        state.loading = false;
+        state.allAppointments = action.payload?.results || action.payload;
+      })
+      .addCase(fetchAllAppointments.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

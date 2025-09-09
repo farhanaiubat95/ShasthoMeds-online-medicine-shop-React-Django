@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  fetchAllAppointments,
   fetchAppointments,
   updateAppointmentStatus,
 } from "../../redux/appoinmentSlice.js"; // adjust path
@@ -13,16 +14,36 @@ import {
   Typography,
 } from "@mui/material";
 
-const AllAppointments = ({ token }) => {
+const AllAppointments = () => {
   const dispatch = useDispatch();
+  console.log("Appointments:", appointmentsList);
   const { appointments, loading, error } = useSelector(
     (state) => state.appointments,
   );
   const appointmentsList = Array.isArray(appointments)
     ? appointments
     : appointments?.results || [];
+  
+    const { allAppointments} = useSelector(
+    (state) => state.appointments,
+  );
+   // Group appointments by date
+  const groupedByDates = {};
+  allAppointments.forEach((appt) => { // Use allAppointments here
+    if (!groupedByDate[appt.date]) {
+      groupedByDate[appt.date] = [];
+    }
+    groupedByDate[appt.date].push(appt);
+  });
 
-  console.log("Appointments:", appointmentsList);
+  // Load ALL appointments
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchAllAppointments({ token })); // <-- Dispatch the new thunk
+    }
+  }, [dispatch, token]);
+
+  const token = localStorage.getItem("access_token");
 
   // Load all appointments for this user
   useEffect(() => {
