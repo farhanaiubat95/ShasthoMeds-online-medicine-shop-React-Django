@@ -122,50 +122,21 @@ export default function DoctorsAppoinment() {
       </Typography>
 
       <Box className="mb-6 md:flex  align-center justify-center">
-        {/* Show all user appointments */}
-        <Box className="mb-6">
-          {appointmentsList
-            .filter((a) => a.patient.username === user.username) // compare username
-            .map((a) => (
-              <Paper key={a.id} className="p-4 mb-3">
-                <Typography variant="h6" className="font-semibold">
-                  {a.doctor.full_name} ({a.doctor.specialization})
-                </Typography>
-                <Typography>
-                  Date: {a.date} | Time: {a.time_slot}
-                </Typography>
-                <Typography>
-                  Status:{" "}
-                  <span
-                    className={
-                      a.status === "pending"
-                        ? "text-blue-600"
-                        : a.status === "confirmed"
-                          ? "text-green-600"
-                          : "text-red-600"
-                    }
-                  >
-                    {a.status}
-                  </span>
-                </Typography>
-              </Paper>
-            ))}
-        </Box>
-
-        <Box>
+        {/* Left Section */}
+        <Box className="md:w-[60%]">
           {/* Button to show booking */}
           <Button
             variant="contained"
             color="primary"
             onClick={() => setShowBooking((prev) => !prev)}
-            className="mb-6"
+            className="mb-6 w-full"
           >
             Take Appointment
           </Button>
 
           {/* Booking Section */}
           {showBooking && (
-            <Paper elevation={3} className="p-4 md:p-6 mb-8">
+            <Paper elevation={3} className="p-4 md:p-6 mb-8 w-full">
               <Typography
                 variant="h4"
                 className="font-bold mb-4 text-[#0F918F]"
@@ -196,7 +167,7 @@ export default function DoctorsAppoinment() {
                       weekday: "long",
                     });
                     return (
-                      <Box key={date} className="mt-6">
+                      <Box key={date} className="mt-6 w-[70%]">
                         <Typography
                           variant="h6"
                           className="mb-3 font-semibold text-gray-700"
@@ -240,6 +211,37 @@ export default function DoctorsAppoinment() {
                 )}
             </Paper>
           )}
+        </Box>
+        {/* Right Section */}
+        <Box className="mb-6 md:w-[40%]">
+          <div className="w-fit">
+            {appointmentsList
+              .filter((a) => a.patient.username === user.username) // compare username
+              .map((a) => (
+                <Paper key={a.id} className="p-4 mb-3">
+                  <Typography variant="h6" className="font-semibold">
+                    {a.doctor.full_name} ({a.doctor.specialization})
+                  </Typography>
+                  <Typography>
+                    Date: {a.date} | Time: {a.time_slot}
+                  </Typography>
+                  <Typography>
+                    Status:{" "}
+                    <span
+                      className={
+                        a.status === "pending"
+                          ? "text-blue-600"
+                          : a.status === "confirmed"
+                            ? "text-green-600"
+                            : "text-red-600"
+                      }
+                    >
+                      {a.status}
+                    </span>
+                  </Typography>
+                </Paper>
+              ))}
+          </div>
         </Box>
       </Box>
     </Box>
