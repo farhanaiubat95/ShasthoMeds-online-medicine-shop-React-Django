@@ -79,8 +79,11 @@ const appointmentSlice = createSlice({
       })
       .addCase(fetchAppointments.fulfilled, (state, action) => {
         state.loading = false;
-        state.appointments = action.payload;
+        state.appointments = Array.isArray(action.payload)
+          ? { results: action.payload } // normalize to always have results
+          : action.payload;
       })
+
       .addCase(fetchAppointments.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;

@@ -15,8 +15,13 @@ import {
 
 const AllAppointments = ({ token }) => {
   const dispatch = useDispatch();
-  const { appointments, loading, error } = useSelector((state) => state.appointments);
-  const appointmentsList = appointments?.results || [];
+  const { appointments, loading, error } = useSelector(
+    (state) => state.appointments,
+  );
+  const appointmentsList = Array.isArray(appointments)
+    ? appointments
+    : appointments?.results || [];
+
   console.log("Appointments:", appointmentsList);
 
   // Load all appointments for this user

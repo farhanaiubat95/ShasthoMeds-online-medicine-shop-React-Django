@@ -53,6 +53,10 @@ const AllDoctors = () => {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
 
+  // For doctor details dialog
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+
   // Fetch doctors initially
   useEffect(() => {
     dispatch(fetchDoctors());
@@ -132,9 +136,9 @@ const AllDoctors = () => {
 
   const handleAddTimeSlot = () => {
     if (startTime && endTime) {
-      const slot = `${dayjs(startTime).format("HH:mm")}-${dayjs(
-        endTime,
-      ).format("HH:mm")}`;
+      const slot = `${dayjs(startTime).format("HH:mm")}-${dayjs(endTime).format(
+        "HH:mm",
+      )}`;
       setFormData({
         ...formData,
         available_time: [...formData.available_time, slot],
@@ -173,6 +177,7 @@ const AllDoctors = () => {
                 value={formData.full_name}
                 onChange={handleChange}
                 required
+                sx={{ mb: 2 }}
               />
               <TextField
                 fullWidth
@@ -181,6 +186,7 @@ const AllDoctors = () => {
                 value={formData.specialization}
                 onChange={handleChange}
                 required
+                sx={{ mb: 2 }}
               />
               <TextField
                 fullWidth
@@ -190,6 +196,7 @@ const AllDoctors = () => {
                 value={formData.experience_years}
                 onChange={handleChange}
                 required
+                sx={{ mb: 2 }}
               />
               <TextField
                 fullWidth
@@ -199,6 +206,7 @@ const AllDoctors = () => {
                 value={formData.max_patients_per_day}
                 onChange={handleChange}
                 required
+                sx={{ mb: 2 }}
               />
               <TextField
                 fullWidth
@@ -208,6 +216,7 @@ const AllDoctors = () => {
                 value={formData.consultation_fee}
                 onChange={handleChange}
                 required
+                sx={{ mb: 2 }}
               />
 
               {/* Available Days */}
@@ -304,26 +313,88 @@ const AllDoctors = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell><strong>Name</strong></TableCell>
-                  <TableCell><strong>Specialization</strong></TableCell>
-                  <TableCell><strong>Experience</strong></TableCell>
-                  <TableCell><strong>Patients/Day</strong></TableCell>
-                  <TableCell><strong>Fee</strong></TableCell>
-                  <TableCell><strong>Actions</strong></TableCell>
+                  <TableCell>
+                    <strong>Name</strong>
+                  </TableCell>
+                  <TableCell>
+                    <strong>Specialization</strong>
+                  </TableCell>
+                  <TableCell>
+                    <strong>Experience</strong>
+                  </TableCell>
+                  <TableCell>
+                    <strong>Patients/Day</strong>
+                  </TableCell>
+                  <TableCell>
+                    <strong>Fee</strong>
+                  </TableCell>
+                  <TableCell>
+                    <strong>Actions</strong>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {doctorsList.map((doctor) => (
                   <TableRow key={doctor.id}>
-                    <TableCell>{doctor.full_name}</TableCell>
-                    <TableCell>{doctor.specialization}</TableCell>
-                    <TableCell>{doctor.experience_years} yrs</TableCell>
-                    <TableCell>{doctor.max_patients_per_day}</TableCell>
-                    <TableCell>{doctor.consultation_fee}</TableCell>
+                    <TableCell
+                      sx={{
+                        maxWidth: 150, // limit width
+                        whiteSpace: "nowrap", // keep text in one line
+                        overflow: "hidden", // hide overflow
+                        textOverflow: "ellipsis", // show ...
+                      }}
+                    >
+                      {doctor.full_name}
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        maxWidth: 120,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {doctor.specialization}
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        maxWidth: 80,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {doctor.experience_years} yrs
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        maxWidth: 100,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {doctor.max_patients_per_day}
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        maxWidth: 100,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {doctor.consultation_fee}
+                    </TableCell>
+
                     <TableCell className="flex gap-1">
                       <IconButton
                         color="primary"
-                        onClick={() => alert(JSON.stringify(doctor, null, 2))}
+                        onClick={() => handleView(doctor)}
                       >
                         <Visibility />
                       </IconButton>
@@ -346,6 +417,53 @@ const AllDoctors = () => {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Doctor Details Dialog */}
+        <Dialog
+          open={viewOpen}
+          onClose={() => setViewOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Doctor Details</DialogTitle>
+          <DialogContent dividers>
+            {selectedDoctor && (
+              <div className="space-y-2">
+                <Typography>
+                  <strong>Name:</strong> {selectedDoctor.full_name}
+                </Typography>
+                <Typography>
+                  <strong>Specialization:</strong>{" "}
+                  {selectedDoctor.specialization}
+                </Typography>
+                <Typography>
+                  <strong>Experience:</strong> {selectedDoctor.experience_years}{" "}
+                  years
+                </Typography>
+                <Typography>
+                  <strong>Max Patients/Day:</strong>{" "}
+                  {selectedDoctor.max_patients_per_day}
+                </Typography>
+                <Typography>
+                  <strong>Fee:</strong> {selectedDoctor.consultation_fee}
+                </Typography>
+                <Typography>
+                  <strong>Available Days:</strong>{" "}
+                  {selectedDoctor.available_days?.join(", ")}
+                </Typography>
+                <Typography>
+                  <strong>Available Time:</strong>{" "}
+                  {selectedDoctor.available_time?.join(", ")}
+                </Typography>
+              </div>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setViewOpen(false)} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </LocalizationProvider>
   );
