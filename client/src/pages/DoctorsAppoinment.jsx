@@ -112,7 +112,7 @@ export default function DoctorsAppoinment() {
   };
 
   return (
-    <Box className="p-4 md:p-8 bg-gray-50 min-h-screen w-full md:w-[70%] mx-auto">
+    <Box className="p-4 md:p-8 bg-gray-50 min-h-screen w-full">
       <Typography
         variant="h4"
         sx={{ fontSize: { xs: "1.8rem", sm: "2rem", md: "2.5rem" } }}
@@ -121,114 +121,127 @@ export default function DoctorsAppoinment() {
         My Appointments
       </Typography>
 
-      {/* Show all user appointments */}
-      <Box className="mb-6">
-        {appointmentsList
-          .filter((a) => a.patient.username === user.username) // compare username
-          .map((a) => (
-            <Paper key={a.id} className="p-4 mb-3">
-              <Typography variant="h6" className="font-semibold">
-                {a.doctor.full_name} ({a.doctor.specialization})
-              </Typography>
-              <Typography>
-                Date: {a.date} | Time: {a.time_slot}
-              </Typography>
-              <Typography>
-                Status:{" "}
-                <span
-                  className={
-                    a.status === "pending"
-                      ? "text-blue-600"
-                      : a.status === "confirmed"
-                        ? "text-green-600"
-                        : "text-red-600"
-                  }
-                >
-                  {a.status}
-                </span>
-              </Typography>
-            </Paper>
-          ))}
-      </Box>
+      <Box className="mb-6 md:flex  align-center justify-center">
+        {/* Show all user appointments */}
+        <Box className="mb-6">
+          {appointmentsList
+            .filter((a) => a.patient.username === user.username) // compare username
+            .map((a) => (
+              <Paper key={a.id} className="p-4 mb-3">
+                <Typography variant="h6" className="font-semibold">
+                  {a.doctor.full_name} ({a.doctor.specialization})
+                </Typography>
+                <Typography>
+                  Date: {a.date} | Time: {a.time_slot}
+                </Typography>
+                <Typography>
+                  Status:{" "}
+                  <span
+                    className={
+                      a.status === "pending"
+                        ? "text-blue-600"
+                        : a.status === "confirmed"
+                          ? "text-green-600"
+                          : "text-red-600"
+                    }
+                  >
+                    {a.status}
+                  </span>
+                </Typography>
+              </Paper>
+            ))}
+        </Box>
 
-      {/* Button to show booking */}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setShowBooking((prev) => !prev)}
-        className="mb-6"
-      >
-        Take Appointment
-      </Button>
-
-      {/* Booking Section */}
-      {showBooking && (
-        <Paper elevation={3} className="p-4 md:p-6 mb-8">
-          <Typography variant="h4" className="font-bold mb-4 text-[#0F918F]">
-            Book Your Appointment
-          </Typography>
-
-          <Autocomplete
-            options={doctorsList}
-            getOptionLabel={(doc) => `${doc.full_name} - ${doc.specialization}`}
-            onChange={(e, value) => setSelectedDoctor(value)}
-            renderInput={(params) => (
-              <TextField {...params} label="Select Doctor" variant="outlined" />
-            )}
+        <Box>
+          {/* Button to show booking */}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setShowBooking((prev) => !prev)}
             className="mb-6"
-          />
+          >
+            Take Appointment
+          </Button>
 
-          {selectedDoctor &&
-            Object.entries(selectedDoctor.availability || {}).map(
-              ([date, slots]) => {
-                const dayName = new Date(date).toLocaleDateString("en-US", {
-                  weekday: "long",
-                });
-                return (
-                  <Box key={date} className="mt-6">
-                    <Typography
-                      variant="h6"
-                      className="mb-3 font-semibold text-gray-700"
-                    >
-                      {date} ({dayName})
-                    </Typography>
+          {/* Booking Section */}
+          {showBooking && (
+            <Paper elevation={3} className="p-4 md:p-6 mb-8">
+              <Typography
+                variant="h4"
+                className="font-bold mb-4 text-[#0F918F]"
+              >
+                Book Your Appointment
+              </Typography>
 
-                    <Grid container spacing={1}>
-                      {slots.map((time) => {
-                        const { color, disabled, icon } = getSlotStyle(
-                          date,
-                          time,
-                        );
-                        return (
-                          <Grid item xs={4} sm={3} md={2} key={time}>
-                            <Button
-                              variant="contained"
-                              color={color}
-                              startIcon={icon}
-                              onClick={() => handleBook(date, time)}
-                              disabled={disabled}
-                              sx={{
-                                width: "100%",
-                                fontSize: {
-                                  xs: "0.65rem",
-                                  sm: "0.8rem",
-                                  md: "0.9rem",
-                                },
-                                py: { xs: 0.7, sm: 1, md: 1.2 },
-                              }}
-                            >
-                              {time}
-                            </Button>
-                          </Grid>
-                        );
-                      })}
-                    </Grid>
-                  </Box>
-                );
-              },
-            )}
-        </Paper>
-      )}
+              <Autocomplete
+                options={doctorsList}
+                getOptionLabel={(doc) =>
+                  `${doc.full_name} - ${doc.specialization}`
+                }
+                onChange={(e, value) => setSelectedDoctor(value)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select Doctor"
+                    variant="outlined"
+                  />
+                )}
+                className="mb-6"
+              />
+
+              {selectedDoctor &&
+                Object.entries(selectedDoctor.availability || {}).map(
+                  ([date, slots]) => {
+                    const dayName = new Date(date).toLocaleDateString("en-US", {
+                      weekday: "long",
+                    });
+                    return (
+                      <Box key={date} className="mt-6">
+                        <Typography
+                          variant="h6"
+                          className="mb-3 font-semibold text-gray-700"
+                        >
+                          {date} ({dayName})
+                        </Typography>
+
+                        <Grid container spacing={1}>
+                          {slots.map((time) => {
+                            const { color, disabled, icon } = getSlotStyle(
+                              date,
+                              time,
+                            );
+                            return (
+                              <Grid item xs={4} sm={3} md={2} key={time}>
+                                <Button
+                                  variant="contained"
+                                  color={color}
+                                  startIcon={icon}
+                                  onClick={() => handleBook(date, time)}
+                                  disabled={disabled}
+                                  sx={{
+                                    width: "100%",
+                                    fontSize: {
+                                      xs: "0.65rem",
+                                      sm: "0.8rem",
+                                      md: "0.9rem",
+                                    },
+                                    py: { xs: 0.7, sm: 1, md: 1.2 },
+                                  }}
+                                >
+                                  {time}
+                                </Button>
+                              </Grid>
+                            );
+                          })}
+                        </Grid>
+                      </Box>
+                    );
+                  },
+                )}
+            </Paper>
+          )}
+        </Box>
+      </Box>
     </Box>
   );
 }
