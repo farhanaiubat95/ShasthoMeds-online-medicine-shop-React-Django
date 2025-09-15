@@ -5,7 +5,6 @@ import {
   updateAppointmentStatus,
 } from "../../redux/appoinmentSlice.js";
 import {
-  Button,
   Select,
   MenuItem,
   Card,

@@ -24,11 +24,11 @@ import {
   InputLabel,
   FormControl,
 } from "@mui/material";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import { Edit, Delete, Visibility } from "@mui/icons-material";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -315,111 +315,125 @@ const AllDoctors = () => {
             {!loading && doctorsList.length === 0 && (
               <p className="text-gray-500">No doctors found.</p>
             )}
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>
-                    <strong>Name</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Specialization</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Experience</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Patients/Day</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Fee</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Actions</strong>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {doctorsList.map((doctor) => (
-                  <TableRow key={doctor.id}>
-                    <TableCell
-                      sx={{
-                        maxWidth: 150, // limit width
-                        whiteSpace: "nowrap", // keep text in one line
-                        overflow: "hidden", // hide overflow
-                        textOverflow: "ellipsis", // show ...
-                      }}
-                    >
-                      {doctor.full_name}
+            <div style={{ overflowX: "auto" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <strong>Name</strong>
                     </TableCell>
-
-                    <TableCell
-                      sx={{
-                        maxWidth: 120,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {doctor.specialization}
+                    <TableCell>
+                      <strong>Specialization</strong>
                     </TableCell>
-
-                    <TableCell
-                      sx={{
-                        maxWidth: 80,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {doctor.experience_years} yrs
+                    <TableCell>
+                      <strong>Experience</strong>
                     </TableCell>
-
-                    <TableCell
-                      sx={{
-                        maxWidth: 100,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {doctor.max_patients_per_day}
+                    <TableCell>
+                      <strong>Patients/Day</strong>
                     </TableCell>
-
-                    <TableCell
-                      sx={{
-                        maxWidth: 100,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {doctor.consultation_fee}
+                    <TableCell>
+                      <strong>Fee</strong>
                     </TableCell>
-
-                    <TableCell className="flex gap-1">
-                      <IconButton
-                        color="primary"
-                        onClick={() => handleView(doctor)}
-                      >
-                        <Visibility />
-                      </IconButton>
-                      <IconButton
-                        color="secondary"
-                        onClick={() => handleEdit(doctor)}
-                      >
-                        <Edit />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() => handleDelete(doctor.id)}
-                      >
-                        <Delete />
-                      </IconButton>
+                    <TableCell>
+                      <strong>Join Date</strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>Actions</strong>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {doctorsList.map((doctor) => (
+                    <TableRow key={doctor.id}>
+                      <TableCell
+                        sx={{
+                          maxWidth: 150, // limit width
+                          whiteSpace: "nowrap", // keep text in one line
+                          overflow: "hidden", // hide overflow
+                          textOverflow: "ellipsis", // show ...
+                        }}
+                      >
+                        {doctor.full_name}
+                      </TableCell>
+
+                      <TableCell
+                        sx={{
+                          maxWidth: 120,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {doctor.specialization}
+                      </TableCell>
+
+                      <TableCell
+                        sx={{
+                          maxWidth: 80,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {doctor.experience_years} yrs
+                      </TableCell>
+
+                      <TableCell
+                        sx={{
+                          maxWidth: 100,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {doctor.max_patients_per_day}
+                      </TableCell>
+
+                      <TableCell
+                        sx={{
+                          maxWidth: 100,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {doctor.consultation_fee}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          maxWidth: 100,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {doctor.created_at}
+                      </TableCell>
+                      <TableCell className="flex gap-1">
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleView(doctor)}
+                        >
+                          <Visibility />
+                        </IconButton>
+                        <IconButton
+                          color="secondary"
+                          onClick={() => handleEdit(doctor)}
+                        >
+                          <Edit />
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDelete(doctor.id)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 

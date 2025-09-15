@@ -11,6 +11,7 @@ import orderReducer from "./orderSlice";
 import prescriptionReducer from "./prescriptionSlice";
 import doctorReducer from "./doctorSlice";
 import appoinmentReducer from "./appoinmentSlice";
+import alluserReducer from "./AllUserSlice"
 
 
 // Combine all slices
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   prescriptions: prescriptionReducer,
   appointments: appoinmentReducer,
   doctors: doctorReducer,
+  allusers: alluserReducer
 });
 
 // Persist config: whitelist the reducers you want to persist

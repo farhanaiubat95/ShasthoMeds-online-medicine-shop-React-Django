@@ -63,6 +63,7 @@ export default function AllProducts() {
     side_effect: "",
     category: "",
     brand: "",
+    actual_price: "",
     price: "",
     offer_price: "",
     stock: "",
@@ -106,6 +107,7 @@ export default function AllProducts() {
       side_effect: "",
       category: "",
       brand: "",
+      actual_price: "",
       price: "",
       offer_price: "",
       stock: "",
@@ -386,12 +388,23 @@ export default function AllProducts() {
               </MenuItem>
             ))}
           </TextField>
+          <TextField
+            type="number"
+            label="Actual Price"
+            name="actual_price"
+            value={product.actual_price}
+            onChange={handleChange}
+            required
+            sx={{ mb: 2 }}
+            fullWidth
+          />
 
           <TextField
             name="price"
             label="Price"
             value={product.price}
             onChange={handleChange}
+            required
             fullWidth
           />
           <TextField
@@ -531,10 +544,12 @@ export default function AllProducts() {
                 <TableRow>
                   <TableCell>SKU</TableCell>
                   <TableCell>Name</TableCell>
-                  <TableCell>Price</TableCell>
+                  <TableCell>Buying Price</TableCell>
+                  <TableCell>Selling Price</TableCell>
                   <TableCell>Stock</TableCell>
                   <TableCell>Unit</TableCell>
                   <TableCell>Prescription</TableCell>
+                  <TableCell>Date</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -543,7 +558,8 @@ export default function AllProducts() {
                   <TableRow key={i}>
                     <TableCell>{p.sku || "-"}</TableCell>
                     <TableCell>{p.name || "-"}</TableCell>
-                    <TableCell>{p.price || "-"}</TableCell>
+                    <TableCell>Tk {p.actual_price || "-"}</TableCell>
+                    <TableCell>Tk {p.price || "-"}</TableCell>
                     <TableCell>{p.stock || "-"}</TableCell>
                     <TableCell>
                       {p.unit_value} {p.unit}
@@ -551,6 +567,7 @@ export default function AllProducts() {
                     <TableCell>
                       {p.prescription_required ? "Yes" : "No"}
                     </TableCell>
+                    <TableCell>{p.created_at}</TableCell>
                     <TableCell>
                       <Box display="flex" gap={1} justifyContent="center">
                         <Button

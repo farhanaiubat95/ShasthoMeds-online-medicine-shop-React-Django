@@ -446,6 +446,7 @@ class Doctor(models.Model):
     consultation_fee = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     available_days = models.JSONField(default=list)  # ["Monday", "Wednesday"]
     available_time = models.JSONField(default=list)  # ["10:00-12:00", "15:00-17:00"]
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.full_name} ({self.specialization})"

@@ -25,7 +25,7 @@ const Orders = () => {
   const { orders, loading } = useSelector((state) => state.orders);
   const orderList = orders || []; // orders is always array now
 
-  orderList.forEach((order) => console.log("order items", order.items));
+  // orderList.forEach((order) => console.log("order items", order.items));
 
   useEffect(() => {
     if (token) {

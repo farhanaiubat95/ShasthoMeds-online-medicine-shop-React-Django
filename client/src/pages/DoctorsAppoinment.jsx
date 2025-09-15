@@ -53,11 +53,11 @@ export default function DoctorsAppoinment() {
     if (!confirmBooking) return; // stop if user cancels
 
     try {
-      console.log("Selected Doctor:", selectedDoctor.id);
-      console.log("User ID:", user.id);
-      console.log("Date:", date);
-      console.log("Time:", time);
-      console.log("Token:", token);
+      // console.log("Selected Doctor:", selectedDoctor.id);
+      // console.log("User ID:", user.id);
+      // console.log("Date:", date);
+      // console.log("Time:", time);
+      // console.log("Token:", token);
       // Dispatch booking
       const resultAction = await dispatch(
         bookAppointment({

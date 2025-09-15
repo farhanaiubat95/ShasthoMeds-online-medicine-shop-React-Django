@@ -390,7 +390,7 @@ class DoctorSerializer(serializers.ModelSerializer):
         model = Doctor
         fields = ['id', 'full_name', 'specialization', 'experience_years', 
                   'max_patients_per_day', 'consultation_fee', 'available_days', 
-                  'available_time', 'availability']
+                  'available_time', 'availability', 'created_at']
 
     def get_availability(self, obj):
         availability = {}

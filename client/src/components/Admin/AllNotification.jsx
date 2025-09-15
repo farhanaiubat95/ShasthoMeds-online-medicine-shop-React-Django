@@ -38,7 +38,7 @@ function AllNotification() {
         )
       ) {
         await dispatch(
-          updatePrescription({ id, data: { status: newStatus } , token }),
+          updatePrescription({ id, data: { status: newStatus }, token }),
         ).unwrap();
         dispatch(fetchPrescriptions(token)); // refresh after update
       }
@@ -47,7 +47,6 @@ function AllNotification() {
     }
   };
 
- 
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
@@ -59,23 +58,27 @@ function AllNotification() {
       <Table sx={{ border: "1px solid #ddd" }}>
         <TableHead sx={{ backgroundColor: "#9fced8" }}>
           <TableRow>
-            <TableCell sx={{textAlign:"center"}}>ID</TableCell>
-            <TableCell sx={{textAlign:"center"}}>Product</TableCell>
-            <TableCell sx={{textAlign:"center"}}>Notes</TableCell>
-            <TableCell sx={{textAlign:"center"}}>Image</TableCell>
-            <TableCell sx={{textAlign:"center"}}>Status</TableCell>
-            <TableCell sx={{textAlign:"center"}}>Admin Comment</TableCell>
-            <TableCell sx={{textAlign:"center"}}>Action</TableCell>
+            <TableCell sx={{ textAlign: "center" }}>ID</TableCell>
+            <TableCell sx={{ textAlign: "center" }}>Product</TableCell>
+            <TableCell sx={{ textAlign: "center" }}>Notes</TableCell>
+            <TableCell sx={{ textAlign: "center" }}>Image</TableCell>
+            <TableCell sx={{ textAlign: "center" }}>Date</TableCell>
+            <TableCell sx={{ textAlign: "center" }}>Admin Comment</TableCell>
+            <TableCell sx={{ textAlign: "center" }}>Action</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {items?.results && items.results.length > 0 ? (
             items.results.map((p) => (
               <TableRow key={p.id} sx={{ backgroundColor: "#8cc5a142" }}>
-                <TableCell sx={{textAlign:"center"}}>{p.id}</TableCell>
-                <TableCell sx={{textAlign:"center"}}>{p.product?.name || "N/A"}</TableCell>
-                <TableCell sx={{textAlign:"center"}}>{p.notes || "-"}</TableCell>
-                <TableCell sx={{textAlign:"center"}}>
+                <TableCell sx={{ textAlign: "center" }}>{p.id}</TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  {p.product?.name || "N/A"}
+                </TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  {p.notes || "-"}
+                </TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
                   {p.uploaded_image ? (
                     <img
                       src={p.uploaded_image}
@@ -92,18 +95,12 @@ function AllNotification() {
                     "-"
                   )}
                 </TableCell>
-                <TableCell sx={{textAlign:"center"}}>
-                  <Select
-                    size="small"
-                    value={p.status}
-                    onChange={(e) => handleStatusChange(p.id, e.target.value)}
-                  >
-                    <MenuItem value="pending">Pending</MenuItem>
-                    <MenuItem value="approved">Approved</MenuItem>
-                    <MenuItem value="rejected">Rejected</MenuItem>
-                  </Select>
+                <TableCell sx={{ textAlign: "center" }}>
+                  {new Date(p.created_at).toLocaleString() || ""}
                 </TableCell>
-                <TableCell sx={{textAlign:"center"}}>{p.admin_comment || "-"}</TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  {p.admin_comment || "-"}
+                </TableCell>
                 <TableCell sx={{ display: "flex", justifyContent: "center" }}>
                   <Button
                     variant="outlined"
@@ -155,7 +152,7 @@ function AllNotification() {
             <img
               src={selectedImage}
               alt="Prescription"
-              style={{maxHeight: "80vh" }}
+              style={{ maxHeight: "80vh" }}
               className="w-[500px] xl:w-[1000px]"
             />
           )}
