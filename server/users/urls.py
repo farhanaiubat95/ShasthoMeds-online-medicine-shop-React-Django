@@ -7,7 +7,7 @@ from .SSLCOMMERZ import payment_success, payment_fail, payment_cancel
 
 from .views import (
     APIRootView, AppointmentViewSet, BrandViewSet, CartViewSet, CategoryViewSet, DoctorViewSet,LogoutView, MonthlyReportDetailView, MonthlyReportListView, OrderViewSet, PrescriptionRequestViewSet, ProductViewSet, RegisterAPIView, ResendOTPView,
-    UpdateProfileView, UserListView, VerifyOTPView, CustomTokenObtainPairView, YearlyReportDetailView, YearlyReportListView,
+    UpdateProfileView, UserListView, VerifyOTPView, CustomTokenObtainPairView, YearlyReportDetailView, YearlyReportListView, orders_report,
 )
 
 from rest_framework_simplejwt.views import ( # pyright: ignore[reportMissingImports]
@@ -47,6 +47,7 @@ urlpatterns = [
     path('monthly/<str:month>/', MonthlyReportDetailView.as_view(), name='monthly-report-detail'),
     path('yearly/', YearlyReportListView.as_view(), name='yearly-report-list'),
     path('yearly/<int:year>/', YearlyReportDetailView.as_view(), name='yearly-report-detail'),
+    path('orders-report/', orders_report, name='orders-report'),
 
 
     # Include router URLs

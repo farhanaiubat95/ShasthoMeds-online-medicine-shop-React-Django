@@ -17,8 +17,13 @@ from .SSLCOMMERZ import create_payment_session
 from django.utils.crypto import get_random_string
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .models import Appointment, Brand, Cart, CartItem, Category, Doctor, MonthlyReport, Order, PrescriptionRequest,Product, YearlyReport,  Appointment, Doctor
+from .models import Appointment, Brand, Cart, CartItem, Category, Doctor, MonthlyReport, Order, OrderItem, PrescriptionRequest,Product, YearlyReport,  Appointment, Doctor
 from .serializers import AppointmentSerializer, BrandSerializer, CartSerializer, CategorySerializer, DoctorSerializer, MonthlyReportSerializer, OrderSerializer, PrescriptionRequestSerializer,ProductSerializer, YearlyReportSerializer
+from datetime import datetime, timedelta
+from django.db.models import Sum, F
+from rest_framework.decorators import api_view, permission_classes
+from django.http import HttpResponse
+import csv
 
 # store/views.py
 from rest_framework.decorators import action, api_view, permission_classes
@@ -475,3 +480,72 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
         return Response(data)
 
+
+# All reports 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def orders_report(request):
+    filter_type = request.GET.get("filter", "daily")
+    export_type = request.GET.get("export", None)
+
+    today = datetime.today()
+    start_date = end_date = today
+
+    if filter_type == "daily":
+        start_date = end_date = today
+    elif filter_type == "weekly":
+        start_date = today - timedelta(days=today.weekday())
+        end_date = start_date + timedelta(days=6)
+    elif filter_type == "monthly":
+        start_date = today.replace(day=1)
+        next_month = today.replace(day=28) + timedelta(days=4)
+        end_date = next_month - timedelta(days=next_month.day)
+    elif filter_type == "yearly":
+        start_date = today.replace(month=1, day=1)
+        end_date = today.replace(month=12, day=31)
+    elif filter_type == "custom":
+        start_date_str = request.GET.get("start_date")
+        end_date_str = request.GET.get("end_date")
+        if not start_date_str or not end_date_str:
+            return Response({"error": "start_date and end_date required for custom filter"}, status=400)
+        start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
+
+    orders = Order.objects.filter(created_at__date__gte=start_date, created_at__date__lte=end_date)
+
+    items = OrderItem.objects.filter(order__in=orders).values(
+        "order__created_at__date", "product_name", "product_id"
+    ).annotate(
+        total_qty=Sum("quantity"),
+        total_income=Sum("subtotal"),
+        total_actual=Sum(F("actual_price") * F("quantity"))
+    ).order_by("order__created_at__date", "product_name")
+
+    report_data = []
+    for item in items:
+        try:
+            product_obj = Product.objects.get(id=item["product_id"])
+            stock = product_obj.stock
+        except Product.DoesNotExist:
+            stock = None
+
+        report_data.append({
+            "date": item["order__created_at__date"],
+            "product": item["product_name"],
+            "quantity_sold": item["total_qty"],
+            "income": float(item["total_income"] or 0),
+            "actual_cost": float(item["total_actual"] or 0),
+            "profit": float((item["total_income"] or 0) - (item["total_actual"] or 0)),
+            "stock_remaining": stock
+        })
+
+    if export_type in ["csv", "excel"] and report_data:
+        response = HttpResponse(content_type="text/csv")
+        response['Content-Disposition'] = f'attachment; filename="orders_report.{export_type}"'
+        writer = csv.DictWriter(response, fieldnames=report_data[0].keys())
+        writer.writeheader()
+        for row in report_data:
+            writer.writerow(row)
+        return response
+
+    return Response(report_data)
