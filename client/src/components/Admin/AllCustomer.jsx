@@ -15,10 +15,6 @@ const AllCustomer = () => {
   const [formData, setFormData] = useState({});
   const [toast, setToast] = useState({ message: "", type: "" });
 
-  useEffect(() => {
-    dispatch(fetchAllUsers());
-  }, [dispatch]);
-
   const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast({ message: "", type: "" }), 3000);
@@ -86,7 +82,9 @@ const AllCustomer = () => {
 
   return (
     <div className="bg-white rounded-xl shadow p-6 text-black overflow-x-auto relative">
-      <h1 className="text-2xl font-semibold mb-4">All Customers ({users?.results?.length})</h1>
+      <h1 className="text-2xl font-semibold mb-4">
+        All Customers ({users.length})
+      </h1>
 
       {/* Toast */}
       {toast.message && (
@@ -124,8 +122,8 @@ const AllCustomer = () => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {users?.results?.length > 0 ? (
-            users.results.map((user) => (
+          {users.length > 0 ? (
+            users.map((user) => (
               <tr key={user.id || user._id}>
                 <td className="px-6 py-4 text-center">{user.full_name}</td>
                 <td className="px-6 py-4 text-center">{user.username}</td>
