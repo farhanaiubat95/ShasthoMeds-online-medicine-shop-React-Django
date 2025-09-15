@@ -481,7 +481,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
-# All reports 
+# All reports
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def orders_report(request):

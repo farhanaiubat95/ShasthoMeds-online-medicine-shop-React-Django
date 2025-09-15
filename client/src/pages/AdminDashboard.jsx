@@ -58,6 +58,11 @@ const sidebarItems = [
     path: "/admin-dashboard/all-reports",
   },
   {
+    text: "All Details Reports",
+    icon: <AssessmentIcon />,
+    path: "/admin-dashboard/all-reports-collection",
+  },
+  {
     text: "All Doctors",
     icon: <LocalHospitalIcon />,
     path: "/admin-dashboard/all-doctors",

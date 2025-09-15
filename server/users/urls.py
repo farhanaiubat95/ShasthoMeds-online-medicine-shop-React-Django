@@ -47,6 +47,7 @@ urlpatterns = [
     path('monthly/<str:month>/', MonthlyReportDetailView.as_view(), name='monthly-report-detail'),
     path('yearly/', YearlyReportListView.as_view(), name='yearly-report-list'),
     path('yearly/<int:year>/', YearlyReportDetailView.as_view(), name='yearly-report-detail'),
+    
     path('orders-report/', orders_report, name='orders-report'),
 
 
