@@ -483,7 +483,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
 # All reports
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def orders_report_items(request):
     """
     Return all paid order items with date, product, quantity, stock, income, profit.
