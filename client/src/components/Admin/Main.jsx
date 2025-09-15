@@ -21,8 +21,6 @@ const Main = () => {
   const token = localStorage.getItem("access_token");
   const { reports, loading, error } = useMonthlyReports(token);
   const { users} = useSelector((state) => state.allusers);
-  console.log("users main :", users)
- 
 
   useEffect(() => {
       dispatch(fetchAllUsers());

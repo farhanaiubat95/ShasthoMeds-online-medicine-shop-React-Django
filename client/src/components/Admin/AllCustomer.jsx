@@ -12,7 +12,6 @@ import EditSquareIcon from "@mui/icons-material/EditSquare";
 const AllCustomer = () => {
   const dispatch = useDispatch();
   const { users } = useSelector((state) => state.allusers);
-  console.log("users customer-> :", users);
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalType, setModalType] = useState(""); // "view" | "edit" | "delete"
