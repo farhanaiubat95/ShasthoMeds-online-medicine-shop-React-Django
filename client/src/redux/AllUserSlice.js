@@ -17,7 +17,6 @@ export const fetchAllUsers = createAsyncThunk(
         "https://shasthomeds-backend.onrender.com/users/",
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      console.log("Users Data :", data);
       return data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.detail || error.message);

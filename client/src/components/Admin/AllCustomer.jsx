@@ -8,7 +8,8 @@ import {
 
 const AllCustomer = () => {
   const dispatch = useDispatch();
-  const { users, loading, error } = useSelector((state) => state.allusers);
+  const { users } = useSelector((state) => state.allusers);
+  console.log("users customer-> :", users);
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalType, setModalType] = useState(""); // "view" | "edit" | "delete"
