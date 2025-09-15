@@ -5,6 +5,9 @@ import {
   updateUser,
   deleteUser,
 } from "../../redux/AllUserSlice";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import PreviewIcon from "@mui/icons-material/Preview";
+import EditSquareIcon from "@mui/icons-material/EditSquare";
 
 const AllCustomer = () => {
   const dispatch = useDispatch();
@@ -135,21 +138,21 @@ const AllCustomer = () => {
                 <td className="px-6 py-4 text-center space-x-2">
                   <button
                     onClick={() => openModal(user, "view")}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+                    className="text-green-500"
                   >
-                    View
+                    <PreviewIcon />
                   </button>
                   <button
                     onClick={() => openModal(user, "edit")}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded"
+                    className="text-blue-500"
                   >
-                    Edit
+                    <EditSquareIcon />
                   </button>
                   <button
                     onClick={() => openModal(user, "delete")}
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                    className="text-red-600"
                   >
-                    Delete
+                    <DeleteForeverIcon />
                   </button>
                 </td>
               </tr>
@@ -221,6 +224,7 @@ const AllCustomer = () => {
                   onChange={handleInputChange}
                   placeholder="Username"
                   className="border p-2 w-full mb-2 rounded"
+                  disabled
                 />
                 <input
                   type="email"
@@ -229,6 +233,7 @@ const AllCustomer = () => {
                   onChange={handleInputChange}
                   placeholder="Email"
                   className="border p-2 w-full mb-2 rounded"
+                  disabled
                 />
                 <input
                   type="text"
@@ -251,6 +256,7 @@ const AllCustomer = () => {
                   value={formData.role}
                   onChange={handleInputChange}
                   className="border p-2 w-full mb-2 rounded"
+                  disabled
                 >
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
