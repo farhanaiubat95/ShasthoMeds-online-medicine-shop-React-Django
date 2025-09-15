@@ -27,10 +27,8 @@ const OrdersReport = () => {
   // Fetch all items once
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem("access_token");
       const res = await axios.get(
-        "https://shasthomeds-backend.onrender.com/orders-report-items/",
-        { headers: { Authorization: `Bearer ${token}` } },
+        "https://shasthomeds-backend.onrender.com/orders-report-items/"
       );
       setAllData(res.data);
     } catch (err) {
@@ -95,7 +93,7 @@ const OrdersReport = () => {
     const headers = Object.keys(filteredData[0]);
     csvRows.push(headers.join(","));
     filteredData.forEach((row) =>
-      csvRows.push(headers.map((h) => row[h]).join(",")),
+      csvRows.push(headers.map((h) => row[h]).join(","))
     );
     const csvData = csvRows.join("\n");
     const blob = new Blob([csvData], { type: "text/csv" });
