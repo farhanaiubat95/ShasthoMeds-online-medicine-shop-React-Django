@@ -15,37 +15,94 @@ import {
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 const OrdersReport = () => {
+  const [allData, setAllData] = useState([]);
   const [filter, setFilter] = useState("daily");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [reportData, setReportData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
 
-  const fetchReport = async (filterType = filter) => {
+  // Fetch all items once
+  const fetchData = async () => {
     try {
-      let url = `https://shasthomeds-backend.onrender.com/api/orders-report/?filter=${filterType}`;
-      if (filterType === "custom" && startDate && endDate) {
-        url += `&start_date=${startDate.format("YYYY-MM-DD")}&end_date=${endDate.format("YYYY-MM-DD")}`;
-      }
-      const res = await axios.get(url);
-      setReportData(res.data);
+      const res = await axios.get(
+        "https://shasthomeds-backend.onrender.com/orders-report-items/"
+      );
+      setAllData(res.data);
     } catch (err) {
       console.error("Failed to fetch report:", err);
     }
   };
 
-  const downloadCSV = () => {
-    let url = `https://shasthomeds-backend.onrender.com/api/orders-report/?filter=${filter}&export=csv`;
-    if (filter === "custom" && startDate && endDate) {
-      url += `&start_date=${startDate.format("YYYY-MM-DD")}&end_date=${endDate.format("YYYY-MM-DD")}`;
-    }
-    window.open(url, "_blank"); // trigger CSV download
-  };
-
   useEffect(() => {
-    fetchReport();
-  }, [filter, startDate, endDate]);
+    fetchData();
+  }, []);
+
+  // Filter data
+  useEffect(() => {
+    let start, end;
+    const today = dayjs();
+
+    switch (filter) {
+      case "daily":
+        start = end = today;
+        break;
+      case "weekly":
+        start = today.startOf("week");
+        end = today.endOf("week");
+        break;
+      case "monthly":
+        start = today.startOf("month");
+        end = today.endOf("month");
+        break;
+      case "yearly":
+        start = today.startOf("year");
+        end = today.endOf("year");
+        break;
+      case "custom":
+        if (startDate && endDate) {
+          start = startDate;
+          end = endDate;
+        } else {
+          setFilteredData([]);
+          return;
+        }
+        break;
+      default:
+        start = end = today;
+    }
+
+    const filtered = allData.filter((item) => {
+      const itemDate = dayjs(item.date);
+      return (
+        itemDate.isSame(start) ||
+        itemDate.isSame(end) ||
+        (itemDate.isAfter(start) && itemDate.isBefore(end))
+      );
+    });
+
+    setFilteredData(filtered);
+  }, [allData, filter, startDate, endDate]);
+
+  // Export CSV
+  const exportCSV = () => {
+    if (!filteredData.length) return;
+    const csvRows = [];
+    const headers = Object.keys(filteredData[0]);
+    csvRows.push(headers.join(","));
+    filteredData.forEach((row) =>
+      csvRows.push(headers.map((h) => row[h]).join(","))
+    );
+    const csvData = csvRows.join("\n");
+    const blob = new Blob([csvData], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "orders_report.csv";
+    a.click();
+  };
 
   return (
     <Box p={3}>
@@ -53,7 +110,6 @@ const OrdersReport = () => {
         Orders Report
       </Typography>
 
-      {/* Filter buttons */}
       <Box mb={2} display="flex" gap={1} flexWrap="wrap">
         {["daily", "weekly", "monthly", "yearly", "custom"].map((f) => (
           <Button
@@ -66,7 +122,6 @@ const OrdersReport = () => {
         ))}
       </Box>
 
-      {/* Custom date pickers */}
       {filter === "custom" && (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Box mb={2} display="flex" gap={2}>
@@ -86,11 +141,10 @@ const OrdersReport = () => {
         </LocalizationProvider>
       )}
 
-      <Button variant="outlined" onClick={downloadCSV} sx={{ mb: 2 }}>
+      <Button variant="outlined" onClick={exportCSV} sx={{ mb: 2 }}>
         Export CSV
       </Button>
 
-      {/* Report table */}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -105,8 +159,8 @@ const OrdersReport = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {reportData.map((row, index) => (
-              <TableRow key={index}>
+            {filteredData.map((row, i) => (
+              <TableRow key={i}>
                 <TableCell>{row.date}</TableCell>
                 <TableCell>{row.product}</TableCell>
                 <TableCell>{row.quantity_sold}</TableCell>

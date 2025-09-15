@@ -484,36 +484,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 # All reports
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def orders_report(request):
-    filter_type = request.GET.get("filter", "daily")
-    export_type = request.GET.get("export", None)
-
-    today = datetime.today()
-    start_date = end_date = today
-
-    if filter_type == "daily":
-        start_date = end_date = today
-    elif filter_type == "weekly":
-        start_date = today - timedelta(days=today.weekday())
-        end_date = start_date + timedelta(days=6)
-    elif filter_type == "monthly":
-        start_date = today.replace(day=1)
-        next_month = today.replace(day=28) + timedelta(days=4)
-        end_date = next_month - timedelta(days=next_month.day)
-    elif filter_type == "yearly":
-        start_date = today.replace(month=1, day=1)
-        end_date = today.replace(month=12, day=31)
-    elif filter_type == "custom":
-        start_date_str = request.GET.get("start_date")
-        end_date_str = request.GET.get("end_date")
-        if not start_date_str or not end_date_str:
-            return Response({"error": "start_date and end_date required for custom filter"}, status=400)
-        start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
-
-    orders = Order.objects.filter(created_at__date__gte=start_date, created_at__date__lte=end_date)
-
-    items = OrderItem.objects.filter(order__in=orders).values(
+def orders_report_items(request):
+    """
+    Return all paid order items with date, product, quantity, stock, income, profit.
+    """
+    items = OrderItem.objects.filter(order__payment_status="paid").values(
         "order__created_at__date", "product_name", "product_id"
     ).annotate(
         total_qty=Sum("quantity"),
@@ -530,7 +505,7 @@ def orders_report(request):
             stock = None
 
         report_data.append({
-            "date": item["order__created_at__date"],
+            "date": str(item["order__created_at__date"]),
             "product": item["product_name"],
             "quantity_sold": item["total_qty"],
             "income": float(item["total_income"] or 0),
@@ -538,14 +513,5 @@ def orders_report(request):
             "profit": float((item["total_income"] or 0) - (item["total_actual"] or 0)),
             "stock_remaining": stock
         })
-
-    if export_type in ["csv", "excel"] and report_data:
-        response = HttpResponse(content_type="text/csv")
-        response['Content-Disposition'] = f'attachment; filename="orders_report.{export_type}"'
-        writer = csv.DictWriter(response, fieldnames=report_data[0].keys())
-        writer.writeheader()
-        for row in report_data:
-            writer.writerow(row)
-        return response
 
     return Response(report_data)
