@@ -20,7 +20,7 @@ const AllAppointments = () => {
 
   // Fetch only the allAppointments state for the admin view
   const { allAppointments, loading, error } = useSelector(
-    (state) => state.appointments
+    (state) => state.appointments,
   );
 
   // Load ALL appointments on component mount
@@ -61,7 +61,7 @@ const AllAppointments = () => {
   // Render loading or error states
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
         <CircularProgress />
       </Box>
     );
@@ -69,7 +69,7 @@ const AllAppointments = () => {
 
   if (error) {
     return (
-      <Typography color="error" sx={{ textAlign: 'center', mt: 4 }}>
+      <Typography color="error" sx={{ textAlign: "center", mt: 4 }}>
         Error: {error}
       </Typography>
     );
@@ -108,11 +108,27 @@ const AllAppointments = () => {
                       handleStatusChange(appt.id, e.target.value)
                     }
                     size="small"
+                    disabled={appt.status === "cancelled"} // disable if cancelled
                   >
-                    <MenuItem value="pending">Pending</MenuItem>
-                    <MenuItem value="confirmed">Confirmed</MenuItem>
-                    <MenuItem value="completed">Completed</MenuItem>
-                    <MenuItem value="cancelled">Cancelled</MenuItem>
+                    {appt.status === "pending" && (
+                      <>
+                        <MenuItem value="confirmed">Confirmed</MenuItem>
+                        <MenuItem value="completed">Completed</MenuItem>
+                        <MenuItem value="cancelled">Cancelled</MenuItem>
+                      </>
+                    )}
+
+                    {appt.status === "confirmed" && (
+                      <MenuItem value="completed">Completed</MenuItem>
+                    )}
+
+                    {appt.status === "completed" && (
+                      <MenuItem value="completed">Completed</MenuItem>
+                    )}
+
+                    {appt.status === "cancelled" && (
+                      <MenuItem value="cancelled">Cancelled</MenuItem>
+                    )}
                   </Select>
                 </CardContent>
               </Card>

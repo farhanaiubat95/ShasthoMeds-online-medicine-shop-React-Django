@@ -63,7 +63,6 @@ function AllNotification() {
             <TableCell sx={{ textAlign: "center" }}>Notes</TableCell>
             <TableCell sx={{ textAlign: "center" }}>Image</TableCell>
             <TableCell sx={{ textAlign: "center" }}>Date</TableCell>
-            <TableCell sx={{ textAlign: "center" }}>Admin Comment</TableCell>
             <TableCell sx={{ textAlign: "center" }}>Action</TableCell>
           </TableRow>
         </TableHead>
@@ -95,12 +94,11 @@ function AllNotification() {
                     "-"
                   )}
                 </TableCell>
+
                 <TableCell sx={{ textAlign: "center" }}>
                   {new Date(p.created_at).toLocaleString() || ""}
                 </TableCell>
-                <TableCell sx={{ textAlign: "center" }}>
-                  {p.admin_comment || "-"}
-                </TableCell>
+
                 <TableCell sx={{ display: "flex", justifyContent: "center" }}>
                   <Button
                     variant="outlined"

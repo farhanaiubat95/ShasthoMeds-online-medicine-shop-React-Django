@@ -399,15 +399,12 @@ const AllDoctors = () => {
                       >
                         {doctor.consultation_fee}
                       </TableCell>
-                      <TableCell
-                        sx={{
-                          maxWidth: 100,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {doctor.created_at}
+                      <TableCell>
+                        {
+                          new Date(doctor.created_at)
+                            .toISOString()
+                            .split("T")[0]
+                        }
                       </TableCell>
                       <TableCell className="flex gap-1">
                         <IconButton

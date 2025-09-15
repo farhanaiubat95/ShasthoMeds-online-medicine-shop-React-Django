@@ -567,7 +567,9 @@ export default function AllProducts() {
                     <TableCell>
                       {p.prescription_required ? "Yes" : "No"}
                     </TableCell>
-                    <TableCell>{p.created_at}</TableCell>
+                    <TableCell>
+                      {new Date(p.created_at).toISOString().split("T")[0]}
+                    </TableCell>
                     <TableCell>
                       <Box display="flex" gap={1} justifyContent="center">
                         <Button
