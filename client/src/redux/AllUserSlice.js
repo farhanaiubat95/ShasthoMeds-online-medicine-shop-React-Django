@@ -1,59 +1,42 @@
+// redux/allUserSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// ------------------ Thunk ------------------
-// Fetch all users (admin only)
+// Helper to get token
+const getToken = () => localStorage.getItem("access_token");
+
+// ------------------ Thunks ------------------
+
+// Fetch all users
 export const fetchAllUsers = createAsyncThunk(
-  "users/fetchAll",
-  async (_, { getState, rejectWithValue }) => {
+  "allUsers/fetchAll",
+  async (_, { rejectWithValue }) => {
     try {
-      const {
-        auth: { userInfo }, // assuming JWT stored here
-      } = getState();
-
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${userInfo.access}`, // JWT access token
-        },
-      };
-
+      const token = getToken();
       const { data } = await axios.get(
         "https://shasthomeds-backend.onrender.com/users/",
-        config,
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      return data; // list of users
+      console.log("Users Data :", data);
+      return data;
     } catch (error) {
-      return rejectWithValue(
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message,
-      );
+      return rejectWithValue(error.response?.data?.detail || error.message);
     }
   },
 );
 
-// Update user details or toggle is_verified
+// Update user
 export const updateUser = createAsyncThunk(
-  "users/update",
-  async ({ id, userData }, { getState, rejectWithValue }) => {
+  "allUsers/update",
+  async ({ id, userData }, { rejectWithValue }) => {
     try {
-      const {
-        auth: { userInfo },
-      } = getState();
-
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${userInfo.access}`,
-        },
-      };
-
+      const token = getToken();
       const { data } = await axios.put(
         `https://shasthomeds-backend.onrender.com/users/${id}/`,
         userData,
-        config,
+        { headers: { Authorization: `Bearer ${token}` } },
       );
+      console.log("Users Data :", data);
       return data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.detail || error.message);
@@ -63,24 +46,15 @@ export const updateUser = createAsyncThunk(
 
 // Delete user
 export const deleteUser = createAsyncThunk(
-  "users/delete",
-  async (id, { getState, rejectWithValue }) => {
+  "allUsers/delete",
+  async (id, { rejectWithValue }) => {
     try {
-      const {
-        auth: { userInfo },
-      } = getState();
-
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.access}`,
-        },
-      };
-
+      const token = getToken();
       await axios.delete(
         `https://shasthomeds-backend.onrender.com/users/${id}/`,
-        config,
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      return id; // return deleted user id
+      return id;
     } catch (error) {
       return rejectWithValue(error.response?.data?.detail || error.message);
     }
@@ -96,7 +70,6 @@ const allUserSlice = createSlice({
     error: null,
   },
   reducers: {
-    // optional: you can add reset state here
     resetAllUsers: (state) => {
       state.users = [];
       state.loading = false;
@@ -105,6 +78,7 @@ const allUserSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // fetchAllUsers
       .addCase(fetchAllUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -117,14 +91,16 @@ const allUserSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // update user
+
+      // updateUser
       .addCase(updateUser.fulfilled, (state, action) => {
         const index = state.users.findIndex(
           (u) => u.id === action.payload.id || u._id === action.payload._id,
         );
         if (index !== -1) state.users[index] = action.payload;
       })
-      // delete user
+
+      // deleteUser
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.users = state.users.filter(
           (u) => u.id !== action.payload && u._id !== action.payload,
@@ -133,6 +109,5 @@ const allUserSlice = createSlice({
   },
 });
 
-// Export actions & reducer
 export const { resetAllUsers } = allUserSlice.actions;
 export default allUserSlice.reducer;
