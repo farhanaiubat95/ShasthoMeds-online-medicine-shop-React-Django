@@ -542,15 +542,15 @@ export default function AllProducts() {
             <Table sx={{ minWidth: 800 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>SKU</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Buying Price</TableCell>
-                  <TableCell>Selling Price</TableCell>
-                  <TableCell>Stock</TableCell>
-                  <TableCell>Unit</TableCell>
-                  <TableCell>Prescription</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell className="text-center">SKU</TableCell>
+                  <TableCell className="text-center">Name</TableCell>
+                  <TableCell className="text-center">Buying Price</TableCell>
+                  <TableCell className="text-center">Selling Price</TableCell>
+                  <TableCell className="text-center">Stock</TableCell>
+                  <TableCell className="text-center">Unit</TableCell>
+                  <TableCell className="text-center">Prescription</TableCell>
+                  <TableCell className="text-center">Date</TableCell>
+                  <TableCell className="text-center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

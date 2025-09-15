@@ -162,325 +162,331 @@ const AllDoctors = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-        {/* LEFT SIDE: Add/Edit Doctor */}
-        <Card className="shadow-xl rounded-2xl border border-gray-200">
-          <CardContent>
-            <Typography variant="h6" gutterBottom className="font-semibold">
-              {editMode ? "Edit Doctor" : "Add Doctor"}
-            </Typography>
-            {error && (
-              <Alert severity="error" className="mb-4">
-                {error}
-              </Alert>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <TextField
-                fullWidth
-                label="Full Name"
-                name="full_name"
-                value={formData.full_name}
-                onChange={handleChange}
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Specialization"
-                name="specialization"
-                value={formData.specialization}
-                onChange={handleChange}
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                type="number"
-                label="Experience (years)"
-                name="experience_years"
-                value={formData.experience_years}
-                onChange={handleChange}
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                type="number"
-                label="Max Patients per Day"
-                name="max_patients_per_day"
-                value={formData.max_patients_per_day}
-                onChange={handleChange}
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                type="number"
-                label="Consultation Fee"
-                name="consultation_fee"
-                value={formData.consultation_fee}
-                onChange={handleChange}
-                required
-                sx={{ mb: 2 }}
-              />
+      <Box>
+        {/* Summary */}
+        <Box className="flex gap-6 py-2 px-4 bg-gray-100">
+          <Typography>Total Products: {doctorsList.length}</Typography>
+        </Box>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          {/* LEFT SIDE: Add/Edit Doctor */}
+          <Card className="shadow-xl rounded-2xl border border-gray-200">
+            <CardContent>
+              <Typography variant="h6" gutterBottom className="font-semibold">
+                {editMode ? "Edit Doctor" : "Add Doctor"}
+              </Typography>
+              {error && (
+                <Alert severity="error" className="mb-4">
+                  {error}
+                </Alert>
+              )}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <TextField
+                  fullWidth
+                  label="Full Name"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleChange}
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  fullWidth
+                  label="Specialization"
+                  name="specialization"
+                  value={formData.specialization}
+                  onChange={handleChange}
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Experience (years)"
+                  name="experience_years"
+                  value={formData.experience_years}
+                  onChange={handleChange}
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Max Patients per Day"
+                  name="max_patients_per_day"
+                  value={formData.max_patients_per_day}
+                  onChange={handleChange}
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Consultation Fee"
+                  name="consultation_fee"
+                  value={formData.consultation_fee}
+                  onChange={handleChange}
+                  required
+                  sx={{ mb: 2 }}
+                />
 
-              {/* Available Days */}
-              <FormControl fullWidth>
-                <InputLabel>Available Days</InputLabel>
-                <Select
-                  multiple
-                  value={formData.available_days}
-                  onChange={handleDaysChange}
-                  renderValue={(selected) => selected.join(", ")}
+                {/* Available Days */}
+                <FormControl fullWidth>
+                  <InputLabel>Available Days</InputLabel>
+                  <Select
+                    multiple
+                    value={formData.available_days}
+                    onChange={handleDaysChange}
+                    renderValue={(selected) => selected.join(", ")}
+                  >
+                    {[
+                      "Monday",
+                      "Tuesday",
+                      "Wednesday",
+                      "Thursday",
+                      "Friday",
+                      "Saturday",
+                      "Sunday",
+                    ].map((day) => (
+                      <MenuItem key={day} value={day}>
+                        {day}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {/* Available Time */}
+                <div>
+                  <Typography variant="subtitle1" className="mb-2">
+                    Available Time Slots
+                  </Typography>
+                  <div className="flex gap-2 items-center mb-2">
+                    <TimePicker
+                      label="Start Time"
+                      value={startTime}
+                      onChange={(newValue) => setStartTime(newValue)}
+                      sx={{ flex: 1 }}
+                    />
+                    <TimePicker
+                      label="End Time"
+                      value={endTime}
+                      onChange={(newValue) => setEndTime(newValue)}
+                      sx={{ flex: 1 }}
+                    />
+                    <Button variant="outlined" onClick={handleAddTimeSlot}>
+                      Add
+                    </Button>
+                  </div>
+
+                  {/* Show added slots */}
+                  <div className="flex flex-wrap gap-2">
+                    {formData.available_time.map((slot, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+                      >
+                        {slot}
+                        <button
+                          type="button"
+                          className="text-red-500 font-bold ml-1"
+                          onClick={() => handleRemoveTimeSlot(idx)}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  disabled={loading}
                 >
-                  {[
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                    "Sunday",
-                  ].map((day) => (
-                    <MenuItem key={day} value={day}>
-                      {day}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  {editMode ? "Update Doctor" : "Add Doctor"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
 
-              {/* Available Time */}
-              <div>
-                <Typography variant="subtitle1" className="mb-2">
-                  Available Time Slots
-                </Typography>
-                <div className="flex gap-2 items-center mb-2">
-                  <TimePicker
-                    label="Start Time"
-                    value={startTime}
-                    onChange={(newValue) => setStartTime(newValue)}
-                    sx={{ flex: 1 }}
-                  />
-                  <TimePicker
-                    label="End Time"
-                    value={endTime}
-                    onChange={(newValue) => setEndTime(newValue)}
-                    sx={{ flex: 1 }}
-                  />
-                  <Button variant="outlined" onClick={handleAddTimeSlot}>
-                    Add
-                  </Button>
-                </div>
-
-                {/* Show added slots */}
-                <div className="flex flex-wrap gap-2">
-                  {formData.available_time.map((slot, idx) => (
-                    <span
-                      key={idx}
-                      className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm flex items-center gap-1"
-                    >
-                      {slot}
-                      <button
-                        type="button"
-                        className="text-red-500 font-bold ml-1"
-                        onClick={() => handleRemoveTimeSlot(idx)}
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                disabled={loading}
-              >
-                {editMode ? "Update Doctor" : "Add Doctor"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* RIGHT SIDE: Doctor List */}
-        <Card className="shadow-xl rounded-2xl border border-gray-200 overflow-x-auto">
-          <CardContent>
-            <Typography variant="h6" gutterBottom className="font-semibold">
-              Doctors List
-            </Typography>
-            {loading && <p>Loading doctors...</p>}
-            {!loading && doctorsList.length === 0 && (
-              <p className="text-gray-500">No doctors found.</p>
-            )}
-            <div style={{ overflowX: "auto" }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      <strong>Name</strong>
-                    </TableCell>
-                    <TableCell>
-                      <strong>Specialization</strong>
-                    </TableCell>
-                    <TableCell>
-                      <strong>Experience</strong>
-                    </TableCell>
-                    <TableCell>
-                      <strong>Patients/Day</strong>
-                    </TableCell>
-                    <TableCell>
-                      <strong>Fee</strong>
-                    </TableCell>
-                    <TableCell>
-                      <strong>Join Date</strong>
-                    </TableCell>
-                    <TableCell>
-                      <strong>Actions</strong>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {doctorsList.map((doctor) => (
-                    <TableRow key={doctor.id}>
-                      <TableCell
-                        sx={{
-                          maxWidth: 150, // limit width
-                          whiteSpace: "nowrap", // keep text in one line
-                          overflow: "hidden", // hide overflow
-                          textOverflow: "ellipsis", // show ...
-                        }}
-                      >
-                        {doctor.full_name}
-                      </TableCell>
-
-                      <TableCell
-                        sx={{
-                          maxWidth: 120,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {doctor.specialization}
-                      </TableCell>
-
-                      <TableCell
-                        sx={{
-                          maxWidth: 80,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {doctor.experience_years} yrs
-                      </TableCell>
-
-                      <TableCell
-                        sx={{
-                          maxWidth: 100,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {doctor.max_patients_per_day}
-                      </TableCell>
-
-                      <TableCell
-                        sx={{
-                          maxWidth: 100,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {doctor.consultation_fee}
+          {/* RIGHT SIDE: Doctor List */}
+          <Card className="shadow-xl rounded-2xl border border-gray-200 overflow-x-auto">
+            <CardContent>
+              <Typography variant="h6" gutterBottom className="font-semibold">
+                Doctors List
+              </Typography>
+              {loading && <p>Loading doctors...</p>}
+              {!loading && doctorsList.length === 0 && (
+                <p className="text-gray-500">No doctors found.</p>
+              )}
+              <div style={{ overflowX: "auto" }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <strong>Name</strong>
                       </TableCell>
                       <TableCell>
-                        {
-                          new Date(doctor.created_at)
-                            .toISOString()
-                            .split("T")[0]
-                        }
+                        <strong>Specialization</strong>
                       </TableCell>
-                      <TableCell className="flex gap-1">
-                        <IconButton
-                          color="primary"
-                          onClick={() => handleView(doctor)}
-                        >
-                          <Visibility />
-                        </IconButton>
-                        <IconButton
-                          color="secondary"
-                          onClick={() => handleEdit(doctor)}
-                        >
-                          <Edit />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleDelete(doctor.id)}
-                        >
-                          <Delete />
-                        </IconButton>
+                      <TableCell>
+                        <strong>Experience</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Patients/Day</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Fee</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Join Date</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Actions</strong>
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                  </TableHead>
+                  <TableBody>
+                    {doctorsList.map((doctor) => (
+                      <TableRow key={doctor.id}>
+                        <TableCell
+                          sx={{
+                            maxWidth: 150, // limit width
+                            whiteSpace: "nowrap", // keep text in one line
+                            overflow: "hidden", // hide overflow
+                            textOverflow: "ellipsis", // show ...
+                          }}
+                        >
+                          {doctor.full_name}
+                        </TableCell>
 
-        {/* Doctor Details Dialog */}
-        <Dialog
-          open={viewOpen}
-          onClose={() => setViewOpen(false)}
-          maxWidth="sm"
-          fullWidth
-        >
-          <DialogTitle>Doctor Details</DialogTitle>
-          <DialogContent dividers>
-            {selectedDoctor && (
-              <div className="space-y-2">
-                <Typography>
-                  <strong>Name:</strong> {selectedDoctor.full_name}
-                </Typography>
-                <Typography>
-                  <strong>Specialization:</strong>{" "}
-                  {selectedDoctor.specialization}
-                </Typography>
-                <Typography>
-                  <strong>Experience:</strong> {selectedDoctor.experience_years}{" "}
-                  years
-                </Typography>
-                <Typography>
-                  <strong>Max Patients/Day:</strong>{" "}
-                  {selectedDoctor.max_patients_per_day}
-                </Typography>
-                <Typography>
-                  <strong>Fee:</strong> {selectedDoctor.consultation_fee}
-                </Typography>
-                <Typography>
-                  <strong>Available Days:</strong>{" "}
-                  {selectedDoctor.available_days?.join(", ")}
-                </Typography>
-                <Typography>
-                  <strong>Available Time:</strong>{" "}
-                  {selectedDoctor.available_time?.join(", ")}
-                </Typography>
+                        <TableCell
+                          sx={{
+                            maxWidth: 120,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {doctor.specialization}
+                        </TableCell>
+
+                        <TableCell
+                          sx={{
+                            maxWidth: 80,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {doctor.experience_years} yrs
+                        </TableCell>
+
+                        <TableCell
+                          sx={{
+                            maxWidth: 100,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {doctor.max_patients_per_day}
+                        </TableCell>
+
+                        <TableCell
+                          sx={{
+                            maxWidth: 100,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {doctor.consultation_fee}
+                        </TableCell>
+                        <TableCell>
+                          {
+                            new Date(doctor.created_at)
+                              .toISOString()
+                              .split("T")[0]
+                          }
+                        </TableCell>
+                        <TableCell className="flex gap-1">
+                          <IconButton
+                            color="primary"
+                            onClick={() => handleView(doctor)}
+                          >
+                            <Visibility />
+                          </IconButton>
+                          <IconButton
+                            color="secondary"
+                            onClick={() => handleEdit(doctor)}
+                          >
+                            <Edit />
+                          </IconButton>
+                          <IconButton
+                            color="error"
+                            onClick={() => handleDelete(doctor.id)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setViewOpen(false)} color="primary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
+            </CardContent>
+          </Card>
+
+          {/* Doctor Details Dialog */}
+          <Dialog
+            open={viewOpen}
+            onClose={() => setViewOpen(false)}
+            maxWidth="sm"
+            fullWidth
+          >
+            <DialogTitle>Doctor Details</DialogTitle>
+            <DialogContent dividers>
+              {selectedDoctor && (
+                <div className="space-y-2">
+                  <Typography>
+                    <strong>Name:</strong> {selectedDoctor.full_name}
+                  </Typography>
+                  <Typography>
+                    <strong>Specialization:</strong>{" "}
+                    {selectedDoctor.specialization}
+                  </Typography>
+                  <Typography>
+                    <strong>Experience:</strong>{" "}
+                    {selectedDoctor.experience_years} years
+                  </Typography>
+                  <Typography>
+                    <strong>Max Patients/Day:</strong>{" "}
+                    {selectedDoctor.max_patients_per_day}
+                  </Typography>
+                  <Typography>
+                    <strong>Fee:</strong> {selectedDoctor.consultation_fee}
+                  </Typography>
+                  <Typography>
+                    <strong>Available Days:</strong>{" "}
+                    {selectedDoctor.available_days?.join(", ")}
+                  </Typography>
+                  <Typography>
+                    <strong>Available Time:</strong>{" "}
+                    {selectedDoctor.available_time?.join(", ")}
+                  </Typography>
+                </div>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setViewOpen(false)} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+      </Box>
     </LocalizationProvider>
   );
 };

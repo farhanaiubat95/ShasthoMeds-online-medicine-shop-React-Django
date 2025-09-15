@@ -12,10 +12,13 @@ import {
   Cell,
 } from "recharts";
 import useMonthlyReports from "../../redux/useMonthlyReports.js";
+import { useSelector } from "react-redux";
 
 const Main = () => {
   const token = localStorage.getItem("access_token");
   const { reports, loading, error } = useMonthlyReports(token);
+  const { users } = useSelector((state) => state.allusers);
+  const totalUsers = users ? users.length : 0;
 
   // --- Data Processing ---
   // If data is loading or there's an error, these will be default values.
@@ -69,7 +72,6 @@ const Main = () => {
     percentage: ((quantity / totalProductsSold) * 100).toFixed(1),
   }));
 
-  const totalUser = 10;
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
   // --- Conditional Rendering ---
@@ -96,7 +98,7 @@ const Main = () => {
             Total Users
           </p>
           <h3 className="text-4xl font-bold text-purple-900 mt-3">
-            {totalUser}
+            {totalUsers}
           </h3>
         </div>
         <div className="bg-blue-100 rounded-sm shadow-lg p-6">
