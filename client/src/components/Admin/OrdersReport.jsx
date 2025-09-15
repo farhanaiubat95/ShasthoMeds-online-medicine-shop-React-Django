@@ -19,7 +19,7 @@ import dayjs from "dayjs";
 
 const OrdersReport = () => {
   const [allData, setAllData] = useState([]);
-  const [filter, setFilter] = useState("daily");
+  const [filter, setFilter] = useState("all");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
@@ -45,9 +45,18 @@ const OrdersReport = () => {
     let start, end;
     const today = dayjs();
 
+    if (filter === "all") {
+      // Show everything
+      setFilteredData(
+        [...allData].sort((a, b) => new Date(b.date) - new Date(a.date))
+      );
+      return;
+    }
+
     switch (filter) {
       case "daily":
-        start = end = today;
+        start = today.startOf("day");
+        end = today.endOf("day");
         break;
       case "weekly":
         start = today.startOf("week");
@@ -63,15 +72,16 @@ const OrdersReport = () => {
         break;
       case "custom":
         if (startDate && endDate) {
-          start = startDate;
-          end = endDate;
+          start = startDate.startOf("day");
+          end = endDate.endOf("day");
         } else {
           setFilteredData([]);
           return;
         }
         break;
       default:
-        start = end = today;
+        setFilteredData(allData);
+        return;
     }
 
     const filtered = allData.filter((item) => {
@@ -83,7 +93,10 @@ const OrdersReport = () => {
       );
     });
 
-    setFilteredData(filtered);
+    // Sort by recent first
+    setFilteredData(
+      [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date))
+    );
   }, [allData, filter, startDate, endDate]);
 
   // Export CSV
@@ -111,7 +124,7 @@ const OrdersReport = () => {
       </Typography>
 
       <Box mb={2} display="flex" gap={1} flexWrap="wrap">
-        {["daily", "weekly", "monthly", "yearly", "custom"].map((f) => (
+        {["all", "daily", "weekly", "monthly", "yearly", "custom"].map((f) => (
           <Button
             key={f}
             variant={filter === f ? "contained" : "outlined"}
@@ -149,6 +162,7 @@ const OrdersReport = () => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>No</TableCell>
               <TableCell>Date</TableCell>
               <TableCell>Product</TableCell>
               <TableCell>Quantity Sold</TableCell>
@@ -159,17 +173,26 @@ const OrdersReport = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredData.map((row, i) => (
-              <TableRow key={i}>
-                <TableCell>{row.date}</TableCell>
-                <TableCell>{row.product}</TableCell>
-                <TableCell>{row.quantity_sold}</TableCell>
-                <TableCell>{row.income}</TableCell>
-                <TableCell>{row.actual_cost}</TableCell>
-                <TableCell>{row.profit}</TableCell>
-                <TableCell>{row.stock_remaining}</TableCell>
+            {filteredData.length > 0 ? (
+              filteredData.map((row, i) => (
+                <TableRow key={i}>
+                  <TableCell>{i + 1}</TableCell>
+                  <TableCell>{dayjs(row.date).format("YYYY-MM-DD")}</TableCell>
+                  <TableCell>{row.product}</TableCell>
+                  <TableCell>{row.quantity_sold}</TableCell>
+                  <TableCell>{row.income}</TableCell>
+                  <TableCell>{row.actual_cost}</TableCell>
+                  <TableCell>{row.profit}</TableCell>
+                  <TableCell>{row.stock_remaining}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} align="center">
+                  No selling
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </TableContainer>
