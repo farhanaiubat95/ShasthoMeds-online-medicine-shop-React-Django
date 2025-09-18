@@ -406,7 +406,6 @@ class OrderItem(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2)             # unit price snapshot
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)          # quantity * price
 
-
 # Monthly Report
 class MonthlyReport(models.Model):
     month = models.DateField(unique=True)   # first day of month

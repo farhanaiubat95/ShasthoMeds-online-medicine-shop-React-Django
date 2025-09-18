@@ -125,7 +125,7 @@ const AllReports = () => {
 
   return (
     <div className="p-6 bg-gray-50 text-black min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Sales Reports</h1>
+      <h1 className="text-3xl font-bold mb-6">Monthly Sales Summary</h1>
 
       {/* Search & Download Section */}
       <div className="bg-white rounded-xl shadow p-4 mb-6 flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">

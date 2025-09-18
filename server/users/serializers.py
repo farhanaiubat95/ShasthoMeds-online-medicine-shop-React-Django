@@ -332,7 +332,6 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
     
-    
 # Serializer for Order
 class OrderItemSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField()
@@ -403,7 +402,6 @@ class DoctorSerializer(serializers.ModelSerializer):
                 if slots:
                     availability[str(day)] = slots
         return availability
-
 
 # Serializer for Appointment
 class AppointmentSerializer(serializers.ModelSerializer):

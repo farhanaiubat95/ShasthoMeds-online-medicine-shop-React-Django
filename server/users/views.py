@@ -161,7 +161,6 @@ class UserListView(generics.ListAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [IsAdminUser]   # only admins can access
 
-
 # View to logout
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -408,7 +407,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         else:
             return Response({"error": "Invalid payment method"}, status=status.HTTP_400_BAD_REQUEST)
-
 
 # List all monthly reports
 class MonthlyReportListView(generics.ListAPIView):
