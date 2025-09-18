@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Download, Search } from "@mui/icons-material";
 import useMonthlyReports from "../../redux/useMonthlyReports.js";
-
+import Typography from "@mui/material/Typography";
 const AllReports = () => {
   const token = localStorage.getItem("access_token");
   const { reports, loading, error } = useMonthlyReports(token);
