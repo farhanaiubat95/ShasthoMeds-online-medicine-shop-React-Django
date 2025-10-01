@@ -44,8 +44,6 @@ function Registerpage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Form Data Submitted:", formData);
-
     // Password match check
     if (formData.password !== formData.password2) {
       toast.error("Passwords do not match!");
@@ -58,6 +56,8 @@ function Registerpage() {
       toast.error("Phone number must be exactly 11 digits.");
       return;
     }
+
+    console.log("Form Data Submitted:", formData);
 
     const userData = {
       full_name: formData.full_name,
@@ -80,6 +80,7 @@ function Registerpage() {
           headers: {
             "Content-Type": "application/json",
           },
+          withCredentials: true,
         },
       );
 
