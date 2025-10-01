@@ -52,8 +52,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -127,7 +127,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://shasthomeds-online.onrender.com",
     'https://shasthomeds-backend.onrender.com',
 ]
-CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_CREDENTIALS = True
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
