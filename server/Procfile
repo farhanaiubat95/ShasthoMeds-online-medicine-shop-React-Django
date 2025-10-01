@@ -1,3 +1,2 @@
-
-web: gunicorn shasthomeds.wsgi:application --workers=2 --threads=2 --timeout=120
+gunicorn shasthomeds_backend.wsgi:application --workers 1 --threads 2 --timeout 120
 
