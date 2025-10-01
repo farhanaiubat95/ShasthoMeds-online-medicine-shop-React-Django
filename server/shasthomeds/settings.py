@@ -124,7 +124,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS & CSRF
 # -------------------------
 CORS_ALLOWED_ORIGINS = [
-    'https://shasthomeds-online.onrender.com',
+    "https://shasthomeds-online.onrender.com",
     'https://shasthomeds-backend.onrender.com',
 ]
 CORS_ALLOW_CREDENTIALS = True
