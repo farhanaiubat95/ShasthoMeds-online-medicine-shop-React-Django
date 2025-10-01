@@ -80,7 +80,6 @@ function Registerpage() {
           headers: {
             "Content-Type": "application/json",
           },
-          withCredentials: true,
         },
       );
 
@@ -89,7 +88,7 @@ function Registerpage() {
 
       // Store email for OTP verification
       localStorage.setItem("otp_email", formData.email);
-      setTimeout(() => navigate("/verify-otp"));
+      setTimeout(() => navigate("/verify-otp",500));
 
       return response.data;
     } catch (error) {
