@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security
 # -------------------------
 # DEBUG = config('DEBUG', default=False, cast=bool)
-DEBUG = True
+DEBUG = False
 SECRET_KEY = config("SECRET_KEY")
 ALLOWED_HOSTS = [
     'shasthomeds-backend.onrender.com',

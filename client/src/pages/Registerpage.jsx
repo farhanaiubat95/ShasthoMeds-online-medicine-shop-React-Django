@@ -89,18 +89,18 @@ function Registerpage() {
 
       // Store email for OTP verification
       localStorage.setItem("otp_email", formData.email);
-      setTimeout(() => navigate("/verify-otp",500));
+      setTimeout(() => navigate("/verify-otp", 500));
 
       return response.data;
     } catch (error) {
-      console.error("Registration error:", error);
+      if (error.response) {
+        console.log("Registration error:", error.response.data); // <-- Django error
+        alert(JSON.stringify(error.response.data)); // show in browser
+      } else {
+        console.log("Error:", error.message);
+        toast.error(error.message);
+      }
 
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.detail ||
-        error.message ||
-        "Registration failed. Please check your input.";
-      toast.error(message);
       setTimeout(() => navigate("/register"));
       throw error;
     }

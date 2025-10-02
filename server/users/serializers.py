@@ -73,7 +73,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 fail_silently=False
             )
         except Exception as e:
-            raise serializers.ValidationError(f"Failed to send OTP: {str(e)}")
+            print("EMAIL ERROR:", str(e))  # Print error in Render logs
+            raise serializers.ValidationError({"email": f"Failed to send OTP: {str(e)}"})
 
         return user
 
