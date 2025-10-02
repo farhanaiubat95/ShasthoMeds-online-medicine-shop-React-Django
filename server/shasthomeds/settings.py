@@ -14,6 +14,7 @@ DEBUG = False
 SECRET_KEY = config("SECRET_KEY")
 ALLOWED_HOSTS = [
     'shasthomeds-backend.onrender.com',
+    'shasthomeds-online.onrender.com',
     'localhost',
     '127.0.0.1',
 ]
@@ -32,6 +33,7 @@ SSL_CANCEL_URL = "https://shasthomeds-online.onrender.com/payment-cancel"
 # Applications
 # -------------------------
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,7 +43,6 @@ INSTALLED_APPS = [
 
     # Third-party
     'rest_framework',
-    'corsheaders',
     'rest_framework_simplejwt.token_blacklist',
     'cloudinary_storage',
     'cloudinary',
@@ -51,9 +52,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -125,9 +126,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # -------------------------
 CORS_ALLOWED_ORIGINS = [
     "https://shasthomeds-online.onrender.com",
-    'https://shasthomeds-backend.onrender.com',
 ]
+
 CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://shasthomeds-online.onrender.com",
+    "https://shasthomeds-backend.onrender.com",
+]
+
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
