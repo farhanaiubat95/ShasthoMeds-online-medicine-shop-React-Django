@@ -524,7 +524,7 @@ def test_email(request):
         send_mail(
             "ShasthoMeds Test Email",
             "This is a test email from Render backend.",
-            "farhanasha0113@gmail.com",   # From email
+            EMAIL_HOST_USER,   # From email
             ["farhanasha0111@gmail.com"], # To email
             fail_silently=False,
         )
