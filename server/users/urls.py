@@ -50,7 +50,7 @@ urlpatterns = [
     
     path("orders-report-items/", orders_report_items, name="orders-report-items"),
 
-     path("test-email/", test_email, name="test-email"),
+    path("test-email/", test_email, name="test_email"),
      
     # Include router URLs
     path('', include(router.urls)),  # Corrected path and added namespace
