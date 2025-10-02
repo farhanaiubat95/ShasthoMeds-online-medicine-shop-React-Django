@@ -515,18 +515,21 @@ def orders_report_items(request):
     return Response(report_data)
 
 
-from django.core.mail import send_mail
 from django.http import JsonResponse
+from django.core.mail import send_mail
+import traceback
 
 def test_email(request):
     try:
         send_mail(
             "ShasthoMeds Test Email",
             "This is a test email from Render backend.",
-            "farhanasha0113@gmail.com",   # from
-            ["farhanasha0111@gmail.com"],  # to
+            "farhanasha0113@gmail.com",   # From email
+            ["farhanasha0111@gmail.com"], # To email
             fail_silently=False,
         )
         return JsonResponse({"status": "success", "message": "Email sent!"})
     except Exception as e:
+        error_message = traceback.format_exc()
+        print(error_message)  # Will appear in Render logs
         return JsonResponse({"status": "error", "message": str(e)})
