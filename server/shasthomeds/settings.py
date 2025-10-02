@@ -143,7 +143,7 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 
 # -------------------------
 # Email
-# -------------------------
+# ------------------------
 
 EMAIL_BACKEND = config('EMAIL_BACKEND')
 EMAIL_HOST = config('EMAIL_HOST')
