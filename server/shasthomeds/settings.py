@@ -127,7 +127,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://shasthomeds-online.onrender.com",
     'https://shasthomeds-backend.onrender.com',
 ]
-# CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
