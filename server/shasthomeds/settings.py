@@ -128,7 +128,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://shasthomeds-online.onrender.com",
 ]
 
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = False
 
 CSRF_TRUSTED_ORIGINS = [
     "https://shasthomeds-online.onrender.com",
