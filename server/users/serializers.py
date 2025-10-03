@@ -286,30 +286,30 @@ class PrescriptionRequestSerializer(serializers.ModelSerializer):
         prescription = super().create(validated_data)
 
         # --- Send email to admin when a new request is submitted ---
-        admin_email = EMAIL_HOST_USER
+        # admin_email = EMAIL_HOST_USER
 
-        product_lines = [
-            "Product Name | SKU | Quantity",
-            "-----------------------------"
-        ]
-        product = prescription.product
-        product_lines.append(f"{product.name} | {product.sku} | 1")
+        # product_lines = [
+        #     "Product Name | SKU | Quantity",
+        #     "-----------------------------"
+        # ]
+        # product = prescription.product
+        # product_lines.append(f"{product.name} | {product.sku} | 1")
 
-        product_table = "\n".join(product_lines)
-        try:
-            send_mail(
-                subject=f"New Prescription Request #{prescription.id}",
-                message=(
-                    f"User {user.username} has uploaded a new prescription.\n\n"
-                    f"Products:\n{product_table}\n\n"
-                    f"Please review it in the admin panel."
-                ),
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[admin_email],
-                fail_silently=False
-            )
-        except Exception as e:
-            print("Failed to send admin email:", str(e))
+        # product_table = "\n".join(product_lines)
+        # try:
+        #     send_mail(
+        #         subject=f"New Prescription Request #{prescription.id}",
+        #         message=(
+        #             f"User {user.username} has uploaded a new prescription.\n\n"
+        #             f"Products:\n{product_table}\n\n"
+        #             f"Please review it in the admin panel."
+        #         ),
+        #         from_email=EMAIL_HOST_USER,
+        #         recipient_list=[admin_email],
+        #         fail_silently=False
+        #     )
+        # except Exception as e:
+        #     print("Failed to send admin email:", str(e))
 
         return prescription
 
