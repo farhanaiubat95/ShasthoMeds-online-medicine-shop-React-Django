@@ -515,20 +515,3 @@ def orders_report_items(request):
     return Response(report_data)
 
 
-from django.core.mail import send_mail
-from django.conf import settings
-from django.http import HttpResponse
-
-def test_email(request):
-    try:
-        send_mail(
-            subject="Test Email from ShasthoMeds",
-            message="Hello! This is a test email from the server.",
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=["farhanasha0111@gmail.com"],  # Replace with your email
-            fail_silently=False,
-        )
-        return HttpResponse("Email sent successfully!")
-    except Exception as e:
-        return HttpResponse(f"Email failed: {e}")
-
