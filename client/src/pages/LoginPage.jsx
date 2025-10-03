@@ -36,8 +36,7 @@ function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setShowResendOTP(false);
-    setLoading(true); // Start loading
+    setLoading(true);
 
     try {
       const res = await axios.post(
@@ -47,23 +46,18 @@ function LoginPage() {
 
       const { access, refresh, user } = res.data;
 
-      // Save to localStorage
-      // Save to localStorage with consistent keys
+      // Save tokens and user info
       localStorage.setItem("access_token", access);
       localStorage.setItem("refresh_token", refresh);
-
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("user_role", user.role);
 
-      // Dispatch to Redux store
       dispatch(
         setUserData({ user, access_token: access, refresh_token: refresh }),
       );
 
-      // Navigate based on user role
-      if (user.role === "admin") {
-        navigate("/");
-      } else if (user.role === "user") {
+      // Navigate to home or dashboard
+      if (user.role === "admin" || user.role === "user") {
         navigate("/");
       } else {
         navigate("/login");
@@ -78,39 +72,8 @@ function LoginPage() {
       console.error("Login error:", error);
       const errorMsg = error?.response?.data?.detail || "Invalid credentials.";
       setSnackbar({ open: true, message: errorMsg, severity: "error" });
-
-      if (errorMsg.toLowerCase().includes("not verified")) {
-        setShowResendOTP(true);
-      }
     } finally {
-      setLoading(false); // Stop loading in both success & error cases
-    }
-  };
-
-  const handleResendOTP = async () => {
-    if (!email) {
-      setSnackbar({
-        open: true,
-        message: "Please enter your email first.",
-        severity: "warning",
-      });
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        "https://shasthomeds-backend.onrender.com/resend-otp/",
-        { email },
-      );
-
-      setSnackbar({
-        open: true,
-        message: response.data.message || "OTP sent!",
-        severity: "success",
-      });
-    } catch (error) {
-      const errMsg = error?.response?.data?.detail || "Failed to resend OTP.";
-      setSnackbar({ open: true, message: errMsg, severity: "error" });
+      setLoading(false);
     }
   };
 
