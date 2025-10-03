@@ -78,13 +78,13 @@ def payment_success(request):
         
 
         # send confirmation email
-        send_mail(
-            subject=f"Payment Received - Order #{order.id}",
-            message=f"Dear {order.name},\n\nWe have received your payment.\n\nThank you!"
-                f"\n\nTransaction ID: {tran_id}",
-            from_email=EMAIL_HOST_USER,
-            recipient_list=[order.email],
-        )
+        # send_mail(
+        #     subject=f"Payment Received - Order #{order.id}",
+        #     message=f"Dear {order.name},\n\nWe have received your payment.\n\nThank you!"
+        #         f"\n\nTransaction ID: {tran_id}",
+        #     from_email=EMAIL_HOST_USER,
+        #     recipient_list=[order.email],
+        # )
 
         return redirect(f"https://shasthomeds-online.onrender.com/payment-success?tran_id={tran_id}")
     
