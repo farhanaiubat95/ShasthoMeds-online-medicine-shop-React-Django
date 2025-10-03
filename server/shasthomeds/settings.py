@@ -141,9 +141,6 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
 
-# -------------------------
-# Email
-# ------------------------
 
 # -------------------------
 # Email
@@ -216,14 +213,31 @@ X_FRAME_OPTIONS = 'DENY'
 # -------------------------
 # Logging
 # -------------------------
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {'class': 'logging.StreamHandler'},
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'ERROR',
+#             'propagate': True,
+#         },
+#     },
+# }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'console': {'class': 'logging.StreamHandler'},
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
     },
     'loggers': {
-        'django': {
+        '': {
             'handlers': ['console'],
             'level': 'ERROR',
             'propagate': True,
