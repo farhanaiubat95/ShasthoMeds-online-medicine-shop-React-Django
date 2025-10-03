@@ -52,8 +52,9 @@ function AllNotification() {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom>
-        Prescription Requests ({items.results.length})
+        Prescription Requests ({items?.results?.length || 0})
       </Typography>
+
       <Table sx={{ border: "1px solid #ddd" }}>
         <TableHead sx={{ backgroundColor: "#9fced8" }}>
           <TableRow>
