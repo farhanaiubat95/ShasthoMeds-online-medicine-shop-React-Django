@@ -58,23 +58,23 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             address=validated_data['address'],
             password=validated_data['password'],
             role=role,
-            is_verified=False,
-            is_active=False,
+            is_verified=True,
+            is_active=True,
         )
 
-        EmailOTP.objects.create(user=user, otp_code=otp)
+        # EmailOTP.objects.create(user=user, otp_code=otp)
 
-        try:
-            send_mail(
-                subject='Your OTP Code from ShasthoMeds',
-                message=f"Hello {user.username},\n\nThank you for registering with ShasthoMeds.\n\nYour OTP code is: {otp}.",
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[user.email],
-                fail_silently=False
-            )
-        except Exception as e:
-            print("EMAIL ERROR:", str(e))  # Print error in Render logs
-            raise serializers.ValidationError({"email": f"Failed to send OTP: {str(e)}"})
+        # try:
+        #     send_mail(
+        #         subject='Your OTP Code from ShasthoMeds',
+        #         message=f"Hello {user.username},\n\nThank you for registering with ShasthoMeds.\n\nYour OTP code is: {otp}.",
+        #         from_email=EMAIL_HOST_USER,
+        #         recipient_list=[user.email],
+        #         fail_silently=False
+        #     )
+        # except Exception as e:
+        #     print("EMAIL ERROR:", str(e))  # Print error in Render logs
+        #     raise serializers.ValidationError({"email": f"Failed to send OTP: {str(e)}"})
 
         return user
 
@@ -84,8 +84,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
 
-        if not self.user.is_verified:
-            raise serializers.ValidationError("Please verify your email via OTP before logging in.")
+        # if not self.user.is_verified:
+        #     raise serializers.ValidationError("Please verify your email via OTP before logging in.")
 
         # Add user details to the token response (limit sensitive data)
         data.update({

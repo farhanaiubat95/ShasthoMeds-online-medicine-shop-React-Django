@@ -84,11 +84,14 @@ function Registerpage() {
       );
 
       console.log("Response Data:", response.data);
-      toast.success("Registration successful!");
+      toast.success("Registration successful! Please login.");
 
-      // Store email for OTP verification
-      localStorage.setItem("otp_email", formData.email);
-      setTimeout(() => navigate("/verify-otp"), 500);
+      // Redirect directly to login page
+      setTimeout(() => navigate("/login"), 1000);
+
+      // // Store email for OTP verification
+      // localStorage.setItem("otp_email", formData.email);
+      // setTimeout(() => navigate("/verify-otp"), 500);
 
       return response.data;
     } catch (error) {
