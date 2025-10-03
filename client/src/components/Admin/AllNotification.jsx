@@ -67,7 +67,7 @@ function AllNotification() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {items?.results && items.results.length > 0 ? (
+          {items?.results && items?.results?.length > 0 ? (
             items.results.map((p) => (
               <TableRow key={p.id} sx={{ backgroundColor: "#8cc5a142" }}>
                 <TableCell sx={{ textAlign: "center" }}>{p.id}</TableCell>
