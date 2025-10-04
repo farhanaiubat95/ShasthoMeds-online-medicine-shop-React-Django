@@ -1,6 +1,8 @@
-import { styled, alpha } from "@mui/material/styles";
-import { InputBase } from "@mui/material";
+import { useState, useEffect } from "react";
+import { styled } from "@mui/material/styles";
+import { InputBase, Box, List, ListItem, ListItemButton, ListItemText, Paper } from "@mui/material";
 import { Search } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 const SearchBox = styled("div")(({ theme }) => ({
   position: "relative",
@@ -28,19 +30,71 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   paddingTop: "5px",
 }));
 
-const SearchBar = () => {
+const SearchBar = ({ products, onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (onSearch) {
+      const filtered = products.filter(
+        (p) =>
+          p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (p.generic_name &&
+            p.generic_name.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      setFilteredProducts(filtered);
+      onSearch(filtered);
+    }
+  }, [searchTerm, products, onSearch]);
+
+  const handleClick = (productId) => {
+    navigate(`/productdetails/${productId}`);
+  };
+
   return (
-    <div>
-      <SearchBox sx={{height:{xs:"35px",sm:"40px", md:"40px", lg:"45px"}}}>
+    <Box sx={{ position: "relative" }}>
+      <SearchBox sx={{ height: { xs: "35px", sm: "40px", md: "40px", lg: "45px" } }}>
         <SearchIconWrapper>
           <Search />
         </SearchIconWrapper>
         <StyledInputBase
-          placeholder="Search all products…"
+          placeholder="Search by product name or generic name…"
           inputProps={{ "aria-label": "search" }}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </SearchBox>
-    </div>
+
+      {/* Dropdown list of filtered products */}
+      {searchTerm && filteredProducts.length > 0 && (
+        <Paper
+          sx={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            zIndex: 10,
+            maxHeight: 300,
+            overflowY: "auto",
+            mt: 0.5,
+          }}
+        >
+          <List>
+            {filteredProducts.map((p) => (
+              <ListItem key={p.id} disablePadding>
+                <ListItemButton onClick={() => handleClick(p.id)}>
+                  <ListItemText
+                    primary={p.name}
+                    secondary={p.generic_name ? `(${p.generic_name})` : null}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
+      )}
+    </Box>
   );
 };
 
