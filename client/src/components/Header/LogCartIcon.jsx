@@ -86,7 +86,7 @@ const LogCartIcon = () => {
                 <Typography
                   variant="body1"
                   sx={{
-                    color: "#08CB00",
+                    color: "#63A361",
                     marginLeft: "10px",
                     fontSize: { xs: "12px", lg: "16px" },
                     whiteSpace: "nowrap",
