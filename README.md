@@ -45,5 +45,5 @@
     -Admin processes the order and marks it as shipped/delivered (future step).
 
 -> Landing Page
- ![img alt](https://github.com/farhanaiubat95/ShasthoMeds-online-medicine-shop-React-Django/blob/e98fb9f59d16e68c3ece90d689f3faba963862c6/Shasthomeds-landing%20page.png)
+ ![img alt](https://github.com/farhanaiubat95/ShasthoMeds-online-medicine-shop-React-Django/blob/c7c1f2be505e4b12c06cfc77ae2a2737c9707e36/Shasthomeds_landing_page.png)
 
